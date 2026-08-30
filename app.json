@@ -39,6 +39,13 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.sumnora.gora.v2"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "80c7c42a-07ab-44c5-933d-b77fb00c9637"
+      }
+    },
+    "owner": "sumnora"
   }
 }

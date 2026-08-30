@@ -90,10 +90,19 @@ export default function RootLayout() {
               alerts; the toaster only ever tells you what just happened. */}
           <Toaster
             position="bottom-center"
-            offset={96}
+            // Clear of whatever sits at the bottom of the screen. The tab bar
+            // tops out around 103dp and a footer CTA around 110dp, so 120 keeps
+            // the toast above both rather than landing on the very button the
+            // toast is reporting on.
+            offset={120}
             duration={2600}
             gap={8}
             visibleToasts={2}
+            // Inset on the positioner, not a margin on the toast. The positioner
+            // is `width: 100%` and the toast fills it, so a margin only shifts
+            // the toast and overflows the far edge; padding narrows the box both
+            // sides and keeps the notice off the screen edges.
+            positionerStyle={{ paddingHorizontal: 16 }}
             icons={{ info: <></>, success: <></>, error: <></>, warning: <></>, loading: <></> }}
             toastOptions={{
               style: { backgroundColor: C.night, borderRadius: 4, borderWidth: 0, paddingVertical: 12, paddingHorizontal: 16 },
