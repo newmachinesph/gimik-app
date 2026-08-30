@@ -1,9 +1,67 @@
-:root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+@import "../tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Web only, and load-bearing. React Native Web's root container sizes to its
+   content by default, so nothing above a `flex: 1` ScrollView ever bounds it — the
+   ScrollView grows to its full content height and stops being a scroller at all.
+   The symptom is a page that renders correctly but simply will not scroll.
+   Pinning the root chain to the viewport is what makes flex:1 mean "fill the
+   screen" rather than "fill the content". No effect on iOS or Android. */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow-x: clip;
+  overflow-y: hidden;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: Geist_400Regular, sans-serif;
+}
+body > div,
+#root {
+  height: 100%;
+}
+
+.gora-pressable {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+.gora-pressable:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Button, chip, and field primitives draw their own non-animating ring on the
+   fixed-size outer wrapper, so the browser ring would duplicate it. */
+.gora-control:focus-visible {
+  outline: none;
+}
+
+.gora-control[aria-disabled='true'],
+.gora-control:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: color-mix(in oklch, var(--color-sky) 30%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 150ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 150ms !important;
+  }
 }

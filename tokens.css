@@ -1,0 +1,62 @@
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
+/* Hallmark · macrostructure: Workbench · theme: studied-DNA (source: local getgoraapp) · genre: playful-editorial
+ * paper: oklch(97.73% 0.0102 81.80) · accent: oklch(68.49% 0.2084 37.57)
+ * display/body: Geist · state voice: Instrument Serif + Geist Mono
+ * contrast: pass (40–41) · mobile: pass (34, 49–57) · slop: pass (1–58)
+ */
+
+:root {
+  --color-paper: oklch(97.73% 0.0102 81.8);
+  --color-paper-sunk: oklch(94.78% 0.016 82.79);
+  --color-ink: oklch(18.88% 0.0093 75.06);
+  --color-ink-muted: oklch(50.18% 0.0181 67.4);
+  --color-orange: oklch(68.49% 0.2084 37.57);
+  --color-orange-deep: oklch(55.57% 0.1812 36.86);
+  --color-primary: var(--color-orange-deep);
+  --color-primary-ink: var(--color-paper);
+  --color-sky: oklch(73.61% 0.14 235.63);
+  --color-sky-deep: oklch(51.96% 0.1211 242.4);
+  --color-night: oklch(19.2% 0.0269 251.6);
+  --color-rule: oklch(18.88% 0.0093 75.06 / 0.14);
+  --color-rule-invert: oklch(97.73% 0.0102 81.8 / 0.16);
+  --color-focus: oklch(51.96% 0.1211 242.4);
+  --color-success: oklch(50.64% 0.0832 164.93);
+  --color-danger: oklch(50.75% 0.1444 31.48);
+  --color-accent: var(--color-orange);
+  --color-accent-ink: var(--color-ink);
+
+  --font-display: 'Geist_700Bold', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Geist_400Regular', ui-sans-serif, system-ui, sans-serif;
+  --font-label: 'GeistMono_500Medium', ui-monospace, monospace;
+  --font-someday: 'InstrumentSerif_400Regular_Italic', ui-serif, serif;
+
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 1rem;
+  --text-md: 1.1875rem;
+  --text-lg: 1.75rem;
+  --text-display: 2.25rem;
+
+  --radius-input: 1.125rem;
+  --radius-button: 1.125rem;
+  --radius-card: 1.25rem;
+  --radius-photo: 1.5rem;
+  --radius-tab: 1.625rem;
+  --radius-pill: 999px;
+  --rule-hairline: 1px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+}

@@ -41,3 +41,9 @@ example
 # generated native folders
 /ios
 /android
+
+# Secrets - EXPO_PUBLIC_* values are embedded in the built app, so this file is
+# for local wiring only and must never be committed.
+.env
+.env.*
+!.env.example

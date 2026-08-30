@@ -1,0 +1,39 @@
+# Everything the project can check about itself without a device or a server.
+#
+# The unit tests deliberately touch no network: the store's AsyncStorage is
+# aliased to an in-memory stub and every API module is mocked, so this runs the
+# same on a laptop and on a runner.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Ordered cheapest-first, so a broken type surfaces before the test run.
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx expo lint
+
+      - name: Unit tests
+        run: npm test
+
+      # A missing key renders its own name on screen rather than failing, which
+      # no other check would catch.
+      - name: Every i18n key resolves
+        run: node scripts/check-i18n.cjs verify
