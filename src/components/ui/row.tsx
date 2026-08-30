@@ -149,13 +149,25 @@ export function NavRow({
 }
 
 /**
- * A small filled pill that commits to something — "Ask", mostly. Not a Button:
- * it lives inside a row, so it may not claim the 52px height a Button does.
+ * A small pill that commits to something — "Ask", mostly. Not a Button: it
+ * lives inside a row, so it may not claim the 52px height a Button does.
+ *
+ * `quiet` is the default because these sit in rows that already have an
+ * avatar. A filled dark pill beside a filled dark avatar read as a second
+ * avatar rather than a control, and a column of them buried the screen's
+ * actual primary action. Reserve `night` for a pill that is the only thing to
+ * do on its row.
+ *
+ * The geometry is set here rather than left to padding. A one-word label like
+ * "Ask" is too short to shape a pill on its own: with symmetric padding it
+ * comes out roughly as wide as it is tall and reads as a blob. Forcing a
+ * minimum 2:1 keeps it unmistakably a pill however short the word, and
+ * hitSlop makes up the touch target the reduced height gives away.
  */
 export function PillButton({
   label,
   onPress,
-  tone = 'night',
+  tone = 'quiet',
   accessibilityLabel,
 }: {
   label: string;
@@ -169,7 +181,17 @@ export function PillButton({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       onPress={onPress}
-      className={`shrink-0 rounded-full px-4 py-2 active:opacity-80 ${night ? 'bg-brand-night' : 'border border-brand-rule bg-brand-paper-sunk'}`}
+      // The pill is deliberately shorter than a Button, so the touch target is
+      // made up with hitSlop instead: 36 + 6 either side clears 44.
+      hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
+      style={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 76,
+        height: 36,
+        paddingHorizontal: 16,
+      }}
+      className={`shrink-0 rounded-full active:opacity-80 ${night ? 'bg-brand-night' : 'border border-brand-rule bg-brand-paper-sunk'}`}
     >
       <Txt variant="caption" className={night ? 'text-brand-paper' : 'text-brand-ink'}>{label}</Txt>
     </FocusablePressable>
