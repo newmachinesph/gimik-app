@@ -1,12 +1,17 @@
+import { hasApi } from '@/lib/api/client';
+import { places as placesApi } from '@/lib/api/endpoints';
+
 /**
- * Place search for the demo: LocationIQ autocomplete over OpenStreetMap,
- * Philippines only. A someday like "eat at a 5-star restaurant" becomes a plan
- * at THE restaurant - The Peninsula, Toyo Eatery - not a category.
+ * Place search, served by gora-backend-v2.
  *
- * The key is a free-tier dev key riding in EXPO_PUBLIC_* for the demo. When
- * the API arrives, the app calls /places/search on gora-backend-v2 instead:
- * same result shape, server-side key, and every pick cached into the backend's
- * own places table so repeat searches never leave the house.
+ * A someday like "eat at a 5-star restaurant" becomes a plan at THE restaurant
+ * - The Peninsula, Toyo Eatery - not a category.
+ *
+ * The app used to call LocationIQ directly with a key shipped in EXPO_PUBLIC_*,
+ * which meant the key was extractable from any build. It now calls
+ * `/places/search`, where the key lives server-side and every answer is cached
+ * into the backend's own places table - so a place anyone has already picked
+ * costs no provider request at all.
  */
 
 export type PlacePick = {
@@ -18,45 +23,33 @@ export type PlacePick = {
   lon: number;
 };
 
-const KEY = process.env.EXPO_PUBLIC_LOCATIONIQ_KEY;
 const cache = new Map<string, PlacePick[]>();
-
-function areaOf(address: Record<string, string | undefined>, displayAddress: string): string {
-  const bits = [address.road, address.neighbourhood ?? address.suburb, address.city ?? address.state];
-  const area = bits.filter(Boolean).slice(0, 2).join(', ');
-  return area || displayAddress.split(',').slice(0, 2).join(',').trim();
-}
 
 export async function searchPlaces(query: string): Promise<PlacePick[]> {
   const q = query.trim();
-  if (q.length < 3 || !KEY) return [];
-  const hit = cache.get(q.toLowerCase());
+  // Demo builds have no API to ask. Free-text places work everywhere this is
+  // used, so an empty list is a supported state rather than a failure.
+  if (q.length < 3 || !hasApi) return [];
+
+  const key = q.toLowerCase();
+  const hit = cache.get(key);
   if (hit) return hit;
+
   try {
-    const url = `https://api.locationiq.com/v1/autocomplete?key=${KEY}&q=${encodeURIComponent(q)}&countrycodes=ph&limit=6&dedupe=1`;
-    const response = await fetch(url);
-    if (!response.ok) return [];
-    const rows = (await response.json()) as {
-      place_id: string;
-      display_place?: string;
-      display_name: string;
-      display_address?: string;
-      lat: string;
-      lon: string;
-      address?: Record<string, string>;
-    }[];
+    const rows = await placesApi.search(q);
     const picks: PlacePick[] = rows.map((row) => ({
-      id: row.place_id,
-      name: row.display_place ?? row.display_name.split(',')[0],
-      area: areaOf(row.address ?? {}, row.display_address ?? row.display_name),
-      lat: Number(row.lat),
-      lon: Number(row.lon),
+      id: row.id,
+      name: row.name,
+      area: row.area,
+      lat: row.lat,
+      lon: row.lon,
     }));
-    cache.set(q.toLowerCase(), picks);
+    // Only successful answers are cached, so a network blip does not pin an
+    // empty result to a query the user is still typing.
+    if (picks.length) cache.set(key, picks);
     return picks;
   } catch {
-    // Offline or rate-limited: typing a place by hand still works everywhere
-    // this is used, so an empty list is the whole failure mode.
+    // Offline, rate limited, or nothing found all look the same to the caller.
     return [];
   }
 }

@@ -24,6 +24,7 @@ const endpoints = vi.hoisted(() => ({
     acceptFriend: vi.fn().mockResolvedValue(undefined),
     declineFriend: vi.fn().mockResolvedValue(undefined),
     invite: vi.fn().mockResolvedValue({}),
+    report: vi.fn().mockResolvedValue(undefined),
   },
   groups: {
     create: vi.fn().mockResolvedValue({}),
@@ -152,6 +153,19 @@ describe('people', () => {
     await flush();
     expect(endpoints.social.hide).toHaveBeenCalledWith('user-1');
     expect(endpoints.social.requestFriend).toHaveBeenCalledWith('user-1');
+  });
+
+  it('sends a report to the server rather than only closing the sheet', async () => {
+    signedIn();
+    actions.reportPerson('Mara Ilagan', 'spam');
+    await flush();
+    expect(endpoints.social.report).toHaveBeenCalledWith('user-1', 'spam');
+  });
+
+  it('sends no report in demo mode, where there is no server to receive it', async () => {
+    actions.reportPerson('Mara Ilagan', 'spam');
+    await flush();
+    expect(endpoints.social.report).not.toHaveBeenCalled();
   });
 
   it('does not call the server for someone it has never heard of', async () => {

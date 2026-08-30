@@ -7,6 +7,7 @@ import {
   toGroups,
   toInvites,
   toKeeps,
+  toHidden,
   toPlans,
   toProfile,
   toThreads,
@@ -16,7 +17,7 @@ import { wantIdForSlug } from '@/lib/somedays';
 /**
  * Everything the app needs to open, in one pass.
  *
- * Seven requests rather than seven screens each fetching for itself: the store
+ * Eight requests rather than eight screens each fetching for itself: the store
  * is the app's single source of truth and every screen already reads it, so
  * filling it once at sign-in keeps the screens synchronous and makes the whole
  * hydration a single thing that can succeed or fail. The requests are issued
@@ -29,7 +30,7 @@ export async function hydrateFromApi(): Promise<void> {
   resetDirectory();
   resetRegistry();
 
-  const [profile, keeps, invites, friends, groups, threads, plans] = await Promise.all([
+  const [profile, keeps, invites, friends, groups, threads, plans, hidden] = await Promise.all([
     auth.me(),
     catalog.mine(),
     social.invites(),
@@ -37,6 +38,7 @@ export async function hydrateFromApi(): Promise<void> {
     groupsApi.list(),
     threadsApi.list(),
     plansApi.list(),
+    social.hidden(),
   ]);
 
   const me = profile.name;
@@ -50,6 +52,7 @@ export async function hydrateFromApi(): Promise<void> {
     ...planned,
     ...friendship,
     invites: toInvites(invites),
+    hiddenPeople: toHidden(hidden),
     groups: toGroups(groups, me),
     threads: toThreads(threads, me),
     // Kept ids must include everything with a plan, or a locked someday would

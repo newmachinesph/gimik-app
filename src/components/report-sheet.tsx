@@ -7,8 +7,15 @@ import { C } from '@/lib/tokens';
 
 const REASONS = ['fake', 'rude', 'notThem', 'spam', 'other'] as const;
 
-/** Report a person. Quiet, quick, and never shown to them. */
-export function ReportSheet({ name, visible, onDismiss, onHide }: { name: string; visible: boolean; onDismiss: () => void; onHide: () => void }) {
+/**
+ * Report a person. Quiet, quick, and never shown to them.
+ *
+ * `onSend` is required rather than optional: this sheet used to flip straight
+ * to its thank-you state, so the app told people their report had been
+ * received while sending it nowhere. Making the caller supply the send is what
+ * stops that happening again.
+ */
+export function ReportSheet({ name, visible, onDismiss, onHide, onSend }: { name: string; visible: boolean; onDismiss: () => void; onHide: () => void; onSend: (reason: string) => void }) {
   const { t } = useTranslation();
   const [reason, setReason] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -31,7 +38,7 @@ export function ReportSheet({ name, visible, onDismiss, onHide }: { name: string
           <View className="flex-row flex-wrap gap-2 mt-5">
             {REASONS.map((item) => <Chip key={item} label={t(`s.report.reasons.${item}`)} selected={reason === item} onPress={() => setReason(item)} />)}
           </View>
-          <View className="mt-6"><PrimaryButton label={t('s.report.send')} disabled={!reason} onPress={() => setSent(true)} /></View>
+          <View className="mt-6"><PrimaryButton label={t('s.report.send')} disabled={!reason} onPress={() => { if (!reason) return; onSend(reason); setSent(true); }} /></View>
           <GhostButton label={t('s.common.cancel')} tone="muted" onPress={close} />
         </View>
       )}

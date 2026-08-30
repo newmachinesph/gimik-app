@@ -26,7 +26,7 @@ import {
   Txt,
 } from '@/components/ui';
 import { formatDate } from '@/i18n/format';
-import { askPerson, hidePerson, keep, openThread, requestFriend, unhidePerson, unkeep } from '@/lib/actions';
+import { askPerson, hidePerson, keep, openThread, reportPerson, requestFriend, unhidePerson, unkeep } from '@/lib/actions';
 import { categoryBadge } from '@/lib/interests';
 import { WANTS, wantTitle } from '@/lib/mock';
 import { genderMark, holds, photosOf, PERSON_BY_NAME } from '@/lib/people';
@@ -195,7 +195,7 @@ export default function PersonProfile() {
         </View>
       </ScrollView>
 
-      <ReportSheet name={person.name} visible={reporting} onDismiss={() => setReporting(false)} onHide={() => { setReporting(false); hide(); }} />
+      <ReportSheet name={person.name} visible={reporting} onDismiss={() => setReporting(false)} onHide={() => { setReporting(false); hide(); }} onSend={(reason) => reportPerson(person.name, reason)} />
       {common.length ? (
         <StickyFooter>
           <PrimaryButton label={t('s.person.planTogether')} icon="arrow-right" onPress={() => router.push(`/lock/${common[0].id}?with=${encodeURIComponent(person.name)}` as never)} />

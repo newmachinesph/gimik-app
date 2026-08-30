@@ -5,6 +5,7 @@ import { resetDirectory, planId, somedayId, threadId, userId } from './directory
 import {
   toFriends,
   toGroups,
+  toHidden,
   toInvites,
   toJournal,
   toKeeps,
@@ -12,7 +13,7 @@ import {
   toProfile,
   toThread,
 } from './mapping';
-import type { GroupOut, HolderOut, ProfileOut, SomedayOut, ThreadOut } from './schema';
+import type { GroupOut, HolderOut, PersonOut, ProfileOut, SomedayOut, ThreadOut } from './schema';
 
 const ME = 'Bea';
 
@@ -122,6 +123,28 @@ describe('toFriends', () => {
     expect(friends).toEqual(['Mara Ilagan']);
     expect(requests).toEqual([{ from: 'Ana Cruz', at: '2026-01-04T00:00:00Z' }]);
     expect(sentRequests).toEqual(['Theo Lim']);
+  });
+});
+
+const person = (over: Partial<PersonOut> = {}): PersonOut => ({
+  id: 'p-uuid-1', name: 'Mara Ilagan', handle: 'mara', gender: 'woman', city: 'Cebu City',
+  bio: '', work: '', education: '', interests: [], hometown: null, languages: [],
+  created_at: '2026-01-01T00:00:00Z', photos: [], somedays: [], in_common: [],
+  is_friend: true, request_pending: false,
+  ...over,
+});
+
+describe('toHidden', () => {
+  it('returns the names the store keys hidden people by', () => {
+    expect(toHidden([person(), person({ id: 'u9', name: 'Theo Lim', handle: 'theo' })])).toEqual([
+      'Mara Ilagan',
+      'Theo Lim',
+    ]);
+  });
+
+  it('registers each hidden person, so unhiding them can find their id again', () => {
+    toHidden([person({ id: 'hidden-uuid', name: 'Noor Salcedo', handle: 'noor' })]);
+    expect(userId('Noor Salcedo')).toBe('hidden-uuid');
   });
 });
 

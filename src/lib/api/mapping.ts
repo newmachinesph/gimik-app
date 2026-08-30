@@ -118,6 +118,17 @@ export function toFriends(dto: FriendsOut): {
   };
 }
 
+/**
+ * People this account has hidden, as the names the store keys them by.
+ *
+ * Hiding was a one-way write before this existed: `hide` and `unhide` reached
+ * the server, but nothing ever read the list back, so hiding someone on one
+ * phone left them visible on every other.
+ */
+export function toHidden(dtos: PersonOut[]): string[] {
+  return dtos.map(adoptPerson);
+}
+
 export function toGroups(dtos: GroupOut[], me: string): Group[] {
   return dtos.map((dto) => ({
     id: dto.id,

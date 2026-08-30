@@ -102,6 +102,19 @@ export function unhidePerson(name: string): void {
   if (id) sync(() => social.unhide(id), 's.toasts.syncFailed');
 }
 
+/**
+ * Report a person. Server-only: there is nothing in the store to change, and
+ * the person being reported must never see a difference.
+ *
+ * The sheet confirms as soon as this returns, which is honest - the
+ * confirmation is that the report was sent, not that anyone has acted on it.
+ * In demo mode `sync` is a no-op and the confirmation is the whole behaviour.
+ */
+export function reportPerson(name: string, reason: string): void {
+  const id = userId(name);
+  if (id) sync(() => social.report(id, reason), 's.toasts.syncFailed');
+}
+
 export function requestFriend(name: string): void {
   useApp.getState().requestFriend(name);
   const id = userId(name);
