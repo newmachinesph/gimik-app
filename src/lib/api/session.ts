@@ -1,3 +1,4 @@
+import { resetPlaceCache } from '@/lib/places';
 import { resetRegistry } from '@/lib/registry';
 import { useApp } from '@/store';
 import { auth, ops } from './endpoints';
@@ -44,6 +45,7 @@ export async function signOut(): Promise<void> {
   await auth.signOut();
   resetDirectory();
   resetRegistry();
+  resetPlaceCache();
   useApp.getState().reset();
 }
 

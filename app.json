@@ -8,7 +8,9 @@
     "scheme": "gora",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.sumnora.gora.v2",
+      "supportsTablet": false
     },
     "web": {
       "output": "static",

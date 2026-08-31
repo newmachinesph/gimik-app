@@ -22,6 +22,11 @@ export type PhotoOut = { id: Uuid; position: number; url: string };
 export type ProfileOut = {
   id: Uuid;
   email?: string | null;
+  /** Only ever populated for your own profile, alongside the address. */
+  email_verified?: boolean;
+  /** 'free' or 'plus'. Read to decide what to show, never what to allow. */
+  tier?: 'free' | 'plus';
+  plus_until?: IsoDateTime | null;
   name: string;
   handle: string;
   birthday: IsoDate | null;
@@ -91,7 +96,7 @@ export type ThreadOut = {
 };
 export type ThreadDetailOut = ThreadOut & { messages: MessageOut[] };
 
-export type PlaceOut = { id: Uuid; name: string; area: string; lat: number; lon: number };
+export type PlaceOut = { id: Uuid; name: string; area: string; lat: number | null; lon: number | null };
 
 export type PlanCreate = {
   someday_id: Uuid;

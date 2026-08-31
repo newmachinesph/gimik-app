@@ -46,14 +46,36 @@ export const auth = {
     await setTokens(pair);
     return pair;
   },
-  /** Local only: the server has no session to end. */
-  signOut: () => setTokens(null),
+  /**
+   * Ends the session on both sides.
+   *
+   * Dropping the tokens locally is what this used to do, and it is enough
+   * right up until the device is not the problem. The server call bumps the
+   * account's token version, which reaches the refresh token someone else
+   * copied - the only thing that can, under a stateless scheme.
+   *
+   * The local half runs regardless: being unable to reach the server must
+   * never leave someone signed in on the phone in their hand.
+   */
+  signOut: async () => {
+    try {
+      await request<void>('/auth/logout', { method: 'POST' });
+    } catch {
+      // Offline, or a token already spent. Either way the device still clears.
+    }
+    await setTokens(null);
+  },
   me: () => request<ProfileOut>('/auth/me'),
   updateMe: (body: ProfilePatch) => request<ProfileOut>('/auth/me', { method: 'PATCH', body }),
   deleteMe: () => request<void>('/auth/me', { method: 'DELETE' }),
   forgotPassword: (email: string) => request<void>('/auth/password/forgot', { method: 'POST', body: { email }, anonymous: true }),
   resetPassword: (token: string, password: string) =>
     request<TokenPair>('/auth/password/reset', { method: 'POST', body: { token, password }, anonymous: true }),
+  /** Anonymous: the link is opened from an inbox, often not on this device. */
+  verifyEmail: (token: string) =>
+    request<ProfileOut>('/auth/email/verify', { method: 'POST', body: { token }, anonymous: true }),
+  resendVerification: (email: string) =>
+    request<void>('/auth/email/resend', { method: 'POST', body: { email }, anonymous: true }),
 };
 
 export const catalog = {
@@ -120,7 +142,16 @@ export const media = {
 };
 
 export const places = {
-  search: (query: string) => request<PlaceOut[]>(`/places/search?q=${encodeURIComponent(query)}`),
+  /**
+   * `session` groups one search's keystrokes into a single billable session at
+   * the provider. Without it every debounced request is priced on its own, so
+   * it is a cost control rather than a correctness one - but it is the whole
+   * difference between one charge per search and one per keystroke.
+   */
+  search: (query: string, session?: string) =>
+    request<PlaceOut[]>(
+      `/places/search?q=${encodeURIComponent(query)}${session ? `&session=${encodeURIComponent(session)}` : ''}`,
+    ),
 };
 
 export const ops = {

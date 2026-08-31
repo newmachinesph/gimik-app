@@ -34,6 +34,17 @@ export class ApiError extends Error {
   get isClientFault() {
     return this.status >= 400 && this.status < 500;
   }
+
+  /**
+   * The server refused because this account is not on Plus.
+   *
+   * 402 rather than 403 throughout the API, precisely so this can be told
+   * apart from "not yours" without parsing a message. A screen that sees it
+   * should offer the upgrade, never an error.
+   */
+  get needsPlus() {
+    return this.status === 402;
+  }
 }
 
 /** Thrown when the request never got an answer: offline, DNS, or the deadline. */

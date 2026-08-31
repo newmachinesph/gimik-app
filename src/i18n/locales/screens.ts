@@ -49,7 +49,8 @@ export const screensEn = {
       "subtitle": "The exact place - name it and it sticks",
       "searchPh": "Restaurant, park, city…",
       "clear": "Clear the place",
-      "freeText": "No match - what you typed will be the place."
+      "freeText": "No match - what you typed will be the place.",
+      "plusOnly": "Place search is part of Gora Plus - what you typed will be the place."
     },
     "forgot": {
       "title": "Forgotten password",
@@ -524,6 +525,12 @@ export const screensEn = {
     },
     "settings": {
       "title": "Settings",
+      "legal": {
+        "title": "Legal",
+        "privacy": "Privacy policy",
+        "terms": "Terms of use",
+        "support": "Get help"
+      },
       "newSomedays": {
         "title": "New somedays",
         "subtitle": "Who a keep is open to unless you say otherwise"

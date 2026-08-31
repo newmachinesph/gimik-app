@@ -20,7 +20,10 @@ import {
 } from '@/components/ui';
 import { deleteAccount } from '@/lib/actions';
 import { signOut } from '@/lib/api/session';
+import * as WebBrowser from 'expo-web-browser';
+
 import { DEMO } from '@/data/demo';
+import { SITE_URL } from '@/lib/links';
 import { C } from '@/lib/tokens';
 import { useApp, type DemoState } from '@/store';
 
@@ -132,6 +135,34 @@ export default function Settings() {
             size="lg"
             chevron={false}
             onPress={() => confirm(t('s.settings.deleteTitle'), t('s.settings.deleteBody'), t('s.settings.delete'), destroy)}
+          />
+        </RowList>
+      </Section>
+
+      <Section>
+        <SectionHead title={t('s.settings.legal.title')} />
+        <RowList>
+          {/* App Review requires a reachable privacy policy from inside any
+              app that holds an account. Both open the marketing site rather
+              than duplicating the text into the bundle, so one edit updates
+              what every installed version shows. */}
+          <NavRow
+            icon="lock"
+            title={t('s.settings.legal.privacy')}
+            size="lg"
+            onPress={() => { void WebBrowser.openBrowserAsync(`${SITE_URL}/privacy`); }}
+          />
+          <NavRow
+            icon="info"
+            title={t('s.settings.legal.terms')}
+            size="lg"
+            onPress={() => { void WebBrowser.openBrowserAsync(`${SITE_URL}/terms`); }}
+          />
+          <NavRow
+            icon="help"
+            title={t('s.settings.legal.support')}
+            size="lg"
+            onPress={() => { void WebBrowser.openBrowserAsync(`${SITE_URL}/support`); }}
           />
         </RowList>
       </Section>
