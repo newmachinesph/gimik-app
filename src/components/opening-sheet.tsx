@@ -10,12 +10,10 @@ import { isInviteLive } from '@/lib/invites';
 import { wantTitle } from '@/lib/mock';
 import { WANT_BY_ID } from '@/lib/somedays';
 import { PERSON_BY_NAME, genderMark } from '@/lib/people';
-import { C } from '@/lib/tokens';
+import { C, MOTION } from '@/lib/tokens';
 import { useApp } from '@/store';
 
 const SLIDE_MS = 320;
-/** Long enough for a stack transition to finish committing. */
-const TRANSITION_SETTLE_MS = 450;
 const MAX_ROWS = 4;
 
 type News = { key: string; kind: 'invite' | 'request' | 'thread' | 'plan'; title: string; line: string; person?: string; href: string };
@@ -95,7 +93,7 @@ export function OpeningSheet() {
     // class of crash, and nobody can perceive the delay on a sheet that is
     // announcing news. (InteractionManager would say this better and is
     // deprecated; a timeout is the boring replacement.)
-    const timer = setTimeout(present, TRANSITION_SETTLE_MS);
+    const timer = setTimeout(present, MOTION.settle);
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') present();
     });

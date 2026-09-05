@@ -5,38 +5,55 @@ thing needs your hands, and it is the only thing that does.
 
 ---
 
-## Blocked on you: the phone is locked
+## Verified on the phone
 
-The app **built, installed and launched** on the RMX3636. The JS bundle runs,
-Sentry initialises, there are no crashes in logcat. I could not see a single
-screen, because the phone is on a secure lock screen (`isKeyguardShowing=true`,
-`locksettings get-disabled` → `false`) and I have no way past a PIN.
+The phone was PIN-locked for most of the night; it came unlocked near the end and
+everything below was then walked on glass, on the RMX3636, against the local
+stack.
 
-So: **no UI on the device has been visually verified.** Everything else has been
-verified against the real stack over HTTP. Treat the app's screens as "built and
-loading cleanly", not as "seen working".
+- Welcome and sign-in render; signing in as `bea@gora.ph` hydrates the account.
+- **The deck is served by `GET /feed`.** Top card was "Complete a multi-day
+  rail-trail journey", the same card and order the API returns, with its real
+  artwork out of MinIO and **"2 friends want this"** matching the API's
+  `friend_keeps: 2`.
+- **Swiping writes through.** A left swipe issued
+  `PUT /somedays/{id}/pass 204`; undo issued `DELETE /somedays/{id}/pass 204`.
+- **Discover is the real catalog**: "2522 somedays", canonical chips, real
+  artwork, and typing "kayak" issued one debounced `GET /catalog?q=kayak` and
+  returned 11.
+- The opening sheet showed real server state - Kaz's friend request, the
+  "Saturday People" thread, two locked plans.
 
-To pick it up:
+**One crash found and fixed on the device.** Signing in died with the Fabric
+"child already has a parent" error. The deck now arrives from the network, so
+its cards mounted on whatever frame the response landed on - and after sign-in
+that frame is mid-stack-transition, which is exactly when Fabric cannot take new
+views. The codebase already knew this crash and its cure; the deck now waits
+`MOTION.settle` before mounting, and the fetch still starts immediately, so the
+wait costs nothing the request was not already spending.
+
+**Two gotchas worth knowing before you test again:**
+
+- **Metro's cache served a stale module across app reloads.** For a while the
+  card said "Only you" while the API plainly returned `friend_keeps: 2` - the
+  code on disk was right and the bundle was not. A dev-menu Reload did not fix
+  it; `npx expo start --clear` did. If the screen disagrees with a payload you
+  can see in the API log, suspect the bundle before the code.
+- **This is a debug build, so Metro must be running** - the JS is served, not
+  embedded. A release APK would not work against the local backend anyway:
+  `usesCleartextTraffic` is set only in the debug manifest, so release blocks
+  plain HTTP to `localhost:8100`. That default is right for production.
+
+To bring it back up:
 
 ```bash
-cd ~/OneDrive/Desktop/gora-backend-v2 && docker compose up -d     # if not already up
+cd ~/OneDrive/Desktop/gora-backend-v2 && docker compose up -d
 cd ~/OneDrive/Desktop/gora-v2
 adb reverse tcp:8100 tcp:8100 && adb reverse tcp:9000 tcp:9000 && adb reverse tcp:8081 tcp:8081
 npx expo start --dev-client
 ```
 
-Then unlock the phone and open Gora. Sign in as `bea@gora.ph` / `gora-demo-1234`,
-or register fresh to see onboarding and a cold-start deck.
-
-Two things worth knowing:
-
-- **Metro must be running.** This is a debug build, so the JS is served, not
-  embedded. I deliberately did not build a release APK: `usesCleartextTraffic`
-  is set only in the debug manifest, so a release build would block plain HTTP
-  to `localhost:8100` and every call would fail. That default is correct for
-  production and not worth weakening for a local test.
-- **`adb reverse` is how the phone reaches the backend**, so it needs the cable.
-  It does not survive a reboot or an unplug — re-run the three commands above.
+`adb reverse` needs the cable and does not survive a reboot or unplug.
 
 ---
 
@@ -170,7 +187,10 @@ cd ~/OneDrive/Desktop/gora-backend-v2 && ./.venv/Scripts/python.exe scripts/simu
 
 Being straight about the gaps, in the order I would close them:
 
-- **No screen has been looked at.** See Blocked, above. This is the big one.
+- **Only the main paths were walked.** The deck, Discover, search, sign-in and
+  the swipe write path were exercised on the phone. Messages, groups, the lock
+  and journal flows were not opened tonight, and the write paths behind them are
+  wired but unproven since the feed work.
 - **The remaining screens have been audited, not exercised.** I swept every
   import of the bundled tables and found that the rest pull display helpers
   (`wantTitle`, `categoryLabel`, `genderMark`) rather than entity data, and that

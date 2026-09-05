@@ -77,6 +77,17 @@ export const MOTION = {
   micro: 120,
   short: 220,
   long: 420,
+  /**
+   * A beat longer than a stack transition takes to commit.
+   *
+   * Mounting views while the router is still swapping trees makes Fabric mount
+   * into a surface the outgoing screen has not finished releasing, and the app
+   * dies with "child already has a parent". Anything that can appear on a
+   * screen's first frames - a sheet, a deck arriving from the network - waits
+   * this long first. (InteractionManager would say it better and is deprecated;
+   * a timeout is the boring replacement.)
+   */
+  settle: 450,
 } as const;
 
 /** Translucent tint of a six-digit native hex colour. */

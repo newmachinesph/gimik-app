@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,6 +23,7 @@ import { categoryChip } from '@/lib/interests';
 import { useDeck } from '@/lib/feed';
 import { CATEGORIES, categoryLabel, wantTitle, type Category, type Want } from '@/lib/mock';
 import { RESURFACE_AFTER_DAYS } from '@/lib/somedays';
+import { MOTION } from '@/lib/tokens';
 import { useApp, type Visibility } from '@/store';
 
 const OVERLAY_GAP = 12;
@@ -44,6 +45,19 @@ export default function Somedays() {
   const defaultVisibility = useApp((state) => state.defaultVisibility);
   const setDefault = useApp((state) => state.setDefaultVisibility);
   const [boxHeight, setBoxHeight] = useState(0);
+  /**
+   * The deck arrives from the network, so its cards mount on whatever frame the
+   * response lands on - and after signing in that frame is usually mid-stack
+   * transition, which is precisely when Fabric cannot take new views ("child
+   * already has a parent", and the surface is dead). The fetch still starts
+   * immediately; only the mounting waits, so the delay costs nothing that the
+   * request was not already spending.
+   */
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setSettled(true), MOTION.settle);
+    return () => clearTimeout(timer);
+  }, []);
   const [category, setCategory] = useState<Category>('All');
   const [filtering, setFiltering] = useState(false);
   const [prompt, setPrompt] = useState<Want | null>(null);
@@ -140,7 +154,7 @@ export default function Somedays() {
       </View>
 
       <View className="flex-1" onLayout={onBox}>
-        {boxHeight > 0 ? (
+        {boxHeight > 0 && settled ? (
           deck.length ? (
             <View style={{ paddingHorizontal: GUTTER }}>
               <DecideDeck wants={deck} height={deckHeight} resurfacedIds={resurfacedIds} onDecide={decide} onOpen={(want) => router.push(`/want/${want.id}` as never)} />
