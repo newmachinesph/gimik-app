@@ -1,8 +1,11 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { hasApi } from '@/lib/api/client';
+import { rememberPerson, somedayId } from '@/lib/api/directory';
+import { catalog } from '@/lib/api/endpoints';
 import { WANTS, type Want } from '@/lib/mock';
-import { registeredWant } from '@/lib/registry';
-import { holdersOf, PERSON_BY_NAME } from '@/lib/people';
+import { personFromDto, registerPerson, registeredWant } from '@/lib/registry';
+import { holdersOf, PERSON_BY_NAME, type Person } from '@/lib/people';
 import { useApp } from '@/store';
 
 /** The catalog, indexed once. */
@@ -54,11 +57,68 @@ export function useMine(): { kept: Want[]; locked: Want[]; waiting: Want[]; done
   }, [doneAt, doneIds, keptIds, plans]);
 }
 
-/** People who hold this someday and are not you or hidden. */
+/**
+ * People who hold this someday and are not you or hidden.
+ *
+ * Live, this is `GET /somedays/{id}/holders`, which is the only thing that can
+ * answer it: whether a keep is visible to you is the holder's own choice, made
+ * per someday, and the server is where that choice lives. The bundled answer -
+ * a hand-authored table of which of the nine demo people wants what - is fiction
+ * against a real catalog, and on the lock screen it was worse than cosmetic: it
+ * offered demo people to invite to a real plan.
+ */
 export function useHolders(want: Want | undefined) {
   const hidden = useApp((state) => state.hiddenPeople);
-  return useMemo(
-    () => (want ? holdersOf(want).filter((name) => !hidden.includes(name)).map((name) => PERSON_BY_NAME.get(name)).filter(Boolean) : []),
-    [hidden, want],
+  const source = useApp((state) => state.source);
+  const live = hasApi && source === 'api';
+
+  const slug = want?.slug ?? want?.id;
+  const uuid = slug ? somedayId(slug) : undefined;
+  const [fetched, setFetched] = useState<{ key: string; people: Person[] } | null>(null);
+  const inFlight = useRef(false);
+
+  const load = useCallback(async () => {
+    if (!uuid || inFlight.current) return;
+    inFlight.current = true;
+    try {
+      const rows = await catalog.holders(uuid);
+      const people = rows.map((row) => {
+        rememberPerson(row);
+        const person = personFromDto(row, String(row.id));
+        registerPerson(person);
+        return person;
+      });
+      setFetched({ key: uuid, people });
+    } catch {
+      // An unreachable server is not "nobody wants this"; leave it empty and
+      // let the next open try again rather than asserting a lonely someday.
+    } finally {
+      inFlight.current = false;
+    }
+  }, [uuid]);
+
+  const settled = fetched?.key === uuid;
+
+  useEffect(() => {
+    if (!live || !uuid || settled) return;
+    // load() only updates state after its await; the rule cannot see past the
+    // async call, so it reads this as a synchronous set.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
+  }, [live, load, settled, uuid]);
+
+  const bundled = useMemo(
+    () =>
+      want
+        ? holdersOf(want)
+            .map((name) => PERSON_BY_NAME.get(name))
+            .filter((person): person is Person => Boolean(person))
+        : [],
+    [want],
   );
+
+  return useMemo(() => {
+    const people = live ? (settled && fetched ? fetched.people : []) : bundled;
+    return people.filter((person) => !hidden.includes(person.name));
+  }, [bundled, fetched, hidden, live, settled]);
 }
