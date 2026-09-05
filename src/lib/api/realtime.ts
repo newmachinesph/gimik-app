@@ -65,6 +65,14 @@ export async function connectRealtime(): Promise<void> {
     disconnectedRetryTimeout: 5_000,
     suspendedRetryTimeout: 15_000,
     closeOnUnload: false,
+    // Errors only. At the default verbosity the SDK narrates every connection
+    // state change through console.warn - including "No activity seen from
+    // realtime in 25123ms; assuming connection has dropped" every time the
+    // phone idles, which is the expected consequence of a phone being a phone
+    // and something the SDK recovers from by itself. In a debug build each of
+    // those raises a LogBox card over the tab bar, so the app looks broken
+    // while nothing is. Real errors still come through at level 1.
+    logLevel: 1,
   });
 
   const clientId = client.auth.clientId;

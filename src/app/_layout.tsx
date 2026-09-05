@@ -89,23 +89,31 @@ export default function RootLayout() {
           {/* One quiet reporter for every state change. Confirmations stay as
               alerts; the toaster only ever tells you what just happened. */}
           <Toaster
-            position="bottom-center"
-            // Clear of whatever sits at the bottom of the screen. The tab bar
-            // tops out around 103dp and a footer CTA around 110dp, so 120 keeps
-            // the toast above both rather than landing on the very button the
-            // toast is reporting on.
+            // Top rather than bottom: at the bottom a notice lands on the tab
+            // bar and on footer CTAs - covering the very control it is
+            // reporting on - and it competes with the system gesture bar.
+            position="top-center"
+            // Below the status bar *and* the screen header, so a notice never
+            // sits on the title or on the filter button in the corner - which
+            // is the same mistake the bottom position made with the tab bar.
             offset={120}
             duration={2600}
             gap={8}
             visibleToasts={2}
-            // Inset on the positioner, not a margin on the toast. The positioner
-            // is `width: 100%` and the toast fills it, so a margin only shifts
-            // the toast and overflows the far edge; padding narrows the box both
-            // sides and keeps the notice off the screen edges.
-            positionerStyle={{ paddingHorizontal: 16 }}
+            // sonner-native only offers top/bottom/center, so the right edge is
+            // done here: the positioner is full width, and aligning its items to
+            // the end pins the toast right while the padding keeps it off the
+            // screen edge. Inset on the positioner rather than a margin on the
+            // toast - a margin only shifts the toast and overflows the far side.
+            positionerStyle={{ paddingHorizontal: 16, alignItems: 'flex-end' }}
             icons={{ info: <></>, success: <></>, error: <></>, warning: <></>, loading: <></> }}
             toastOptions={{
-              style: { backgroundColor: C.night, borderRadius: 4, borderWidth: 0, paddingVertical: 12, paddingHorizontal: 16 },
+              // An explicit width, not `auto`: sonner lays the title out inside
+              // a flexing row, so an auto-width toast collapses to a small
+              // square with the text squeezed out of it. 300dp leaves a clear
+              // margin on the left of a phone - so it reads as pinned to the
+              // right - and still fits a two-line notice.
+              style: { backgroundColor: C.night, borderRadius: 4, borderWidth: 0, paddingVertical: 12, paddingHorizontal: 16, alignSelf: 'flex-end', width: 300 },
               titleStyle: { color: C.paper, fontFamily: FONT.medium, fontSize: 13, lineHeight: 18 },
               descriptionStyle: { color: `${C.paper}B3`, fontFamily: FONT.regular, fontSize: 12, lineHeight: 16 },
               actionButtonStyle: { backgroundColor: 'transparent', paddingHorizontal: 8, paddingVertical: 4 },
