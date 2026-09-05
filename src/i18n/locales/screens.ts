@@ -398,7 +398,8 @@ export const screensEn = {
       },
       "theirs": {
         "title": "Their somedays",
-        "subtitle": "Tap the heart to keep one"
+        "subtitle": "Tap the heart to keep one",
+        "loading": "Loading their list..."
       },
       "hide": "Hide {{name}}",
       "report": "Report",

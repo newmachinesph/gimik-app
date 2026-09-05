@@ -59,6 +59,7 @@ export function personFromDto(dto: HolderOut | PersonOut, id: string): Person {
   return {
     id,
     name: dto.name,
+    handle: dto.handle,
     gender: (dto.gender ?? 'nonbinary') as Person['gender'],
     age: 0,
     city: dto.city ?? '',

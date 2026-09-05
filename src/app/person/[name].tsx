@@ -28,8 +28,9 @@ import {
 import { formatDate } from '@/i18n/format';
 import { askPerson, hidePerson, keep, openThread, reportPerson, requestFriend, unhidePerson, unkeep } from '@/lib/actions';
 import { categoryBadge } from '@/lib/interests';
-import { WANTS, wantTitle } from '@/lib/mock';
-import { genderMark, holds, photosOf, PERSON_BY_NAME } from '@/lib/people';
+import { wantTitle } from '@/lib/mock';
+import { genderMark, photosOf } from '@/lib/people';
+import { usePerson } from '@/lib/person';
 import { languageLabel } from '@/lib/profile-options';
 import { CATALOG_FALLBACK } from '@/lib/storage';
 import { C } from '@/lib/tokens';
@@ -53,13 +54,13 @@ export default function PersonProfile() {
   const { name: raw } = useLocalSearchParams<{ name: string }>();
   const name = decodeURIComponent(raw ?? '');
   const insets = useSafeAreaInsets();
-  const person = PERSON_BY_NAME.get(name);
+  const { person, somedays: theirs, loading: personLoading } = usePerson(name);
   const keptIds = useApp((s) => s.keptIds);
   const friends = useApp((s) => s.friends);
   const sent = useApp((s) => s.sentRequests);
   const [reporting, setReporting] = useState(false);
 
-  const theirs = useMemo(() => (person ? WANTS.filter((want) => holds(person, want)) : []), [person]);
+
   const photos = useMemo(() => (person ? photosOf(person) : []), [person]);
   const common = theirs.filter((want) => keptIds.includes(want.id));
   const rest = theirs.filter((want) => !keptIds.includes(want.id)).slice(0, 8);
@@ -155,6 +156,10 @@ export default function PersonProfile() {
 
           <Section>
             <SectionHead title={t('s.person.theirs.title')} subtitle={t('s.person.theirs.subtitle')} />
+            {/* Their list is the server's answer, not a guess: while it is in
+                flight say so rather than showing an empty section that reads
+                as "they want nothing". */}
+            {personLoading ? <Txt variant="caption">{t('s.person.theirs.loading')}</Txt> : null}
             <RowList>
               {rest.map((want) => {
                 const kept = keptIds.includes(want.id);

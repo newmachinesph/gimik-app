@@ -17,6 +17,13 @@ import { ME, WANTS, type Category, type Want } from './mock';
 export type Person = {
   id: string;
   name: string;
+  /**
+   * The API keys people by handle; the app has always keyed them by name,
+   * because in a world with no server that is the identity. Carried here so a
+   * person the server told us about can be fetched again. Absent on the
+   * bundled cast, who have no server rows.
+   */
+  handle?: string;
   leans: string[];
   gender: 'woman' | 'man' | 'nonbinary';
   age: number;
