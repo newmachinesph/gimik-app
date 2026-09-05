@@ -3,6 +3,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // Mocked before the module under test is imported, so `actions` binds to these.
 vi.mock('@/lib/api/client', () => ({ hasApi: true }));
 
+// Monitoring reaches @sentry/react-native, whose sources are not parseable in
+// this node-environment suite - and what these tests care about is that a write
+// with no server id reports rather than vanishing, not where the report lands.
+const monitoring = vi.hoisted(() => ({ reportError: vi.fn() }));
+vi.mock('@/lib/monitoring', () => monitoring);
+
 // `vi.mock` is hoisted above const declarations, so the doubles have to be
 // created in a hoisted block or the factory closes over a dead binding.
 const endpoints = vi.hoisted(() => ({
@@ -297,5 +303,39 @@ describe('deleteAccount', () => {
   it('is a no-op in demo mode', async () => {
     await actions.deleteAccount();
     expect(endpoints.auth.deleteMe).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('a write whose someday the directory cannot resolve', () => {
+  // The bug this guards shipped twice: onboarding's starter picks and the
+  // person screen both kept ids that had never been registered, so the write
+  // was applied to the store and silently skipped on the way to the server. It
+  // looks exactly like success until the next sign-in, when the keep is gone.
+  it('reports instead of vanishing', async () => {
+    resetDirectory();
+    useApp.setState({ source: 'api' });
+    monitoring.reportError.mockClear();
+    endpoints.catalog.keep.mockClear();
+
+    actions.keep('a-someday-nobody-registered');
+    await Promise.resolve();
+
+    expect(endpoints.catalog.keep).not.toHaveBeenCalled();
+    expect(monitoring.reportError).toHaveBeenCalledTimes(1);
+    const [error, context] = monitoring.reportError.mock.calls[0];
+    expect(String(error)).toContain('no server id');
+    expect(context).toMatchObject({ kind: 'someday', key: 'a-someday-nobody-registered' });
+  });
+
+  it('stays quiet in demo builds, where there is no server to reach', async () => {
+    resetDirectory();
+    useApp.setState({ source: 'demo' });
+    monitoring.reportError.mockClear();
+
+    actions.keep('a-someday-nobody-registered');
+    await Promise.resolve();
+
+    expect(monitoring.reportError).not.toHaveBeenCalled();
   });
 });

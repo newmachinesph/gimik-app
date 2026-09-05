@@ -3,6 +3,7 @@ import { hasApi } from '@/lib/api/client';
 import { photoId as photoIdFor, planId as planIdFor, somedayId, threadId as threadIdFor, userId } from '@/lib/api/directory';
 import { auth, catalog, groups as groupsApi, media as mediaApi, plans as plansApi, social, threads as threadsApi } from '@/lib/api/endpoints';
 import { hydrateFromApi } from '@/lib/api/sync';
+import { reportError } from '@/lib/monitoring';
 import { WANT_BY_SLUG } from '@/lib/somedays';
 import { useApp, type Party, type Visibility } from '@/store';
 import { toast } from 'sonner-native';
@@ -37,6 +38,48 @@ function somedayUuid(wantId: string): string | undefined {
   return somedayId(slug) ?? somedayId(wantId);
 }
 
+/**
+ * The same as `sync`, for writes that need the server's id for a someday.
+ *
+ * The id can be missing, and what used to happen then was nothing: every call
+ * site read `if (id) sync(...)`, so a someday the directory had never heard of
+ * was written to the store and never to the server. It looks exactly like
+ * success - the card moves, the toast appears - and the keep is gone at the
+ * next sign-in.
+ *
+ * That shipped twice. Onboarding's twelve starter picks came from the bundled
+ * sample, and the person screen listed bundled somedays under real names; both
+ * kept ids no directory could resolve. Both are fixed at the source, and this
+ * exists so the third one is loud instead of silent.
+ */
+function syncResolved(
+  kind: string,
+  key: string,
+  resolve: (key: string) => string | undefined,
+  run: (id: string) => Promise<unknown>,
+  failure: string,
+): void {
+  if (!isLive()) return;
+  const id = resolve(key);
+  if (!id) {
+    reportError(new Error(`${kind} has no server id`), { kind, key, action: failure });
+    toast(i18n.t(failure));
+    // The directory is behind, not wrong - refetching is what repairs it.
+    void hydrateFromApi().catch(() => {});
+    return;
+  }
+  sync(() => run(id), failure);
+}
+
+const syncSomeday = (wantId: string, run: (id: string) => Promise<unknown>, failure: string) =>
+  syncResolved('someday', wantId, somedayUuid, run, failure);
+const syncPerson = (name: string, run: (id: string) => Promise<unknown>, failure: string) =>
+  syncResolved('person', name, userId, run, failure);
+const syncPlan = (wantId: string, run: (id: string) => Promise<unknown>, failure: string) =>
+  syncResolved('plan', wantId, planIdFor, run, failure);
+const syncPhoto = (url: string, run: (id: string) => Promise<unknown>, failure: string) =>
+  syncResolved('photo', url, photoIdFor, run, failure);
+
 const visibilityBody = (visibility: Visibility) => ({
   open_to: visibility.openTo,
   party_as: visibility.as,
@@ -45,33 +88,28 @@ const visibilityBody = (visibility: Visibility) => ({
 export function keep(wantId: string, visibility?: Visibility): void {
   const state = useApp.getState();
   state.keep(wantId, visibility);
-  const id = somedayUuid(wantId);
   const applied = visibility ?? state.defaultVisibility;
-  if (id) sync(() => catalog.keep(id, visibilityBody(applied)), 's.toasts.syncFailed');
+  syncSomeday(wantId, (id) => catalog.keep(id, visibilityBody(applied)), 's.toasts.syncFailed');
 }
 
 export function unkeep(wantId: string): void {
   useApp.getState().unkeep(wantId);
-  const id = somedayUuid(wantId);
-  if (id) sync(() => catalog.unkeep(id), 's.toasts.syncFailed');
+  syncSomeday(wantId, (id) => catalog.unkeep(id), 's.toasts.syncFailed');
 }
 
 export function pass(wantId: string): void {
   useApp.getState().pass(wantId);
-  const id = somedayUuid(wantId);
-  if (id) sync(() => catalog.pass(id), 's.toasts.syncFailed');
+  syncSomeday(wantId, (id) => catalog.pass(id), 's.toasts.syncFailed');
 }
 
 export function unpass(wantId: string): void {
   useApp.getState().unpass(wantId);
-  const id = somedayUuid(wantId);
-  if (id) sync(() => catalog.unpass(id), 's.toasts.syncFailed');
+  syncSomeday(wantId, (id) => catalog.unpass(id), 's.toasts.syncFailed');
 }
 
 export function setVisibility(wantId: string, visibility: Visibility): void {
   useApp.getState().setVisibility(wantId, visibility);
-  const id = somedayUuid(wantId);
-  if (id) sync(() => catalog.setVisibility(id, visibilityBody(visibility)), 's.toasts.syncFailed');
+  syncSomeday(wantId, (id) => catalog.setVisibility(id, visibilityBody(visibility)), 's.toasts.syncFailed');
 }
 
 /**
@@ -140,14 +178,12 @@ export function markInvitesSeen(): void {
 
 export function hidePerson(name: string): void {
   useApp.getState().hidePerson(name);
-  const id = userId(name);
-  if (id) sync(() => social.hide(id), 's.toasts.syncFailed');
+  syncPerson(name, (id) => social.hide(id), 's.toasts.syncFailed');
 }
 
 export function unhidePerson(name: string): void {
   useApp.getState().unhidePerson(name);
-  const id = userId(name);
-  if (id) sync(() => social.unhide(id), 's.toasts.syncFailed');
+  syncPerson(name, (id) => social.unhide(id), 's.toasts.syncFailed');
 }
 
 /**
@@ -159,26 +195,22 @@ export function unhidePerson(name: string): void {
  * In demo mode `sync` is a no-op and the confirmation is the whole behaviour.
  */
 export function reportPerson(name: string, reason: string): void {
-  const id = userId(name);
-  if (id) sync(() => social.report(id, reason), 's.toasts.syncFailed');
+  syncPerson(name, (id) => social.report(id, reason), 's.toasts.syncFailed');
 }
 
 export function requestFriend(name: string): void {
   useApp.getState().requestFriend(name);
-  const id = userId(name);
-  if (id) sync(() => social.requestFriend(id), 's.toasts.syncFailed');
+  syncPerson(name, (id) => social.requestFriend(id), 's.toasts.syncFailed');
 }
 
 export function acceptRequest(name: string): void {
   useApp.getState().acceptRequest(name);
-  const id = userId(name);
-  if (id) sync(() => social.acceptFriend(id), 's.toasts.syncFailed');
+  syncPerson(name, (id) => social.acceptFriend(id), 's.toasts.syncFailed');
 }
 
 export function declineRequest(name: string): void {
   useApp.getState().declineRequest(name);
-  const id = userId(name);
-  if (id) sync(() => social.declineFriend(id), 's.toasts.syncFailed');
+  syncPerson(name, (id) => social.declineFriend(id), 's.toasts.syncFailed');
 }
 
 export function createGroup(name: string): string {
@@ -284,21 +316,18 @@ export function updatePlan(wantId: string, patch: Partial<Parameters<ReturnType<
 }
 
 export function unlock(wantId: string): void {
-  const id = planIdFor(wantId);
   useApp.getState().unlock(wantId);
-  if (id) sync(() => plansApi.unlock(id), 's.toasts.syncFailed');
+  syncPlan(wantId, (id) => plansApi.unlock(id), 's.toasts.syncFailed');
 }
 
 export function markDone(wantId: string): void {
-  const id = planIdFor(wantId);
   useApp.getState().markDone(wantId);
-  if (id) sync(() => plansApi.markDone(id), 's.toasts.syncFailed');
+  syncPlan(wantId, (id) => plansApi.markDone(id), 's.toasts.syncFailed');
 }
 
 export function addJournal(entry: Parameters<ReturnType<typeof useApp.getState>['addJournal']>[0]): void {
   useApp.getState().addJournal(entry);
-  const id = somedayUuid(entry.wantId);
-  if (id) sync(() => plansApi.addJournal(id, { body: entry.body }), 's.toasts.syncFailed');
+  syncSomeday(entry.wantId, (id) => plansApi.addJournal(id, { body: entry.body }), 's.toasts.syncFailed');
 }
 
 export function updateProfile(patch: Parameters<ReturnType<typeof useApp.getState>['updateProfile']>[0]): void {
@@ -369,8 +398,7 @@ export function removeProfilePhoto(url: string): void {
   useApp.setState((state) => ({
     profile: { ...state.profile, photos: state.profile.photos.filter((item) => item !== url) },
   }));
-  const id = photoIdFor(url);
-  if (id) sync(() => mediaApi.deletePhoto(id), 's.toasts.syncFailed');
+  syncPhoto(url, (id) => mediaApi.deletePhoto(id), 's.toasts.syncFailed');
 }
 
 export function makePhotoFirst(url: string): void {
@@ -380,8 +408,7 @@ export function makePhotoFirst(url: string): void {
       photos: [url, ...state.profile.photos.filter((item) => item !== url)],
     },
   }));
-  const id = photoIdFor(url);
-  if (id) sync(() => mediaApi.makeFirst(id), 's.toasts.syncFailed');
+  syncPhoto(url, (id) => mediaApi.makeFirst(id), 's.toasts.syncFailed');
 }
 
 /** Really delete it. The confirmation has always said so; now it is true. */
