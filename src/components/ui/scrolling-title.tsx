@@ -10,11 +10,17 @@ const RETURN_MS = 450;
 /**
  * A title held to a fixed number of lines that shows the rest by scrolling.
  *
- * Every card in a row gets the same height whether its title is one line or
- * four, and a long one is still readable: after a pause the text drifts up a
- * line at a time, waits, and returns. Ellipsis alone threw away the end of the
- * title — the part that says which river, which border — which is the part a
- * person is choosing on.
+ * A long title stays readable: after a pause the text drifts up a line at a
+ * time, waits, and returns. Ellipsis alone threw away the end of the title -
+ * the part that says which river, which border - which is the part a person is
+ * choosing on.
+ *
+ * By default the box is only as tall as the title needs, because in a vertical
+ * list a short title followed by its caption should not carry a band of dead
+ * space. `reserve` asks for the opposite: always the full `lines * lineHeight`
+ * box, however short the text. That is what a grid wants, where cards sit side
+ * by side and a one-line title beside a two-line one leaves a ragged bottom
+ * edge down the whole screen.
  *
  * With reduce-motion on it stays put and ellipsises, which is the honest
  * fallback rather than a silent one.
@@ -22,6 +28,7 @@ const RETURN_MS = 450;
 export function ScrollingTitle({
   lines = 2,
   lineHeight,
+  reserve = false,
   children,
   style,
   ...txtProps
@@ -29,6 +36,8 @@ export function ScrollingTitle({
   lines?: number;
   /** The variant's line box. Passed explicitly because the box has to be exact. */
   lineHeight: number;
+  /** Hold the full height even when the title is shorter. For grids. */
+  reserve?: boolean;
   children: string;
 }) {
   const [total, setTotal] = useState(0);
@@ -78,11 +87,11 @@ export function ScrollingTitle({
     setTotal((current) => (current === count ? current : count));
   };
 
-  // A one-line title takes one line: reserving the full box for every row left
-  // a band of dead space between short titles and their captions. The fixed,
-  // clipped box exists only when there is actually something to scroll. The
-  // measuring copy is invisible and out of flow, so the visible text can stay
-  // clamped without hiding the true line count from the animation.
+  // Unless `reserve` is asked for, a one-line title takes one line: holding the
+  // full box in every row left a band of dead space between short titles and
+  // their captions. The measuring copy is invisible and out of flow, so the
+  // visible text can stay clamped without hiding the true line count from the
+  // animation.
   const measure = (
     <Txt
       {...txtProps}
@@ -96,7 +105,9 @@ export function ScrollingTitle({
 
   if (!overflow || reduceMotion) {
     return (
-      <View>
+      // Reserved or not, the text starts at the top of the box, so a one-line
+      // title sits on the same baseline as the first line of a two-line one.
+      <View style={reserve ? { height: lines * lineHeight, overflow: 'hidden' } : undefined}>
         {measure}
         <Txt {...txtProps} style={[{ lineHeight }, style]} numberOfLines={lines} ellipsizeMode="tail">
           {children}
@@ -108,8 +119,16 @@ export function ScrollingTitle({
   return (
     <View style={{ height: lines * lineHeight, overflow: 'hidden' }}>
       {measure}
-      <Animated.View style={{ transform: [{ translateY: offset }] }}>
-        <Txt {...txtProps} style={[{ lineHeight }, style]} ellipsizeMode="tail">
+      {/* Absolute, so the text is laid out at its own height rather than the
+          box's. As a normal child it inherits the clipped height and Yoga lays
+          out only the lines that fit - so scrolling up revealed blank space
+          where the rest of the title should have been, which defeated the whole
+          point of scrolling. Out of flow it wraps to its full length and the
+          parent does the clipping, visually, as intended. */}
+      <Animated.View
+        style={{ position: 'absolute', left: 0, right: 0, top: 0, transform: [{ translateY: offset }] }}
+      >
+        <Txt {...txtProps} style={[{ lineHeight }, style]}>
           {children}
         </Txt>
       </Animated.View>
