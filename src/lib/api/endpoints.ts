@@ -91,6 +91,13 @@ export const catalog = {
     const suffix = query.toString();
     return request<CatalogPage>(suffix ? `/catalog?${suffix}` : '/catalog');
   },
+  /**
+   * Write your own someday. Created, kept, and visible on the terms given here
+   * in one call - a custom someday with no keep behind it would be invisible to
+   * everyone including its author's friends.
+   */
+  create: (body: { title: string; category: string } & VisibilityIn) =>
+    request<KeepOut>('/somedays', { method: 'POST', body }),
   /** The filter chips, served so the client and the catalog cannot drift. */
   categories: () => request<string[]>('/categories'),
   /**

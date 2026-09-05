@@ -14,6 +14,7 @@ import { SomedayTile } from '@/components/someday-tile';
 import { Avatar, Chip, Field, GhostButton, IconButton, InlineNotice, PrimaryButton, SearchField, Txt } from '@/components/ui';
 import { addProfilePhoto, keep } from '@/lib/actions';
 import { PH_CITIES } from '@/lib/cities';
+import { useDeck } from '@/lib/feed';
 import { interestCategories } from '@/lib/interests';
 import { WANTS } from '@/lib/mock';
 import { PHOTO } from '@/lib/photos';
@@ -22,6 +23,10 @@ import { useApp, type Gender } from '@/store';
 
 type Step = 'story' | 'account' | 'profile' | 'photo' | 'city' | 'about' | 'interests' | 'picks';
 const ORDER: Step[] = ['story', 'account', 'profile', 'photo', 'city', 'about', 'interests', 'picks'];
+/** How many somedays the starter grid offers. Three is the minimum to continue. */
+const STARTER_PICKS = 12;
+/** Nothing is decided or stale during onboarding; the deck starts empty. */
+const NOTHING: ReadonlySet<string> = new Set();
 const STORY = [
   { key: 'keep', photo: PHOTO.surf },
   { key: 'seen', photo: PHOTO.market },
@@ -55,6 +60,13 @@ export default function Onboarding() {
   const [work, setWork] = useState('');
   const [education, setEducation] = useState('');
   const [needs, setNeeds] = useState<string[]>([]);
+  /**
+   * The starter grid, live. Empty in demo builds and until the first page
+   * lands, which is what the bundled fallback below is for. By the time this
+   * step is reached the interests have already been PATCHed, so the ranking
+   * behind it has them.
+   */
+  const starter = useDeck('All', NOTHING as Set<string>, NOTHING as Set<string>);
   const [picks, setPicks] = useState<string[]>([]);
   const index = ORDER.indexOf(step);
 
@@ -63,6 +75,16 @@ export default function Onboarding() {
     return PH_CITIES.filter((item) => !needle || item.name.toLowerCase().includes(needle) || item.province.toLowerCase().includes(needle)).slice(0, 12);
   }, [cityQuery]);
   const suggestions = useMemo(() => {
+    // Live, the starter grid comes from the ranked deck rather than the bundled
+    // sample. Two reasons, and the second is the important one: it is the same
+    // cold-start ranking the deck uses, already spread across categories - and
+    // it registers each someday's server id on the way through. Keeping a
+    // bundled row whose id the directory has never seen writes to the store and
+    // silently skips the sync, which is how someone's first twelve keeps - the
+    // strongest signal the account will ever produce - used to reach the phone
+    // and never the server.
+    if (starter.cards.length) return starter.cards.slice(0, STARTER_PICKS);
+
     const cats = interestCategories(needs);
     const pool = WANTS.filter((want) => want.slug);
     if (cats.size) {
@@ -70,7 +92,7 @@ export default function Onboarding() {
         want,
         score: (cats.has(want.category) ? 2 : 0) + want.needs.filter((need) => needs.includes(need)).length,
       }));
-      return scored.sort((a, b) => b.score - a.score).slice(0, 12).map((item) => item.want);
+      return scored.sort((a, b) => b.score - a.score).slice(0, STARTER_PICKS).map((item) => item.want);
     }
     // No interests picked: round-robin the categories so the starter grid
     // shows the breadth of the catalog, not twelve versions of one idea.
@@ -82,7 +104,7 @@ export default function Onboarding() {
     }
     const buckets = [...byCategory.values()];
     const spread: typeof pool = [];
-    for (let round = 0; spread.length < 12; round += 1) {
+    for (let round = 0; spread.length < STARTER_PICKS; round += 1) {
       let added = false;
       for (const bucket of buckets) {
         if (bucket[round]) {
@@ -94,7 +116,7 @@ export default function Onboarding() {
       if (!added) break;
     }
     return spread;
-  }, [needs]);
+  }, [needs, starter.cards]);
 
   const pickPhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [4, 5], quality: 0.85 });

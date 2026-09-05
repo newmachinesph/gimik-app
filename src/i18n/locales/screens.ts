@@ -501,7 +501,13 @@ export const screensEn = {
       "body": "One sentence. No date, no place needed yet.",
       "ph": "See the northern lights",
       "keepQuoted": "Keep \"{{title}}\"",
-      "noMatch": "Nothing in the catalog matches yet. Custom somedays arrive with the server."
+      "searching": "Looking through the catalog...",
+      "noMatch": "Nothing in the catalog matches that.",
+      "orYourOwn": "Not quite it?",
+      "writeIt": "Write it in your own words",
+      "whichShelf": "Which shelf does it belong on?",
+      "addQuoted": "Add \"{{title}}\"",
+      "adding": "Adding..."
     },
     "editProfile": {
       "title": "Edit profile",

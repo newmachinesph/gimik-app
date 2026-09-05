@@ -74,6 +74,54 @@ export function setVisibility(wantId: string, visibility: Visibility): void {
   if (id) sync(() => catalog.setVisibility(id, visibilityBody(visibility)), 's.toasts.syncFailed');
 }
 
+/**
+ * Write a someday the catalog does not have.
+ *
+ * Unlike every other action here this one cannot be optimistic in the usual
+ * way: the row does not exist yet, so there is no server id to write against
+ * and nothing to reconcile to if the call fails. It therefore awaits, and the
+ * caller shows the result. Demo builds keep the local-only behaviour.
+ *
+ * Returns the id the rest of the app should use for it, or null when the write
+ * failed and the caller should say so rather than pretend.
+ */
+export async function createSomeday(
+  title: string,
+  category: string,
+  visibility?: Visibility,
+): Promise<string | null> {
+  const applied = visibility ?? useApp.getState().defaultVisibility;
+  const { registerWant, wantFromDto } = await import('@/lib/registry');
+  const { WANTS } = await import('@/lib/mock');
+
+  if (!isLive()) {
+    // Demo builds have no server to own the row, so it lives in the registry -
+    // which exists for exactly this: somedays this build did not ship.
+    const id = `custom-${Date.now()}`;
+    registerWant(
+      wantFromDto(
+        { id, slug: null, title, category, party: 'any', needs: [], artwork_url: null },
+        WANTS[0].photo,
+      ),
+    );
+    useApp.getState().keep(id, applied);
+    return id;
+  }
+
+  try {
+    const kept = await catalog.create({ title, category, ...visibilityBody(applied) });
+    const { rememberSomeday } = await import('@/lib/api/directory');
+    rememberSomeday(kept.someday);
+    const want = wantFromDto(kept.someday, WANTS[0].photo);
+    registerWant(want);
+    useApp.getState().keep(want.id, applied);
+    return want.id;
+  } catch {
+    toast(i18n.t('s.toasts.syncFailed'));
+    return null;
+  }
+}
+
 export function acceptInvite(inviteId: string) {
   const thread = useApp.getState().acceptInvite(inviteId);
   sync(() => social.acceptInvite(inviteId), 's.toasts.syncFailed');
