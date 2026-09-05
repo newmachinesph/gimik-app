@@ -119,7 +119,14 @@ export const catalog = {
 export const social = {
   invites: () => request<InviteOut[]>('/invites'),
   invite: (body: InviteCreate) => request<InviteOut>('/invites', { method: 'POST', body }),
-  acceptInvite: (inviteId: Uuid) => request<ThreadOut>(`/invites/${inviteId}/accept`, { method: 'POST' }),
+  /**
+   * Accepting opens the conversation and returns only its id - not the thread.
+   * Typed as ThreadOut until a simulation run against the live API showed the
+   * body is `{thread_id}`; harmless so far only because the one caller discards
+   * the result, which is exactly the kind of lie that bites the second caller.
+   */
+  acceptInvite: (inviteId: Uuid) =>
+    request<{ thread_id: Uuid }>(`/invites/${inviteId}/accept`, { method: 'POST' }),
   declineInvite: (inviteId: Uuid) => request<void>(`/invites/${inviteId}/decline`, { method: 'POST' }),
   markInvitesSeen: () => request<void>('/invites/seen', { method: 'POST' }),
   friends: () => request<FriendsOut>('/friends'),
