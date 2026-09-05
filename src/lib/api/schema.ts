@@ -53,10 +53,28 @@ export type SomedayOut = {
   slug: string | null;
   title: string;
   category: string;
+  /** The subcategory ("Hiking & Mountains"), finer than the filter chips. */
+  domain?: string | null;
   party: string;
   needs: string[];
   artwork_url?: string | null;
 };
+
+/**
+ * One page of the browse grid. The catalog is 2,522 concepts now, so `/catalog`
+ * pages instead of returning everything; `next_offset` is null on the last page.
+ */
+export type CatalogPage = { items: SomedayOut[]; total: number; next_offset: number | null };
+
+/**
+ * One deck card and why it was chosen. `reasons` carries tags the card can show
+ * ("friends", "second_look"), which is both better product and the only way to
+ * tell a mis-ranked deck from a working one without reading the server.
+ */
+export type FeedItemOut = { someday: SomedayOut; pool: string; reasons: string[] };
+
+/** `exhausted` means every pool is empty - show an end state, do not refetch. */
+export type FeedOut = { items: FeedItemOut[]; exhausted: boolean; pools: Record<string, number> };
 
 /** The two visibility axes. `party_as` is `as` on the client; `as` is reserved in TS. */
 export type VisibilityIn = { open_to: string[]; party_as: string[] };

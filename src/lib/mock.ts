@@ -1,3 +1,4 @@
+import { CANONICAL_CATEGORIES, canonical } from '@/lib/taxonomy';
 import type { PhotoSource } from '@/components/ui';
 import { i18n } from '@/i18n';
 import { dateFromIso, formatDate } from '@/i18n/format';
@@ -18,18 +19,13 @@ import { catalogPhoto } from './storage';
 // signed-in person made them, which is what keeps a new account's first screen
 // theirs rather than someone else's history.
 
-export const CATEGORIES = [
-  'All',
-  'Nature',
-  'Water',
-  'Food',
-  'Cities',
-  'Adventure',
-  'Community',
-  'Culture',
-  'Fitness',
-  'Skills',
-] as const;
+/**
+ * The filter chips. 'All' is the absence of a filter, then the nine canonical
+ * shelves the API serves - see `@/lib/taxonomy`. The bundled catalog predates
+ * these names and is mapped through `canonical` where WANTS is built, so demo
+ * and live builds filter on the same vocabulary.
+ */
+export const CATEGORIES = ['All', ...CANONICAL_CATEGORIES] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 export type Place = {
@@ -99,7 +95,13 @@ function facetsOf(slug: string): Pick<Want, 'slug' | 'register' | 'party' | 'nee
  * "Learn to surf a real break" reads as Water on this list even though the
  * catalog files the concept under Skills.
  */
-type AuthoredWant = Omit<Want, 'register' | 'party' | 'needs'> & { slug: string };
+// Authored in the legacy one-word vocabulary, like the generated catalog it
+// sits beside. `category` is widened to string here and narrowed back by
+// `canonical()` where WANTS is built, so the demo rows need no rewriting.
+type AuthoredWant = Omit<Want, 'register' | 'party' | 'needs' | 'category'> & {
+  slug: string;
+  category: string;
+};
 
 const AUTHORED: AuthoredWant[] = [
   {
@@ -262,7 +264,14 @@ const AUTHORED: AuthoredWant[] = [
   },
 ];
 
-export const WANTS: Want[] = AUTHORED.map((want) => ({ ...want, ...facetsOf(want.slug) }));
+export const WANTS: Want[] = AUTHORED.map((want) => ({
+  ...want,
+  ...facetsOf(want.slug),
+  // The bundled catalog was authored against the old one-word names; the API
+  // speaks the canonical nine. Mapping here means every screen downstream sees
+  // one vocabulary whether it is reading demo data or the server.
+  category: canonical(want.category) as Category,
+}));
 
 const AUTHORED_SLUGS = new Set(AUTHORED.map((want) => want.slug));
 const AUTHORED_IDS = new Set(AUTHORED.map((want) => want.id));
@@ -329,7 +338,7 @@ WANTS.push(
     id: entry.slug,
     slug: entry.slug,
     title: entry.title,
-    category: entry.category,
+    category: canonical(entry.category) as Category,
     photo: catalogPhoto(entry.slug),
     saves: savesFor(entry.slug),
     register: entry.register,

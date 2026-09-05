@@ -1,3 +1,5 @@
+import { canonical } from '@/lib/taxonomy';
+
 /**
  * The interest bank: Bumble's thirteen shelves, restocked for the Philippines.
  * Every interest is an emoji + a name, a person wears at most ten, and each
@@ -174,7 +176,9 @@ export function interestBadge(slug: string): string | undefined {
 export function interestCategories(slugs: string[]): Set<string> {
   const cats = new Set<string>();
   for (const slug of slugs) {
-    for (const cat of INTEREST_BY_SLUG.get(slug)?.cats ?? []) cats.add(cat);
+    // The bank's `cats` are written in the old one-word vocabulary; callers
+    // compare them against catalog categories, which are canonical.
+    for (const cat of INTEREST_BY_SLUG.get(slug)?.cats ?? []) cats.add(canonical(cat));
   }
   return cats;
 }

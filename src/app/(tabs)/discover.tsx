@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, useWindowDimensions, View } from 'react-native';
 
@@ -15,7 +15,8 @@ import {
   Txt,
 } from '@/components/ui';
 import { categoryChip } from '@/lib/interests';
-import { CATEGORIES, categoryLabel, WANTS, wantTitle, type Category } from '@/lib/mock';
+import { useBrowse } from '@/lib/browse';
+import { CATEGORIES, categoryLabel, type Category } from '@/lib/mock';
 
 /** What could I want? Search, category chips, the whole catalog. Nothing else. */
 export default function Discover() {
@@ -25,12 +26,7 @@ export default function Discover() {
   const [category, setCategory] = useState<Category>('All');
   const tileWidth = (Math.min(width, 760) - 40 - 12) / 2;
 
-  const results = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return WANTS.filter((want) =>
-      (category === 'All' || want.category === category)
-      && (!needle || wantTitle(want).toLowerCase().includes(needle) || want.title.toLowerCase().includes(needle)));
-  }, [category, query]);
+  const { results, total, loading, loadingMore, failed, hasMore, loadMore } = useBrowse(query, category);
 
   const header = (
     <View>
@@ -50,7 +46,7 @@ export default function Discover() {
           onFilter={() => { setCategory('All'); setQuery(''); }}
         />
       </View>
-      <Txt variant="caption" className="mb-3">{t('s.discover.count', { count: results.length })}</Txt>
+      <Txt variant="caption" className="mb-3">{t('s.discover.count', { count: total })}</Txt>
     </View>
   );
 
@@ -68,19 +64,32 @@ export default function Discover() {
         contentContainerStyle={{ gap: 12, paddingBottom: TAB_BAR_CLEARANCE }}
         ListHeaderComponent={header}
         ListEmptyComponent={
-          <EmptyState
-            icon="search"
-            title={t('s.discover.empty.title')}
-            body={t('s.discover.empty.body')}
-            action={query.trim() || category !== 'All' ? t('s.discover.empty.action') : undefined}
-            onAction={() => { setCategory('All'); setQuery(''); }}
-          />
+          loading ? (
+            <EmptyState icon="search" title={t('s.discover.loading.title')} body={t('s.discover.loading.body')} />
+          ) : failed ? (
+            <EmptyState icon="search" title={t('s.discover.offline.title')} body={t('s.discover.offline.body')} />
+          ) : (
+            <EmptyState
+              icon="search"
+              title={t('s.discover.empty.title')}
+              body={t('s.discover.empty.body')}
+              action={query.trim() || category !== 'All' ? t('s.discover.empty.action') : undefined}
+              onAction={() => { setCategory('All'); setQuery(''); }}
+            />
+          )
         }
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         initialNumToRender={4}
         maxToRenderPerBatch={4}
         windowSize={3}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.6}
+        ListFooterComponent={
+          hasMore || loadingMore ? (
+            <Txt variant="caption" className="py-6 text-center">{t('s.discover.loadingMore')}</Txt>
+          ) : null
+        }
         renderItem={({ item }) => (
           <View style={{ width: tileWidth }}>
             <SomedayTile want={item} onPress={() => router.push(`/want/${item.id}` as never)} />

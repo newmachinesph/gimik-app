@@ -29,15 +29,15 @@ export const sharedEn = {
     "mock": {
       "categories": {
         "All": "All",
-        "Nature": "Nature",
-        "Water": "Water",
-        "Food": "Food",
-        "Cities": "Cities",
-        "Adventure": "Adventure",
-        "Community": "Community",
-        "Culture": "Culture",
-        "Fitness": "Fitness",
-        "Skills": "Skills"
+        "Adventure & Outdoors": "Adventure",
+        "Nature & Countryside": "Nature",
+        "Water & Islands": "Water",
+        "Food & Drink": "Food",
+        "Culture & Heritage": "Culture",
+        "City & Social": "City",
+        "Wellness & Sports": "Wellness",
+        "Travel & Learning": "Learning",
+        "Signature & Rare": "Signature"
       },
       "wants": {
         "w1": {

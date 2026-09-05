@@ -1,5 +1,7 @@
 import { request, setTokens } from './client';
 import type {
+  CatalogPage,
+  FeedOut,
   FriendsOut,
   GroupOut,
   InviteCreate,
@@ -21,7 +23,6 @@ import type {
   ProfileOut,
   ProfilePatch,
   RegisterIn,
-  SomedayOut,
   ThreadDetailOut,
   ThreadOut,
   TokenPair,
@@ -79,7 +80,33 @@ export const auth = {
 };
 
 export const catalog = {
-  list: () => request<SomedayOut[]>('/catalog'),
+  /** One page of the browse grid, alphabetical. Pass the previous page's
+   *  `next_offset` to continue; it is null when there is no more. */
+  list: (params: { q?: string; category?: string; offset?: number; limit?: number } = {}) => {
+    const query = new URLSearchParams();
+    if (params.q) query.set('q', params.q);
+    if (params.category) query.set('category', params.category);
+    if (params.offset) query.set('offset', String(params.offset));
+    if (params.limit) query.set('limit', String(params.limit));
+    const suffix = query.toString();
+    return request<CatalogPage>(suffix ? `/catalog?${suffix}` : '/catalog');
+  },
+  /** The filter chips, served so the client and the catalog cannot drift. */
+  categories: () => request<string[]>('/categories'),
+  /**
+   * The deck: the next cards for this person, ranked and spread.
+   *
+   * Deliberately has no cursor. The pool is "everything you have not decided
+   * on" and it shrinks as you swipe, so an offset would skip whatever left the
+   * pool while page one was on screen. Deciding is what advances the deck.
+   */
+  feed: (params: { limit?: number; category?: string } = {}) => {
+    const query = new URLSearchParams();
+    if (params.limit) query.set('limit', String(params.limit));
+    if (params.category) query.set('category', params.category);
+    const suffix = query.toString();
+    return request<FeedOut>(suffix ? `/feed?${suffix}` : '/feed');
+  },
   mine: () => request<KeepOut[]>('/me/somedays'),
   keep: (somedayId: Uuid, body: VisibilityIn) => request<KeepOut>(`/somedays/${somedayId}/keep`, { method: 'PUT', body }),
   unkeep: (somedayId: Uuid) => request<void>(`/somedays/${somedayId}/keep`, { method: 'DELETE' }),

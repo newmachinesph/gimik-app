@@ -1,8 +1,9 @@
+import { canonical } from '@/lib/taxonomy';
 
 import { registeredPeople, registeredPerson } from './registry';
 import { CATALOG } from './catalog';
 import { personPhotos } from './storage';
-import { ME, WANTS, type Want } from './mock';
+import { ME, WANTS, type Category, type Want } from './mock';
 
 /**
  * The seeded world. Matching is the move the product is named for, so it is
@@ -162,7 +163,7 @@ export function matchCatalog(sentence: string): CanonicalMatch | undefined {
     if (!best || score > best.score) best = { entry, score };
   }
   if (!best || best.score < 1) return undefined;
-  return { slug: best.entry.slug, title: best.entry.title, category: best.entry.category };
+  return { slug: best.entry.slug, title: best.entry.title, category: canonical(best.entry.category) as Category };
 }
 
 const BUNDLED_BY_NAME = new Map(PEOPLE.map((person) => [person.name, person]));

@@ -178,6 +178,20 @@ export const screensEn = {
         "body": "New somedays land here as people add them. Discover has the whole catalog.",
         "action": "Open Discover"
       },
+      "loading": {
+        "title": "Finding your next somedays",
+        "body": "One moment."
+      },
+      "offline": {
+        "title": "Couldn't reach Gora",
+        "body": "Your keeps are safe on this phone. The deck needs a connection to fill up again.",
+        "action": "Try again"
+      },
+      "done": {
+        "title": "That's the whole catalog",
+        "body": "You've decided on every someday we have, including the ones worth a second look. Add your own and it becomes something people can join.",
+        "action": "Add a someday"
+      },
       "filterSheet": {
         "eyebrow": "Show me",
         "title": "Which kind of someday?",
@@ -192,6 +206,15 @@ export const screensEn = {
       "add": "Add your own someday",
       "count_one": "{{count}} someday",
       "count_other": "{{count}} somedays",
+      "loadingMore": "Loading more...",
+      "loading": {
+        "title": "Loading the catalog",
+        "body": "One moment."
+      },
+      "offline": {
+        "title": "Couldn't reach Gora",
+        "body": "Check your connection and try again."
+      },
       "empty": {
         "title": "Nothing matches",
         "body": "Try another word, or a category.",

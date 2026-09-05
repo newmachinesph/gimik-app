@@ -20,7 +20,8 @@ import {
 } from '@/components/ui';
 import { keep, pass, setVisibility, unkeep, unpass } from '@/lib/actions';
 import { categoryChip } from '@/lib/interests';
-import { CATEGORIES, categoryLabel, WANTS, wantTitle, type Category, type Want } from '@/lib/mock';
+import { useDeck } from '@/lib/feed';
+import { CATEGORIES, categoryLabel, wantTitle, type Category, type Want } from '@/lib/mock';
 import { RESURFACE_AFTER_DAYS } from '@/lib/somedays';
 import { useApp, type Visibility } from '@/store';
 
@@ -54,16 +55,12 @@ export default function Somedays() {
     return new Set(keptIds.filter((id) => !plans[id] && !doneIds.includes(id) && new Date(keptAt[id] ?? 0).getTime() < cutoff));
   }, [doneIds, keptAt, keptIds, plans]);
 
-  const deck = useMemo(
-    () =>
-      WANTS.filter((want) =>
-        want.slug
-        && (category === 'All' || want.category === category)
-        && !passedIds.includes(want.id)
-        && !doneIds.includes(want.id)
-        && (!keptIds.includes(want.id) || stale.has(want.id))),
-    [category, doneIds, keptIds, passedIds, stale],
+  /** Everything already answered for. The deck asks about nothing in here. */
+  const decided = useMemo(
+    () => new Set([...keptIds, ...passedIds, ...doneIds]),
+    [doneIds, keptIds, passedIds],
   );
+  const { cards: deck, loading, exhausted, failed, retry } = useDeck(category, decided, stale);
 
   const undoDecision = (last: { want: Want; decision: Decision; resurfaced: boolean }) => {
     if (last.decision === 'keep' && !last.resurfaced) unkeep(last.want.id);
@@ -138,6 +135,20 @@ export default function Somedays() {
           deck.length ? (
             <View style={{ paddingHorizontal: GUTTER }}>
               <DecideDeck wants={deck} height={deckHeight} resurfacedIds={stale} onDecide={decide} onOpen={(want) => router.push(`/want/${want.id}` as never)} />
+            </View>
+          ) : loading ? (
+            <View className="px-5">
+              <EmptyState icon="sparkle" title={t('s.home.loading.title')} body={t('s.home.loading.body')} />
+            </View>
+          ) : failed ? (
+            // A failed fetch is not an empty catalog, and saying so lets the
+            // person retry instead of believing they have seen everything.
+            <View className="px-5">
+              <EmptyState icon="sparkle" title={t('s.home.offline.title')} body={t('s.home.offline.body')} action={t('s.home.offline.action')} onAction={retry} />
+            </View>
+          ) : exhausted ? (
+            <View className="px-5">
+              <EmptyState icon="sparkle" title={t('s.home.done.title')} body={t('s.home.done.body')} action={t('s.home.done.action')} onAction={() => router.push('/create' as never)} />
             </View>
           ) : (
             <View className="px-5">
