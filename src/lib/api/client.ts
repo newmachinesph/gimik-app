@@ -18,11 +18,6 @@ const TIMEOUT_MS = 15_000;
 
 /** Whether an API is configured at all. False means the app is on demo data. */
 export const hasApi = Boolean(BASE_URL);
-/**
- * The API's host and port, for showing a person which server they are on.
- * Empty string in a demo build, where `hasApi` is false and there is no server.
- */
-export const apiHost = BASE_URL.replace(/^https?:\/\//, '');
 
 export class ApiError extends Error {
   constructor(

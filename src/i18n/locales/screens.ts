@@ -597,8 +597,8 @@ export const screensEn = {
       "resetTitle": "Reset?",
       "resetBody": "Wipes everything on this device.",
       "resetConfirm": "Reset",
-      "footer": "Gora v2 demo - flat data, no server.",
-      "footerLive": "Gora v2 - connected to {{host}}."
+      "footer": "Gora {{version}} demo - flat data, no server.",
+      "footerLive": "Gora {{version}}"
     },
     "opening": {
       "eyebrow": "While you were away",

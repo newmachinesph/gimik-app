@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Alert, Switch, View } from 'react-native';
@@ -25,10 +26,12 @@ import * as WebBrowser from 'expo-web-browser';
 import { DEMO } from '@/data/demo';
 import { SITE_URL } from '@/lib/links';
 import { C } from '@/lib/tokens';
-import { apiHost } from '@/lib/api/client';
 import { useApp, type DemoState } from '@/store';
 
 /** Defaults, quiet lists, and the way out. Nothing here is needed daily. */
+/** Whatever the manifest says, so the footer cannot drift from the build. */
+const APP_VERSION = Constants.expoConfig?.version ?? '';
+
 export default function Settings() {
   const { t } = useTranslation();
   const demoState = useApp((s) => s.demoState);
@@ -198,13 +201,19 @@ export default function Settings() {
 
       <View className="flex-row items-center mt-2">
         <GoraIcon name="info" size={14} color={C.inkMuted} />
-        {/* What this build is actually talking to. It used to read "flat data,
-            no server" unconditionally, which stopped being true the day the app
-            was wired up and then quietly told everyone otherwise. */}
+        {/* The demo caveat is worth saying, because nothing on that build is
+            real. Against a server there is nothing to warn about, so this is
+            just the name and version - the endpoint is a developer's business,
+            not a person's.
+
+            The version is read from the manifest rather than written here. The
+            line used to say "Gora v2 demo - flat data, no server" whatever the
+            build was doing: v2 is the codebase generation, not the product,
+            which shipped as 1.0.0, and the app had had a server for a while.
+            Both halves of that were stale, which is what a hardcoded string
+            does eventually. */}
         <Txt variant="caption" className="ml-2">
-          {source === 'api' && apiHost
-            ? t('s.settings.footerLive', { host: apiHost })
-            : t('s.settings.footer')}
+          {t(source === 'api' ? 's.settings.footerLive' : 's.settings.footer', { version: APP_VERSION })}
         </Txt>
       </View>
     </Screen>
