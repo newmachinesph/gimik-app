@@ -52,6 +52,15 @@ export type RealActivity = {
  */
 export type Want = {
   id: string;
+  /**
+   * How many people actually hold this, and how many of them you know - set
+   * only for somedays the server described. Absent on bundled rows, which fall
+   * back to the demo cast's own table. Without this the deck card counted
+   * holders out of the nine seeded people and showed that number against a real
+   * catalog, which is a fabrication on the app's most-looked-at line of text.
+   */
+  holders?: number;
+  friendHolders?: number;
   title: string;
   /** The catalog concept used for matching when the visible activity is specific. */
   canonicalTitle?: string;

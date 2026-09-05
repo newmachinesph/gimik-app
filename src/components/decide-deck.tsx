@@ -254,12 +254,18 @@ function DeckCard({
   const { t } = useTranslation();
   const interests = useApp((state) => state.profile.interests);
   const because = matchedInterestLabel(interests ?? [], want.category);
-  const holders = holdersOf(want).length;
-  const social = holders
-    ? t('shared.common.wantsThis', { count: holders, formattedCount: formatNumber(holders) })
-    : want.saves
-      ? t('shared.common.savedCount', { count: want.saves, formattedCount: formatNumber(want.saves) })
-      : t('shared.common.onlyYou');
+  // The server's counts when it supplied them, the demo cast's table otherwise.
+  // A friend wanting this is the strongest thing the card can say - it is the
+  // difference between a number and an invitation - so it wins when there is one.
+  const holders = want.holders ?? holdersOf(want).length;
+  const friends = want.friendHolders ?? 0;
+  const social = friends
+    ? t('shared.common.friendsWant', { count: friends, formattedCount: formatNumber(friends) })
+    : holders
+      ? t('shared.common.wantsThis', { count: holders, formattedCount: formatNumber(holders) })
+      : want.saves
+        ? t('shared.common.savedCount', { count: want.saves, formattedCount: formatNumber(want.saves) })
+        : t('shared.common.onlyYou');
   const scope = wantLocationScope(want);
 
   return (

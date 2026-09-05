@@ -71,7 +71,14 @@ export type CatalogPage = { items: SomedayOut[]; total: number; next_offset: num
  * ("friends", "second_look"), which is both better product and the only way to
  * tell a mis-ranked deck from a working one without reading the server.
  */
-export type FeedItemOut = { someday: SomedayOut; pool: string; reasons: string[] };
+export type FeedItemOut = {
+  someday: SomedayOut;
+  pool: string;
+  reasons: string[];
+  /** How many people hold this someday, and how many of them you know. */
+  keeps: number;
+  friend_keeps: number;
+};
 
 /** `exhausted` means every pool is empty - show an end state, do not refetch. */
 export type FeedOut = { items: FeedItemOut[]; exhausted: boolean; pools: Record<string, number> };

@@ -10,6 +10,8 @@ export const sharedEn = {
       "inDays_one": "In {{count}} day",
       "inDays_other": "In {{count}} days",
       "onlyYou": "Only you",
+      "friendsWant_one": "{{formattedCount}} friend wants this",
+      "friendsWant_other": "{{formattedCount}} friends want this",
       "wantsThis_one": "{{formattedCount}} person wants this",
       "wantsThis_other": "{{formattedCount}} people want this",
       "savedCount_one": "{{formattedCount}} saved",

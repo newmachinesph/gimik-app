@@ -70,5 +70,6 @@ export function personFromDto(dto: HolderOut | PersonOut, id: string): Person {
     languages: full.languages ?? [],
     leans: [],
     photoCount: full.photos?.length ?? 0,
+    photos: full.photos?.map((photo) => photo.url),
   };
 }

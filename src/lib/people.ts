@@ -36,6 +36,15 @@ export type Person = {
   languages: string[];
   /** How many portraits the object store holds for them, `people/<id>-N.webp`. */
   photoCount: number;
+  /**
+   * The actual photo URLs, for people the server described.
+   *
+   * The bundled cast's portraits are editorial, public, and derivable from the
+   * id. A real account's are private objects served by presigned URL, so they
+   * cannot be composed from anything - guessing `people/<uuid>-1.webp` for a
+   * real person just renders a broken image. Present means "use these".
+   */
+  photos?: string[];
 };
 
 /** The seeded world. Gender, age and city are set on each person, never guessed. */
@@ -56,7 +65,7 @@ const PEOPLE_BY_NAME = new Map(PEOPLE.map((person) => [person.name, person]));
 /** A person's portraits, newest-first ordering fixed by the seed. Empty until
  *  the object store is configured, which every caller renders as initials. */
 export function photosOf(person: Person) {
-  return personPhotos(person.id, person.photoCount);
+  return person.photos ?? personPhotos(person.id, person.photoCount);
 }
 
 /** How often a person says yes, in percent, inside and outside their taste. */

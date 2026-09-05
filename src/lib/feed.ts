@@ -115,7 +115,11 @@ export function useDeck(category: Category, decided: Set<string>, stale: Set<str
         // kept, because the write path has no UUID to send.
         const incoming = page.items.map((item) => {
           rememberSomeday(item.someday);
-          const want = wantFromDto(item.someday, WANTS[0].photo);
+          const want = {
+            ...wantFromDto(item.someday, WANTS[0].photo),
+            holders: item.keeps,
+            friendHolders: item.friend_keeps,
+          };
           registerWant(want);
           return want;
         });
