@@ -48,14 +48,22 @@ type Loaded = {
   /** The filter these cards answer. Anything else is last question's answer. */
   key: string;
   items: Want[];
+  secondLook: Set<string>;
   exhausted: boolean;
   failed: boolean;
 };
 
-const EMPTY: Loaded = { key: '', items: [], exhausted: false, failed: false };
+const EMPTY: Loaded = { key: '', items: [], secondLook: new Set(), exhausted: false, failed: false };
 
 export type Deck = {
   cards: Want[];
+  /**
+   * Cards the server offered from its second-look pool - things passed long
+   * enough ago to be worth asking about again. The card says so rather than
+   * pretending to be new, which is the difference between a second chance and
+   * an app that quietly forgets what you told it.
+   */
+  secondLook: Set<string>;
   /** First load only - a refill must not blank a deck that already has cards. */
   loading: boolean;
   /** Every pool is empty. Show the end state; asking again returns the same. */
@@ -113,6 +121,7 @@ export function useDeck(category: Category, decided: Set<string>, stale: Set<str
         // Register before rendering: the rest of the app looks somedays up by
         // slug, and a card whose id the directory has never seen cannot be
         // kept, because the write path has no UUID to send.
+        const resurfaced = new Set<string>();
         const incoming = page.items.map((item) => {
           rememberSomeday(item.someday);
           const want = {
@@ -121,6 +130,7 @@ export function useDeck(category: Category, decided: Set<string>, stale: Set<str
             friendHolders: item.friend_keeps,
           };
           registerWant(want);
+          if (item.pool === 'second_look') resurfaced.add(want.id);
           return want;
         });
         setLoaded((current) => {
@@ -129,6 +139,10 @@ export function useDeck(category: Category, decided: Set<string>, stale: Set<str
           return {
             key,
             items: [...base, ...incoming.filter((want) => !seen.has(want.id))],
+            secondLook:
+              replace || current.key !== key
+                ? resurfaced
+                : new Set([...current.secondLook, ...resurfaced]),
             exhausted: page.exhausted,
             failed: false,
           };
@@ -138,7 +152,7 @@ export function useDeck(category: Category, decided: Set<string>, stale: Set<str
         setLoaded((current) =>
           current.key === key
             ? { ...current, failed: true }
-            : { key, items: [], exhausted: false, failed: true },
+            : { key, items: [], secondLook: new Set(), exhausted: false, failed: true },
         );
       } finally {
         inFlight.current = false;
@@ -174,6 +188,7 @@ export function useDeck(category: Category, decided: Set<string>, stale: Set<str
 
   return {
     cards,
+    secondLook: settled ? loaded.secondLook : EMPTY.secondLook,
     loading: live && !settled && cards.length === 0,
     // Only truly empty when the server has nothing and nothing is resurfacing.
     exhausted: live ? settled && loaded.exhausted && cards.length === 0 : cards.length === 0,

@@ -60,7 +60,13 @@ export default function Somedays() {
     () => new Set([...keptIds, ...passedIds, ...doneIds]),
     [doneIds, keptIds, passedIds],
   );
-  const { cards: deck, loading, exhausted, failed, retry } = useDeck(category, decided, stale);
+  const { cards: deck, secondLook, loading, exhausted, failed, retry } = useDeck(category, decided, stale);
+  /**
+   * Two ways a card can be a repeat, and the card should say so either way: a
+   * keep that has waited too long without a date (decided here), and a pass old
+   * enough for the server to offer again.
+   */
+  const resurfacedIds = useMemo(() => new Set([...stale, ...secondLook]), [secondLook, stale]);
 
   const undoDecision = (last: { want: Want; decision: Decision; resurfaced: boolean }) => {
     if (last.decision === 'keep' && !last.resurfaced) unkeep(last.want.id);
@@ -69,6 +75,9 @@ export default function Somedays() {
   };
 
   const decide = (want: Want, decision: Decision) => {
+    // Only a stale *keep* counts here, not a card the server re-offered. Passing
+    // something already on your list is letting it go, and undo has to put the
+    // keep back; passing an old pass again is just a pass.
     const resurfaced = stale.has(want.id);
     const entry = { want, decision, resurfaced };
     setDecisions((current) => [...current, entry]);
@@ -134,7 +143,7 @@ export default function Somedays() {
         {boxHeight > 0 ? (
           deck.length ? (
             <View style={{ paddingHorizontal: GUTTER }}>
-              <DecideDeck wants={deck} height={deckHeight} resurfacedIds={stale} onDecide={decide} onOpen={(want) => router.push(`/want/${want.id}` as never)} />
+              <DecideDeck wants={deck} height={deckHeight} resurfacedIds={resurfacedIds} onDecide={decide} onOpen={(want) => router.push(`/want/${want.id}` as never)} />
             </View>
           ) : loading ? (
             <View className="px-5">
