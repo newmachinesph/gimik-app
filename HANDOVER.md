@@ -101,9 +101,10 @@ work with no API configured.
 
 ---
 
-## Three bugs worth knowing about
+## Six bugs worth knowing about
 
-Each was found by running the thing rather than reading it.
+Each was found by running the thing, or by asking what a screen would show a
+real account rather than the demo one.
 
 1. **The diversity pass was overruling people's stated preferences.** A person
    who kept six food cards and passed six water ones got an exact
@@ -123,13 +124,28 @@ Each was found by running the thing rather than reading it.
    what. It now asks `GET /people/{handle}`, which already filters by the
    holder's visibility.
 
+4. **The deck card's social proof was fiction.** "N people want this" - the
+   most-read line in the app - counted holders out of the nine bundled demo
+   people and printed that against a live catalog of 2,522. The feed now
+   returns real counts, and the card prefers "2 friends want this" when it can.
+
+5. **"Who else wants this" offered people who do not exist.** `useHolders` read
+   the same bundled table. Cosmetic on the someday screen; not on the lock
+   screen, where those are the people you are offered to invite to a real plan.
+   `GET /somedays/{id}/holders` had been sitting unused in the client.
+
+6. **Real people's photos would have 404'd.** Portraits were composed as
+   `people/<id>-N.webp` in the public catalog bucket - right for the editorial
+   demo cast, wrong for everyone else, whose photos are private objects behind
+   presigned URLs and cannot be derived from an id.
+
 ---
 
 ## Verification
 
 | | |
 |---|---|
-| Backend tests | **52 passed** (16 new, covering the feed) |
+| Backend tests | **52 passed** (20 new, covering the feed and custom somedays) |
 | Frontend tests | **58 passed** (2 new) |
 | Live multi-user simulation | **28 checks passed** |
 | `ruff check app scripts tests` | clean |
@@ -155,10 +171,12 @@ cd ~/OneDrive/Desktop/gora-backend-v2 && ./.venv/Scripts/python.exe scripts/simu
 Being straight about the gaps, in the order I would close them:
 
 - **No screen has been looked at.** See Blocked, above. This is the big one.
-- **Roughly fifteen screens still read bundled data** — messages, plan, journal,
-  lock, groups, activity. Most hydrate through `sync.ts` and are probably fine;
-  I verified and fixed the two that provably were not (person, onboarding)
-  rather than assuming about the rest.
+- **The remaining screens have been audited, not exercised.** I swept every
+  import of the bundled tables and found that the rest pull display helpers
+  (`wantTitle`, `categoryLabel`, `genderMark`) rather than entity data, and that
+  friends, invites and threads hydrate correctly through `sync.ts`. Every
+  remaining read of a bundled entity table is now explicitly a demo-mode
+  fallback. That is a code audit; it is not the same as having used the screens.
 - **The new hooks have no tests.** `useDeck`, `useBrowse` and `usePerson` are
   covered only indirectly. The suite is node-environment and pure-layer by
   design, so testing them means adding a React testing stack — an architectural
