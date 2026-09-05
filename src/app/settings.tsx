@@ -25,6 +25,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { DEMO } from '@/data/demo';
 import { SITE_URL } from '@/lib/links';
 import { C } from '@/lib/tokens';
+import { apiHost } from '@/lib/api/client';
 import { useApp, type DemoState } from '@/store';
 
 /** Defaults, quiet lists, and the way out. Nothing here is needed daily. */
@@ -197,7 +198,14 @@ export default function Settings() {
 
       <View className="flex-row items-center mt-2">
         <GoraIcon name="info" size={14} color={C.inkMuted} />
-        <Txt variant="caption" className="ml-2">{t('s.settings.footer')}</Txt>
+        {/* What this build is actually talking to. It used to read "flat data,
+            no server" unconditionally, which stopped being true the day the app
+            was wired up and then quietly told everyone otherwise. */}
+        <Txt variant="caption" className="ml-2">
+          {source === 'api' && apiHost
+            ? t('s.settings.footerLive', { host: apiHost })
+            : t('s.settings.footer')}
+        </Txt>
       </View>
     </Screen>
   );

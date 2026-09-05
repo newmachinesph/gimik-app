@@ -116,11 +116,16 @@ export function Screen({
   const dockFloor = inset ? Math.max(insets.bottom, 12) + TAB_BAR_HEIGHT + 12 : 0;
   const footerFloor = keyboardLift > 0 ? keyboardLift : dockFloor;
   const footerPadBottom = keyboardLift > 0 || inset ? 16 : Math.max(insets.bottom, 16);
+  // Both no-footer cases have to clear whatever the system draws at the bottom.
+  // They were flat numbers, so on a phone with a tall gesture bar the last line
+  // of a screen sat underneath it - the settings footer was cut in half by the
+  // navigation bar. The footer branch above already added `insets.bottom` by way
+  // of `dockFloor`; these two simply never did.
   const contentPadding = footer
     ? footerHeight + dockFloor + FOOTER_GAP
     : inset
-      ? TAB_BAR_CLEARANCE
-      : 32;
+      ? Math.max(TAB_BAR_CLEARANCE, dockFloor + 16)
+      : insets.bottom + 32;
 
   const measureFooter = (event: LayoutChangeEvent) => {
     const next = Math.round(event.nativeEvent.layout.height);
