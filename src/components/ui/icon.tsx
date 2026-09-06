@@ -1,6 +1,7 @@
 import type { Icon, IconProps, IconWeight } from 'phosphor-react-native';
 import { ArrowCounterClockwiseIcon } from 'phosphor-react-native/src/icons/ArrowCounterClockwise';
 import { ArrowRightIcon } from 'phosphor-react-native/src/icons/ArrowRight';
+import { ShareNetworkIcon } from 'phosphor-react-native/src/icons/ShareNetwork';
 import { ArrowUpIcon } from 'phosphor-react-native/src/icons/ArrowUp';
 import { BellRingingIcon } from 'phosphor-react-native/src/icons/BellRinging';
 import { BriefcaseIcon } from 'phosphor-react-native/src/icons/Briefcase';
@@ -77,6 +78,7 @@ const ICONS = {
   user: UserIcon,
   search: MagnifyingGlassIcon,
   send: PaperPlaneRightIcon,
+  share: ShareNetworkIcon,
   settings: GearSixIcon,
   sparkle: SparkleIcon,
   square: SquareIcon,

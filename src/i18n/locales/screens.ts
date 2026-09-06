@@ -292,6 +292,7 @@ export const screensEn = {
       }
     },
     "want": {
+      "shareLabel": "Share this someday",
       "stateLocked": "Locked · {{date}}",
       "stateDone": "Done",
       "stateKept": "Kept, no date",
@@ -320,7 +321,7 @@ export const screensEn = {
         "title": "Where",
         "subtitle": "Tap to open it in Maps"
       },
-      "share": "I want to {{title}} - you in? {{url}}",
+      "share": "I want to {{title}} - you in?",
       "lockDate": "Lock a date",
       "openPlan": "Open plan",
       "openJournal": "Open journal"
@@ -445,6 +446,13 @@ export const screensEn = {
       "meetAt": "Let's meet at {{place}}."
     },
     "friends": {
+      "searchPh": "Search by name or handle",
+      "searchFloor": "Two letters or more.",
+      "searching": "Looking...",
+      "noMatch": {
+        "title": "Nobody by that name",
+        "body": "Try their handle, or ask them for their group link."
+      },
       "title": "Friends",
       "requests": {
         "title": "Requests",

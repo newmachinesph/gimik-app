@@ -67,6 +67,20 @@ export default function SomedayDetail() {
           <View className="absolute left-4 right-4 flex-row justify-between" style={{ top: insets.top + 8 }}>
             <IconButton icon="back" label={t('s.common.goBack')} tone="glass" onPress={() => router.back()} />
             <IconButton icon={kept ? 'success' : 'heart'} label={kept ? t('s.want.onList') : t('s.want.keepThis')} tone="glass" onPress={() => (kept ? unkeep(id) : keepHere())} />
+            {/* Plans get made in Messenger and Viber group chats, not in here.
+                Sharing the sentence out is how a someday reaches the people who
+                would actually come, and it is the one growth lever that costs
+                nothing and matches how people already coordinate. */}
+            <IconButton
+              icon="share"
+              label={t('s.want.shareLabel')}
+              tone="glass"
+              onPress={() => {
+                void Share.share({
+                  message: t('s.want.share', { title: wantTitle(want) }),
+                });
+              }}
+            />
           </View>
         </View>
 

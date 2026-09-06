@@ -5,7 +5,7 @@ import { rememberPerson, rememberSomeday } from '@/lib/api/directory';
 import { social } from '@/lib/api/endpoints';
 import type { SomedayOut } from '@/lib/api/schema';
 import { WANTS, type Want } from '@/lib/mock';
-import { holds, PERSON_BY_NAME, type Person } from '@/lib/people';
+import { allPeople, holds, PERSON_BY_NAME, type Person } from '@/lib/people';
 import { personFromDto, registerPerson, registerWant, wantFromDto } from '@/lib/registry';
 import { useApp } from '@/store';
 
@@ -121,5 +121,87 @@ export function usePerson(name: string | undefined): PersonView {
     loading: live && Boolean(handle),
     isFriend: false,
     requestPending: false,
+  };
+}
+
+
+/** Below this a query is not a search, it is a way to enumerate a user base. */
+const SEARCH_FLOOR = 2;
+const SEARCH_DEBOUNCE_MS = 250;
+
+export type PeopleSearch = { results: Person[]; searching: boolean; tooShort: boolean };
+
+/**
+ * Find someone by name or handle.
+ *
+ * The cold start this fixes: a new account had no way to reach another person
+ * at all - the only routes in were a group invite link or already knowing an
+ * exact handle - so keeps becoming visible, invites, and threads all waited on
+ * the user recruiting a friend by some other means.
+ *
+ * Everyone found is registered on the way through, so tapping a result opens a
+ * profile the rest of the app can already resolve. Demo builds search the
+ * bundled cast instead, which is the only set of people they have.
+ */
+export function usePeopleSearch(query: string): PeopleSearch {
+  const source = useApp((state) => state.source);
+  const live = hasApi && source === 'api';
+
+  const [debounced, setDebounced] = useState(query);
+  const [found, setFound] = useState<{ key: string; people: Person[] } | null>(null);
+  const inFlight = useRef(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(query), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const needle = debounced.trim();
+  const tooShort = needle.length < SEARCH_FLOOR;
+
+  const load = useCallback(async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    try {
+      const rows = await social.findPeople(needle);
+      setFound({
+        key: needle,
+        people: rows.map((row) => {
+          rememberPerson(row);
+          const person = personFromDto(row, String(row.id));
+          registerPerson(person);
+          return person;
+        }),
+      });
+    } catch {
+      setFound({ key: needle, people: [] });
+    } finally {
+      inFlight.current = false;
+    }
+  }, [needle]);
+
+  const settled = found?.key === needle;
+
+  useEffect(() => {
+    if (!live || tooShort || settled) return;
+    // load() only updates state after its await; the rule cannot see past the
+    // async call, so it reads this as a synchronous set.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
+  }, [live, load, settled, tooShort]);
+
+  /** Demo builds: the seeded cast is the only set of people that exists. */
+  const bundled = useMemo(() => {
+    if (tooShort) return [];
+    const lower = needle.toLowerCase();
+    return allPeople().filter((person) => person.name.toLowerCase().includes(lower));
+  }, [needle, tooShort]);
+
+  if (tooShort) return { results: [], searching: false, tooShort: true };
+  if (!live) return { results: bundled, searching: false, tooShort: false };
+  return {
+    results: settled && found ? found.people : [],
+    searching: !settled,
+    tooShort: false,
   };
 }

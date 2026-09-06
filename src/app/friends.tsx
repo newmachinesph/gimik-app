@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { toast } from 'sonner-native';
@@ -6,6 +7,7 @@ import { toast } from 'sonner-native';
 import {
   EmptyState,
   FocusablePressable,
+  SearchField,
   NavRow,
   RowList,
   Screen,
@@ -16,6 +18,7 @@ import {
 } from '@/components/ui';
 import { acceptRequest as accept, declineRequest as decline } from '@/lib/actions';
 import { genderMark, PERSON_BY_NAME } from '@/lib/people';
+import { usePeopleSearch } from '@/lib/person';
 import { useApp } from '@/store';
 
 /** Requests first, then friends. Nobody is a friend until both said so. */
@@ -23,6 +26,10 @@ export default function Friends() {
   const { t } = useTranslation();
   const requests = useApp((s) => s.requests);
   const friends = useApp((s) => s.friends);
+  const [query, setQuery] = useState('');
+  const { results, searching, tooShort } = usePeopleSearch(query);
+  /** Searching replaces the lists: you came here to find one person. */
+  const looking = query.trim().length > 0;
 
   const personRow = (name: string, trailing?: React.ReactNode) => {
     const person = PERSON_BY_NAME.get(name);
@@ -42,7 +49,31 @@ export default function Friends() {
   return (
     <Screen inset={false}>
       <TopBar title={t('s.friends.title')} />
-      {requests.length ? (
+      {/* The way in. Without this a new account cannot reach anybody: the only
+          other routes are a group invite link or already knowing a handle. */}
+      <SearchField
+        placeholder={t('s.friends.searchPh')}
+        value={query}
+        onChangeText={setQuery}
+      />
+      {looking ? (
+        <Section>
+          {tooShort ? (
+            <Txt variant="caption">{t('s.friends.searchFloor')}</Txt>
+          ) : searching ? (
+            <Txt variant="caption">{t('s.friends.searching')}</Txt>
+          ) : results.length ? (
+            <RowList>{results.map((person) => personRow(person.name))}</RowList>
+          ) : (
+            <EmptyState
+              icon="search"
+              title={t('s.friends.noMatch.title')}
+              body={t('s.friends.noMatch.body')}
+            />
+          )}
+        </Section>
+      ) : null}
+      {!looking && requests.length ? (
         <Section>
           <SectionHead title={t('s.friends.requests.title')} subtitle={t('s.friends.requests.subtitle', { count: requests.length })} />
           <RowList>
@@ -61,14 +92,16 @@ export default function Friends() {
           </RowList>
         </Section>
       ) : null}
-      <Section>
-        <SectionHead title={t('s.friends.title')} subtitle={`${friends.length}`} />
-        {friends.length ? (
-          <RowList>{friends.map((name) => personRow(name))}</RowList>
-        ) : (
-          <EmptyState icon="people" title={t('s.friends.empty.title')} body={t('s.friends.empty.body')} />
-        )}
-      </Section>
+      {!looking ? (
+        <Section>
+          <SectionHead title={t('s.friends.title')} subtitle={`${friends.length}`} />
+          {friends.length ? (
+            <RowList>{friends.map((name) => personRow(name))}</RowList>
+          ) : (
+            <EmptyState icon="people" title={t('s.friends.empty.title')} body={t('s.friends.empty.body')} />
+          )}
+        </Section>
+      ) : null}
     </Screen>
   );
 }
