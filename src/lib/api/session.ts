@@ -4,6 +4,7 @@ import { useApp } from '@/store';
 import { auth, ops } from './endpoints';
 import { hasApi, loadTokens, setTokens } from './client';
 import { resetDirectory } from './directory';
+import { unregisterForPush } from './push';
 import { disconnectRealtime } from './realtime';
 import { hydrateFromApi } from './sync';
 
@@ -42,6 +43,7 @@ export async function signUp(input: {
 
 export async function signOut(): Promise<void> {
   disconnectRealtime();
+  void unregisterForPush();
   await auth.signOut();
   resetDirectory();
   resetRegistry();

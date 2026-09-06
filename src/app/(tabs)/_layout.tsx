@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { OpeningSheet } from '@/components/opening-sheet';
 import { TabBar, TabButton } from '@/components/tab-bar';
+import { registerForPush } from '@/lib/api/push';
 import { connectRealtime, disconnectRealtime } from '@/lib/api/realtime';
 import { useProfileCompleteness } from '@/lib/completeness';
 import { isInviteLive } from '@/lib/invites';
@@ -23,6 +24,9 @@ export default function TabsLayout() {
   useEffect(() => {
     if (source !== 'api') return;
     void connectRealtime();
+    // After sign-in rather than at launch: a cold permission prompt on first
+    // open is the one people decline without reading.
+    void registerForPush();
     return () => disconnectRealtime();
   }, [source]);
 

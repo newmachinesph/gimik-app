@@ -3,6 +3,7 @@ import type {
   CatalogPage,
   FeedOut,
   FriendsOut,
+  HolderOut,
   GroupOut,
   InviteCreate,
   InviteOut,
@@ -143,8 +144,19 @@ export const social = {
   hidden: () => request<PersonOut[]>('/hidden'),
   hide: (userId: Uuid) => request<void>(`/hidden/${userId}`, { method: 'PUT' }),
   unhide: (userId: Uuid) => request<void>(`/hidden/${userId}`, { method: 'DELETE' }),
+  /** Name and handle only, two-character floor, capped. Not a directory. */
+  findPeople: (q: string) => request<HolderOut[]>(`/people?q=${encodeURIComponent(q)}`),
   person: (handle: string) => request<PersonOut>(`/people/${encodeURIComponent(handle)}`),
   report: (userId: Uuid, reason: string) => request<void>(`/people/${userId}/report`, { method: 'POST', body: { reason } }),
+};
+
+export const push = {
+  /** Idempotent: presented on every start, because Expo can rotate a token. */
+  register: (body: { token: string; platform: string }) =>
+    request<void>('/push/tokens', { method: 'PUT', body }),
+  /** Per device, not per account - a borrowed phone should go quiet alone. */
+  forget: (body: { token: string; platform: string }) =>
+    request<void>('/push/tokens', { method: 'DELETE', body }),
 };
 
 export const groups = {
