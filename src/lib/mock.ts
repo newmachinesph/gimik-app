@@ -61,6 +61,13 @@ export type Want = {
    */
   holders?: number;
   friendHolders?: number;
+  /**
+   * "single" for nearly everything. Anything else is a thing you chip at over
+   * weeks, and the screen has to offer a way to record that rather than a
+   * Lock-a-date button that implies one evening will finish it.
+   */
+  completion?: string;
+  target?: number | null;
   title: string;
   /** The catalog concept used for matching when the visible activity is specific. */
   canonicalTitle?: string;

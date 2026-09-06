@@ -293,6 +293,13 @@ export const screensEn = {
     },
     "want": {
       "shareLabel": "Share this someday",
+      "progress": {
+        "title": "Progress",
+        "subtitle_one": "{{count}} so far",
+        "subtitle_other": "{{count}} so far",
+        "add": "Add one",
+        "undo": "Take one back"
+      },
       "stateLocked": "Locked · {{date}}",
       "stateDone": "Done",
       "stateKept": "Kept, no date",
@@ -396,6 +403,11 @@ export const screensEn = {
         "subtitle_other": "{{count}} you both want",
         "none": "Nothing yet - keep something they hold",
         "line": "You both want this"
+      },
+      "record": {
+        "title": "Done",
+        "subtitle_one": "{{count}} finished",
+        "subtitle_other": "{{count}} finished"
       },
       "theirs": {
         "title": "Their somedays",

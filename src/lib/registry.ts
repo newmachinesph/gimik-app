@@ -48,6 +48,8 @@ export function wantFromDto(dto: SomedayOut, fallbackPhoto: Want['photo']): Want
     party: dto.party as Want['party'],
     needs: dto.needs,
     photo: dto.artwork_url ?? fallbackPhoto,
+    completion: dto.completion,
+    target: dto.target ?? null,
     saves: 0,
     register: 'project',
   };

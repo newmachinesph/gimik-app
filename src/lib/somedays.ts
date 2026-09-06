@@ -122,3 +122,54 @@ export function useHolders(want: Want | undefined) {
     return people.filter((person) => !hidden.includes(person.name));
   }, [bundled, fetched, hidden, live, settled]);
 }
+
+/**
+ * How far along a someday you cannot finish in one sitting.
+ *
+ * Twenty-nine catalog concepts have always carried a completion of count,
+ * distance, duration or streak - "100 islands in a year", "30 day plank
+ * challenge" - and nothing in the app could record a single island of one. It
+ * offered a Lock-a-date button and behaved as though an evening would finish
+ * it. This is the missing verb, and the screen shows it only for the somedays
+ * that actually work that way.
+ */
+export function useProgress(want: Want | undefined) {
+  const source = useApp((state) => state.source);
+  const live = hasApi && source === 'api';
+  const trackable = Boolean(want?.completion && want.completion !== 'single');
+
+  const slug = want?.slug ?? want?.id;
+  const uuid = slug ? somedayId(slug) : undefined;
+  const [count, setCount] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
+  const loaded = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!live || !trackable || !uuid || loaded.current === uuid) return;
+    loaded.current = uuid;
+    // Sets state only in the promise callbacks, well after the effect body.
+    void catalog
+      .progress(uuid)
+      .then((row) => setCount(row.count))
+      .catch(() => setCount(0));
+  }, [live, trackable, uuid]);
+
+  const add = useCallback(
+    async (step = 1) => {
+      if (!uuid || busy) return;
+      setBusy(true);
+      try {
+        const row = await catalog.addProgress(uuid, step);
+        setCount(row.count);
+      } catch {
+        // The server refuses a count against a one-off someday, and a lost
+        // increment is better than a number that never happened.
+      } finally {
+        setBusy(false);
+      }
+    },
+    [busy, uuid],
+  );
+
+  return { trackable: trackable && live, count: count ?? 0, ready: count !== null, busy, add };
+}

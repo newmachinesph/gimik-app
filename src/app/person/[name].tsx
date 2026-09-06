@@ -28,7 +28,7 @@ import {
 import { formatDate } from '@/i18n/format';
 import { askPerson, hidePerson, keep, openThread, reportPerson, requestFriend, unhidePerson, unkeep } from '@/lib/actions';
 import { categoryBadge } from '@/lib/interests';
-import { wantTitle } from '@/lib/mock';
+import { categoryLabel, wantTitle } from '@/lib/mock';
 import { genderMark, photosOf } from '@/lib/people';
 import { usePerson } from '@/lib/person';
 import { languageLabel } from '@/lib/profile-options';
@@ -54,7 +54,7 @@ export default function PersonProfile() {
   const { name: raw } = useLocalSearchParams<{ name: string }>();
   const name = decodeURIComponent(raw ?? '');
   const insets = useSafeAreaInsets();
-  const { person, somedays: theirs, loading: personLoading } = usePerson(name);
+  const { person, somedays: theirs, record, loading: personLoading } = usePerson(name);
   const keptIds = useApp((s) => s.keptIds);
   const friends = useApp((s) => s.friends);
   const sent = useApp((s) => s.sentRequests);
@@ -153,6 +153,27 @@ export default function PersonProfile() {
               </RowList>
             ) : null}
           </Section>
+
+          {/* Evidence, where everything else on a profile is a promise. Only
+              that it happened - the journal entry behind it is private. */}
+          {record.length ? (
+            <Section>
+              <SectionHead
+                title={t('s.person.record.title')}
+                subtitle={t('s.person.record.subtitle', { count: record.length })}
+              />
+              <RowList>
+                {record.map((want) => (
+                  <NavRow
+                    key={want.id}
+                    title={wantTitle(want)}
+                    caption={categoryLabel(want.category)}
+                    chevron={false}
+                  />
+                ))}
+              </RowList>
+            </Section>
+          ) : null}
 
           <Section>
             <SectionHead title={t('s.person.theirs.title')} subtitle={t('s.person.theirs.subtitle')} />

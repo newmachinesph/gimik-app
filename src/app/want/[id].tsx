@@ -26,7 +26,7 @@ import { askPerson, keep, setVisibility, unkeep } from '@/lib/actions';
 import { dayLabel } from '@/lib/format';
 import { categoryLabel, wantLocationScope, wantNote, wantTitle } from '@/lib/mock';
 import { genderMark } from '@/lib/people';
-import { useHolders, useSomedayState, wantById } from '@/lib/somedays';
+import { useHolders, useProgress, useSomedayState, wantById } from '@/lib/somedays';
 import { C } from '@/lib/tokens';
 import { useApp } from '@/store';
 
@@ -38,6 +38,7 @@ export default function SomedayDetail() {
   const want = wantById(id);
   const state = useSomedayState(id);
   const holders = useHolders(want);
+  const progress = useProgress(want);
   const plan = useApp((s) => (id ? s.plans[id] : undefined));
   const visibility = useApp((s) => (id ? s.visibility[id] : undefined) ?? s.defaultVisibility);
 
@@ -102,6 +103,33 @@ export default function SomedayDetail() {
               <Card className="p-4">
                 <VisibilityChips value={visibility} onChange={(next) => setVisibility(id, next)} />
               </Card>
+            </Section>
+          ) : null}
+
+          {/* Only for the somedays that are actually chipped at. Offering a
+              counter on a one-off would be as wrong as offering a date on a
+              year-long challenge, which is what this screen used to do. */}
+          {progress.trackable ? (
+            <Section className="mt-6">
+              <SectionHead
+                title={t('s.want.progress.title')}
+                subtitle={t('s.want.progress.subtitle', { count: progress.count })}
+              />
+              <View className="flex-row gap-3 mt-3">
+                <GhostButton
+                  label={t('s.want.progress.add')}
+                  disabled={progress.busy}
+                  onPress={() => void progress.add(1)}
+                />
+                {progress.count > 0 ? (
+                  <GhostButton
+                    label={t('s.want.progress.undo')}
+                    tone="muted"
+                    disabled={progress.busy}
+                    onPress={() => void progress.add(-1)}
+                  />
+                ) : null}
+              </View>
             </Section>
           ) : null}
 

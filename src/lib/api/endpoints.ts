@@ -21,6 +21,7 @@ import type {
   PlanPatch,
   PresignUploadIn,
   PresignUploadOut,
+  ProgressOut,
   ProfileOut,
   ProfilePatch,
   RegisterIn,
@@ -99,6 +100,10 @@ export const catalog = {
    */
   create: (body: { title: string; category: string } & VisibilityIn) =>
     request<KeepOut>('/somedays', { method: 'POST', body }),
+  /** Chip away at something that cannot be finished in one sitting. */
+  addProgress: (somedayId: Uuid, step = 1) =>
+    request<ProgressOut>(`/somedays/${somedayId}/progress`, { method: 'POST', body: { step } }),
+  progress: (somedayId: Uuid) => request<ProgressOut>(`/somedays/${somedayId}/progress`),
   /** The filter chips, served so the client and the catalog cannot drift. */
   categories: () => request<string[]>('/categories'),
   /**

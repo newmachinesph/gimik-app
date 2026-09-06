@@ -55,6 +55,9 @@ export type SomedayOut = {
   category: string;
   /** The subcategory ("Hiking & Mountains"), finer than the filter chips. */
   domain?: string | null;
+  /** "single" for nearly everything; anything else is chipped at over time. */
+  completion?: string;
+  target?: number | null;
   party: string;
   needs: string[];
   artwork_url?: string | null;
@@ -64,6 +67,14 @@ export type SomedayOut = {
  * One page of the browse grid. The catalog is 2,522 concepts now, so `/catalog`
  * pages instead of returning everything; `next_offset` is null on the last page.
  */
+export type ProgressOut = {
+  someday_id: Uuid;
+  count: number;
+  target: number | null;
+  last_at: IsoDateTime | null;
+  complete: boolean;
+};
+
 export type CatalogPage = { items: SomedayOut[]; total: number; next_offset: number | null };
 
 /**
@@ -85,7 +96,7 @@ export type FeedOut = { items: FeedItemOut[]; exhausted: boolean; pools: Record<
 
 /** The two visibility axes. `party_as` is `as` on the client; `as` is reserved in TS. */
 export type VisibilityIn = { open_to: string[]; party_as: string[] };
-export type KeepOut = { someday: SomedayOut; open_to: string[]; party_as: string[]; kept_at: IsoDateTime };
+export type KeepOut = { someday: SomedayOut; open_to: string[]; party_as: string[]; kept_at: IsoDateTime; progress?: ProgressOut | null };
 export type HolderOut = { id: Uuid; name: string; handle: string; gender: string | null; city: string | null };
 
 export type InviteCreate = { to_user_id: Uuid; someday_id: Uuid; party: string };
@@ -170,6 +181,8 @@ export type PersonOut = {
   photos: PhotoOut[];
   somedays: SomedayOut[];
   in_common: SomedayOut[];
+  /** What they have actually done. The journal behind it stays private. */
+  record?: SomedayOut[];
   is_friend: boolean;
   request_pending: boolean;
 };

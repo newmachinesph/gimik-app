@@ -34,6 +34,8 @@ export type PersonView = {
   somedays: Want[];
   /** The ones you both want - the reason to open this screen at all. */
   inCommon: Want[];
+  /** What they have finished. Evidence, where the rest of a profile is promise. */
+  record: Want[];
   loading: boolean;
   isFriend: boolean;
   requestPending: boolean;
@@ -44,6 +46,7 @@ type Fetched = {
   person: Person;
   somedays: Want[];
   inCommon: Want[];
+  record: Want[];
   isFriend: boolean;
   requestPending: boolean;
 };
@@ -77,6 +80,7 @@ export function usePerson(name: string | undefined): PersonView {
         person,
         somedays: convert(dto.somedays),
         inCommon: convert(dto.in_common),
+        record: convert(dto.record ?? []),
         isFriend: dto.is_friend,
         requestPending: dto.request_pending,
       });
@@ -108,6 +112,7 @@ export function usePerson(name: string | undefined): PersonView {
       person: fetched.person,
       somedays: fetched.somedays,
       inCommon: fetched.inCommon,
+      record: fetched.record,
       loading: false,
       isFriend: fetched.isFriend,
       requestPending: fetched.requestPending,
@@ -118,6 +123,7 @@ export function usePerson(name: string | undefined): PersonView {
     person: bundled,
     somedays: live ? [] : bundledSomedays,
     inCommon: [],
+    record: [],
     loading: live && Boolean(handle),
     isFriend: false,
     requestPending: false,
