@@ -10,7 +10,7 @@ import { hydrateFromApi } from '@/lib/api/sync';
 /**
  * Setting a new password.
  *
- * Reached two ways: the `gora://reset?token=...` deep link in the email, or by
+ * Reached two ways: the `gimik://reset?token=...` deep link in the email, or by
  * pasting the code by hand. The second exists because a deep link that does
  * not fire - a desktop inbox, a stripped scheme - should not strand someone
  * who is locked out.

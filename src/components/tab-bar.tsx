@@ -3,7 +3,7 @@ import { Children, type Ref } from 'react';
 import { Pressable, StyleSheet, View, type ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Avatar, GoraIcon, type IconName, ProgressRing, TAB_BAR_HEIGHT, Txt } from '@/components/ui';
+import { Avatar, GimikIcon, type IconName, ProgressRing, TAB_BAR_HEIGHT, Txt } from '@/components/ui';
 import { C } from '@/lib/tokens';
 
 /** Flat paper bar, five labelled destinations, the deck in the middle. */
@@ -57,7 +57,7 @@ export function TabButton({ icon, avatar, photo, progress, badge = 0, children, 
               </View>
             )
           ) : (
-            <GoraIcon name={icon} size={24} color={isFocused ? C.ink : C.inkMuted} weight={isFocused ? 'fill' : 'regular'} />
+            <GimikIcon name={icon} size={24} color={isFocused ? C.ink : C.inkMuted} weight={isFocused ? 'fill' : 'regular'} />
           )}
           {badge > 0 ? (
             <View style={styles.badge}>

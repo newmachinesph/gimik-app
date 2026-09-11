@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { NotFound } from '@/components/not-found';
 import { AttachSheet } from '@/components/attach-sheet';
-import { Avatar, FocusablePressable, GoraIcon, ICON_BUTTON_INSET, ICON_BUTTON_SIZE, IconButton, Txt } from '@/components/ui';
+import { Avatar, FocusablePressable, GimikIcon, ICON_BUTTON_INSET, ICON_BUTTON_SIZE, IconButton, Txt } from '@/components/ui';
 import { markThreadRead as markRead, sendMessage as send } from '@/lib/actions';
 import { dayLabel, timeAgo } from '@/lib/format';
 import { wantTitle } from '@/lib/mock';
@@ -25,7 +25,7 @@ function AttachmentCard({ attachment, mine, wantId, withName }: { attachment: No
   const actionable = attachment.type === 'someday' || (attachment.type === 'date' && Boolean(wantId));
   return (
     <FocusablePressable accessibilityRole="button" disabled={!actionable} onPress={open} className={`mt-2 flex-row items-center px-3 py-2 rounded-[4px] border ${mine ? 'border-brand-paper/30' : 'border-brand-rule bg-brand-paper'}`}>
-      <GoraIcon name={icon} size={16} color={mine ? C.paper : C.ink} weight="fill" />
+      <GimikIcon name={icon} size={16} color={mine ? C.paper : C.ink} weight="fill" />
       <View className="flex-1 ml-2">
         <Txt variant="caption" className={mine ? 'text-brand-paper/70' : ''}>{t(`s.messages.attachment.${attachment.type}`)}</Txt>
         <Txt variant="label" className={mine ? 'text-brand-paper' : 'text-brand-ink'} numberOfLines={1}>{attachment.label}</Txt>
@@ -81,12 +81,12 @@ export default function ThreadScreen() {
       </View>
       {want ? (
         <FocusablePressable accessibilityRole="button" onPress={openPinned} className={`mx-4 mt-3 px-4 py-3 rounded-[4px] flex-row items-center active:opacity-80 ${plan ? 'bg-brand-night' : 'bg-brand-paper-sunk'}`}>
-          <GoraIcon name={plan ? 'calendar' : 'heart'} size={18} color={plan ? C.paper : C.ink} weight="fill" />
+          <GimikIcon name={plan ? 'calendar' : 'heart'} size={18} color={plan ? C.paper : C.ink} weight="fill" />
           <View className="flex-1 ml-3">
             <Txt variant="label" className={plan ? 'text-brand-paper' : 'text-brand-ink'} numberOfLines={1}>{wantTitle(want)}</Txt>
             <Txt variant="caption" className={plan ? 'text-brand-paper/70' : ''}>{plan ? `${dayLabel(plan.date)}${plan.time ? ` · ${plan.time}` : ''}` : t('s.messages.noDate')}</Txt>
           </View>
-          <GoraIcon name="chevron-right" size={16} color={plan ? C.paper : C.inkMuted} />
+          <GimikIcon name="chevron-right" size={16} color={plan ? C.paper : C.inkMuted} />
         </FocusablePressable>
       ) : null}
       <ScrollView ref={list} className="flex-1 px-4" contentContainerStyle={{ paddingVertical: 16, gap: 8 }} onContentSizeChange={() => list.current?.scrollToEnd({ animated: false })}>

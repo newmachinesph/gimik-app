@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 
 import { C } from '@/lib/tokens';
-import { GoraIcon, type IconName } from './icon';
+import { GimikIcon, type IconName } from './icon';
 import { FocusablePressable } from './pressable';
 import { Txt } from './txt';
 
@@ -109,7 +109,7 @@ export function SwipeRow({
             style={{ width: ACTION_WIDTH }}
             className={`items-center justify-center active:opacity-80 ${action.tone === 'danger' ? 'bg-brand-orange' : 'bg-brand-paper-sunk'}`}
           >
-            <GoraIcon
+            <GimikIcon
               name={action.icon}
               size={18}
               color={action.tone === 'danger' ? C.paper : C.ink}

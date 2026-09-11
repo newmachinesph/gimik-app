@@ -16,7 +16,7 @@ export {
 } from './button';
 export { Badge, Card, Divider, type CardTone } from './card';
 export { EmptyState, InlineNotice, LoadingState } from './feedback';
-export { GoraIcon, type GoraIconProps, type IconName, type IconWeight } from './icon';
+export { GimikIcon, type GimikIconProps, type IconName, type IconWeight } from './icon';
 export { Chip, Field, FilterBar, SearchField, type FieldProps } from './input';
 export { Avatar, BrandedImage, Dots, PhotoGallery, type PhotoSource } from './photo';
 export { ProgressRing } from './progress-ring';

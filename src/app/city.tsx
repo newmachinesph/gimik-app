@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { SectionList, View } from 'react-native';
 import { toast } from 'sonner-native';
 
-import { GoraIcon, NavRow, Screen, SearchField, TopBar, Txt } from '@/components/ui';
+import { GimikIcon, NavRow, Screen, SearchField, TopBar, Txt } from '@/components/ui';
 import { updateProfile as update } from '@/lib/actions';
 import { CITY_REGIONS, PH_CITIES } from '@/lib/cities';
 import { C } from '@/lib/tokens';
@@ -44,7 +44,7 @@ export default function CityPicker() {
               title={item.name}
               caption={item.province}
               chevron={false}
-              trailing={item.name === city ? <GoraIcon name="check" size={18} color={C.ink} weight="bold" /> : undefined}
+              trailing={item.name === city ? <GimikIcon name="check" size={18} color={C.ink} weight="bold" /> : undefined}
               onPress={() => {
                 update(forHometown ? { hometown: item.name } : { city: item.name });
                 toast(t(forHometown ? 's.toasts.hometownSet' : 's.toasts.citySet', { name: item.name }));

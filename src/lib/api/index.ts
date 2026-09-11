@@ -1,5 +1,5 @@
 /**
- * Gora API v2, ready to be wired.
+ * Gimik API v2, ready to be wired.
  *
  * Nothing in `src/app` imports this yet: the screens read the demo store, and
  * that is deliberate - the store's shapes were written to mirror these DTOs so

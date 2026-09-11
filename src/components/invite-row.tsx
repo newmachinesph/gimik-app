@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Avatar, FocusablePressable, GoraIcon, ScrollingTitle, Txt } from '@/components/ui';
+import { Avatar, FocusablePressable, GimikIcon, ScrollingTitle, Txt } from '@/components/ui';
 import { wantTitle, type Want } from '@/lib/mock';
 import { genderMark, type Person } from '@/lib/people';
 import { C } from '@/lib/tokens';
@@ -35,7 +35,7 @@ export function InviteRow({ want, person, party, note, onPress }: {
         </Txt>
         {note ? <Txt variant="caption" className="mt-1 text-brand-orange">{note}</Txt> : null}
       </View>
-      <GoraIcon name="chevron-right" size={16} color={C.inkMuted} />
+      <GimikIcon name="chevron-right" size={16} color={C.inkMuted} />
     </FocusablePressable>
   );
 }

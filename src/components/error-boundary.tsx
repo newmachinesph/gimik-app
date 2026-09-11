@@ -26,7 +26,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: { componentStack?: string | null }) {
-    console.error('[gora] unhandled render error', error);
+    console.error('[gimik] unhandled render error', error);
     reportError(error, { componentStack: info.componentStack ?? undefined });
   }
 

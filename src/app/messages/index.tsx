@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { EmptyState, GoraIcon, NavRow, RowList, Screen, TopBar } from '@/components/ui';
+import { EmptyState, GimikIcon, NavRow, RowList, Screen, TopBar } from '@/components/ui';
 import { timeAgo } from '@/lib/format';
 import { isThreadUnread, useInboxThreads } from '@/lib/threads';
 import { C } from '@/lib/tokens';
@@ -38,7 +38,7 @@ export default function Inbox() {
                 avatar={thread.kind === 'solo' ? thread.title : undefined}
                 leading={thread.kind === 'solo' ? undefined : (
                   <View className="w-11 h-11 rounded-full bg-brand-paper-sunk items-center justify-center">
-                    <GoraIcon name={thread.kind === 'plan' ? 'calendar' : 'people'} size={20} color={C.ink} />
+                    <GimikIcon name={thread.kind === 'plan' ? 'calendar' : 'people'} size={20} color={C.ink} />
                   </View>
                 )}
                 title={thread.title}

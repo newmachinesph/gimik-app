@@ -4,7 +4,7 @@ import { initReactI18next } from 'react-i18next';
 import en from './locales/en';
 
 /**
- * Gora speaks English. One locale, no preference, no switcher.
+ * Gimik speaks English. One locale, no preference, no switcher.
  *
  * The i18n layer stays because it is what keeps copy out of the components —
  * every user-visible string resolves through `t()`, so the wording of the

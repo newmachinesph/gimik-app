@@ -32,7 +32,7 @@ describe('searchPlaces', () => {
   });
 
   it('reports needsPlus on a 402 rather than looking like no match', async () => {
-    search.mockRejectedValue(new ApiError(402, 'Place search is part of Gora Plus.', 'nope'));
+    search.mockRejectedValue(new ApiError(402, 'Place search is part of Gimik Plus.', 'nope'));
     const found = await searchPlaces('toyo eatery', 'sess');
     expect(found).toEqual({ picks: [], needsPlus: true });
   });

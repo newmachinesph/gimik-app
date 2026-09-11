@@ -374,7 +374,7 @@ export function specificityOf(want: Want): 'generic' | 'scoped' | 'pinned' | 'ac
 
 /** Stable local label for the signed-in person; the cloud profile supplies their name. */
 export const ME = 'You';
-export const GORA_MEMBER = 'Gora member';
+export const GIMIK_MEMBER = 'Gimik member';
 
 function translated(key: string, fallback: string): string {
   return i18n.t(key, { defaultValue: fallback });
@@ -382,8 +382,8 @@ function translated(key: string, fallback: string): string {
 
 export function personLabel(person: string): string {
   if (person === ME) return translated('shared.common.you', ME);
-  if (person === GORA_MEMBER) {
-    return translated('shared.common.goraMember', GORA_MEMBER);
+  if (person === GIMIK_MEMBER) {
+    return translated('shared.common.gimikMember', GIMIK_MEMBER);
   }
   return person;
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { BottomSheet, Chip, GhostButton, GoraIcon, PrimaryButton, Txt } from '@/components/ui';
+import { BottomSheet, Chip, GhostButton, GimikIcon, PrimaryButton, Txt } from '@/components/ui';
 import { C } from '@/lib/tokens';
 
 const REASONS = ['fake', 'rude', 'notThem', 'spam', 'other'] as const;
@@ -25,7 +25,7 @@ export function ReportSheet({ name, visible, onDismiss, onHide, onSend }: { name
     <BottomSheet visible={visible} onDismiss={close}>
       {sent ? (
         <View className="items-center py-4">
-          <View className="w-14 h-14 rounded-full bg-brand-paper-sunk items-center justify-center"><GoraIcon name="success" size={26} color={C.ink} weight="fill" /></View>
+          <View className="w-14 h-14 rounded-full bg-brand-paper-sunk items-center justify-center"><GimikIcon name="success" size={26} color={C.ink} weight="fill" /></View>
           <Txt variant="heading" className="mt-4">{t('s.report.thanksTitle')}</Txt>
           <Txt variant="body" className="mt-2 text-center">{t('s.report.thanksBody', { name: first })}</Txt>
           <View className="mt-5 w-full"><PrimaryButton label={t('s.report.hideToo', { name: first })} onPress={onHide} /></View>

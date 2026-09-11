@@ -1,5 +1,6 @@
 import { request, setTokens } from './client';
 import type {
+  GoogleSignInIn,
   CatalogPage,
   FeedOut,
   FriendsOut,
@@ -33,7 +34,7 @@ import type {
 } from './schema';
 
 /**
- * Every route Gora API v2 serves, one function each, named for what it does
+ * Every route Gimik API v2 serves, one function each, named for what it does
  * rather than for its verb and path. Nothing here decides anything - if a call
  * needs a policy, the policy belongs to the caller.
  */
@@ -46,6 +47,16 @@ export const auth = {
   },
   login: async (body: LoginIn) => {
     const pair = await request<TokenPair>('/auth/login', { method: 'POST', body, anonymous: true });
+    await setTokens(pair);
+    return pair;
+  },
+  /**
+   * Sign in with the ID token Google minted for this app. One call covers both
+   * signing in and signing up: the server decides which it was, because only it
+   * can see whether that Google account has been here before.
+   */
+  google: async (body: GoogleSignInIn) => {
+    const pair = await request<TokenPair>('/auth/google', { method: 'POST', body, anonymous: true });
     await setTokens(pair);
     return pair;
   },

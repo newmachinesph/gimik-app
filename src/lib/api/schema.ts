@@ -1,5 +1,5 @@
 /**
- * The wire shapes of Gora API v2, transcribed from `app/schemas.py`.
+ * The wire shapes of Gimik API v2, transcribed from `app/schemas.py`.
  *
  * Field names are the server's, snake_case and all: a DTO that renames as it
  * crosses the boundary hides drift, and this file's whole job is to fail
@@ -16,6 +16,7 @@ export type IsoDateTime = string;
 export type TokenPair = { access_token: string; refresh_token: string; token_type: string };
 export type RegisterIn = { email: string; password: string; name: string; birthday?: IsoDate | null; gender?: string | null };
 export type LoginIn = { email: string; password: string };
+export type GoogleSignInIn = { id_token: string };
 
 export type PhotoOut = { id: Uuid; position: number; url: string };
 

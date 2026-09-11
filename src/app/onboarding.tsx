@@ -8,7 +8,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppleButton, GoogleButton } from '@/components/auth-buttons';
 import { ApiError, NetworkError } from '@/lib/api';
-import { hasApi, signUp } from '@/lib/api/session';
+import { hasApi, signUp, signInWithGoogle } from '@/lib/api/session';
+import { GoogleCancelled, hasGoogleSignIn } from '@/lib/api/google';
 import { InterestBank } from '@/components/interest-bank';
 import { SomedayTile } from '@/components/someday-tile';
 import { Avatar, Chip, Field, GhostButton, IconButton, InlineNotice, PrimaryButton, SearchField, Txt } from '@/components/ui';
@@ -54,6 +55,26 @@ export default function Onboarding() {
   const [birthday, setBirthday] = useState('');
   const [gender, setGender] = useState<Gender | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
+
+  /**
+   * Google covers signing up as well as signing in - the server decides which
+   * it was - so this skips the rest of the form and lands on the deck. The
+   * profile steps stay reachable later from Edit profile.
+   */
+  const withGoogle = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await signInWithGoogle();
+      router.replace('/(tabs)/home' as never);
+    } catch (cause) {
+      if (cause instanceof GoogleCancelled) return;
+      if (cause instanceof NetworkError) setError(t('s.onboarding.account.failed'));
+      else setError(t('s.onboarding.account.failed'));
+    } finally {
+      setBusy(false);
+    }
+  };
   const [cityQuery, setCityQuery] = useState('');
   const [city, setCity] = useState<string | null>(null);
   const [bio, setBio] = useState('');
@@ -151,7 +172,7 @@ export default function Onboarding() {
   };
 
   const next = () => {
-    if (step === 'profile') update({ name: name.trim(), handle: name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '') || 'gora', birthday: birthday || null, gender });
+    if (step === 'profile') update({ name: name.trim(), handle: name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '') || 'gimik', birthday: birthday || null, gender });
     if (step === 'photo' && photo) void addProfilePhoto(photo);
     if (step === 'city') update({ city });
     if (step === 'about') update({ bio: bio.trim(), work: work.trim(), education: education.trim() });
@@ -221,12 +242,18 @@ export default function Onboarding() {
               autoCapitalize="none"
             />
             <View className="flex-row items-center my-5"><View className="flex-1 h-px bg-brand-rule" /><Txt variant="caption" className="mx-3">{t('s.onboarding.account.or')}</Txt><View className="flex-1 h-px bg-brand-rule" /></View>
-            {/* Disabled rather than faked: without OAuth client ids these
-                cannot sign anyone in, and a button that skips the form while
-                pretending to authenticate is worse than one that waits. */}
-            <GoogleButton label={t('s.onboarding.account.google')} disabled onPress={() => {}} />
+            {/* Google is live once a client id is built in. Apple stays
+                disabled and still says so, because faking a button that skips
+                the form while pretending to authenticate is worse than waiting. */}
+            <GoogleButton
+              label={t('s.onboarding.account.google')}
+              disabled={!hasGoogleSignIn || busy}
+              onPress={() => void withGoogle()}
+            />
             <View className="mt-2"><AppleButton label={t('s.onboarding.account.apple')} disabled onPress={() => {}} /></View>
-            <Txt variant="caption" className="mt-2 text-center">{t('s.onboarding.account.socialSoon')}</Txt>
+            {!hasGoogleSignIn ? (
+              <Txt variant="caption" className="mt-2 text-center">{t('s.onboarding.account.socialSoon')}</Txt>
+            ) : null}
           </View>
         ) : null}
         {step === 'profile' ? (

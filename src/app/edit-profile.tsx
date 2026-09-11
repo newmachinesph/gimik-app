@@ -11,7 +11,7 @@ import {
   Chip,
   Field,
   FocusablePressable,
-  GoraIcon,
+  GimikIcon,
   PrimaryButton,
   Screen,
   Section,
@@ -40,7 +40,7 @@ function PickerRow({ label, value, onPress }: { label: string; value: string; on
         <Txt variant="eyebrow">{label}</Txt>
         <Txt variant="label" className="text-brand-ink mt-1" numberOfLines={1}>{value}</Txt>
       </View>
-      <GoraIcon name="chevron-right" size={16} color={C.inkMuted} />
+      <GimikIcon name="chevron-right" size={16} color={C.inkMuted} />
     </FocusablePressable>
   );
 }
@@ -97,7 +97,7 @@ export default function EditProfile() {
         <View className="flex-row flex-wrap" style={{ gap: 8 }}>
           {slots.map((uri, index) => (
             <FocusablePressable key={uri ?? `empty-${index}`} accessibilityRole="button" onPress={() => (uri ? photoActions(uri) : void addPhoto())} style={{ width: '23%', aspectRatio: 4 / 5 }} className="rounded-[4px] overflow-hidden bg-brand-paper-sunk items-center justify-center active:opacity-75">
-              {uri ? <Image source={uri} style={{ width: '100%', height: '100%' }} contentFit="cover" /> : <GoraIcon name={index === 0 ? 'camera' : 'plus'} size={20} color={C.inkMuted} />}
+              {uri ? <Image source={uri} style={{ width: '100%', height: '100%' }} contentFit="cover" /> : <GimikIcon name={index === 0 ? 'camera' : 'plus'} size={20} color={C.inkMuted} />}
             </FocusablePressable>
           ))}
         </View>
@@ -121,7 +121,7 @@ export default function EditProfile() {
 
         {/* Verification: promised, honestly. */}
         <FocusablePressable accessibilityRole="button" onPress={() => toast(t('s.toasts.comingSoon'))} className="flex-row items-center py-3 border-t border-brand-rule active:opacity-70">
-          <GoraIcon name="success" size={18} color={C.inkMuted} />
+          <GimikIcon name="success" size={18} color={C.inkMuted} />
           <Txt variant="label" className="text-brand-ink flex-1 ml-3">{t('s.editProfile.verification.title')}</Txt>
           <View className="rounded-full bg-brand-paper-sunk border border-brand-rule px-3 py-1">
             <Txt variant="caption">{t('s.editProfile.verification.soon')}</Txt>
@@ -131,7 +131,7 @@ export default function EditProfile() {
         <View className="py-3 border-t border-brand-rule">
           <Txt variant="eyebrow">{t('s.editProfile.fixed')}</Txt>
           <Txt variant="label" className="mt-1 text-brand-ink">
-            {profile.name || t('core.common.goraMember')}{ageFrom(profile.birthday) ? `, ${ageFrom(profile.birthday)}` : ''} {profile.gender ? genderMark(profile.gender) : ''}
+            {profile.name || t('core.common.gimikMember')}{ageFrom(profile.birthday) ? `, ${ageFrom(profile.birthday)}` : ''} {profile.gender ? genderMark(profile.gender) : ''}
           </Txt>
         </View>
       </Section>
@@ -149,9 +149,9 @@ export default function EditProfile() {
             onPress={() => { setSheet(null); router.push(step.href as never); }}
             className={`flex-row items-center py-3 active:opacity-70 ${index ? 'border-t border-brand-rule' : ''}`}
           >
-            <GoraIcon name={step.done ? 'success' : 'circle'} size={18} color={step.done ? C.success : C.inkMuted} weight={step.done ? 'fill' : 'regular'} />
+            <GimikIcon name={step.done ? 'success' : 'circle'} size={18} color={step.done ? C.success : C.inkMuted} weight={step.done ? 'fill' : 'regular'} />
             <Txt variant="label" className={`flex-1 ml-3 ${step.done ? '' : 'text-brand-ink'}`}>{step.label}</Txt>
-            {!step.done ? <GoraIcon name="chevron-right" size={16} color={C.inkMuted} /> : null}
+            {!step.done ? <GimikIcon name="chevron-right" size={16} color={C.inkMuted} /> : null}
           </FocusablePressable>
         ))}
       </BottomSheet>

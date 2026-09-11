@@ -11,7 +11,7 @@ import { SomedayRow } from '@/components/someday-row';
 import {
   BrandedImage,
   GhostButton,
-  GoraIcon,
+  GimikIcon,
   IconButton,
   NavRow,
   PhotoGallery,
@@ -96,13 +96,13 @@ export default function PersonProfile() {
           <View className="mt-3" style={{ gap: 6 }}>
             {person.work ? (
               <View className="flex-row items-center justify-center">
-                <GoraIcon name="work" size={15} color={C.inkMuted} />
+                <GimikIcon name="work" size={15} color={C.inkMuted} />
                 <Txt variant="label" className="ml-2" numberOfLines={1}>{person.work}</Txt>
               </View>
             ) : null}
             {person.education ? (
               <View className="flex-row items-center justify-center">
-                <GoraIcon name="education" size={15} color={C.inkMuted} />
+                <GimikIcon name="education" size={15} color={C.inkMuted} />
                 <Txt variant="label" className="ml-2" numberOfLines={1}>{person.education}</Txt>
               </View>
             ) : null}

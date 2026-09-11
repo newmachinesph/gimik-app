@@ -93,13 +93,13 @@ const ICONS = {
 export type IconName = keyof typeof ICONS;
 export type { IconWeight };
 
-export type GoraIconProps = Omit<IconProps, 'weight'> & {
+export type GimikIconProps = Omit<IconProps, 'weight'> & {
   name: IconName;
   weight?: IconWeight;
 };
 
 /** One renderer for consistent Phosphor sizing, weight, and duotone behavior. */
-export function GoraIcon({ name, weight = 'regular', ...props }: GoraIconProps) {
+export function GimikIcon({ name, weight = 'regular', ...props }: GimikIconProps) {
   const Glyph = ICONS[name];
   return <Glyph {...props} weight={weight} />;
 }

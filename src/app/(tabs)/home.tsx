@@ -144,7 +144,7 @@ export default function Somedays() {
   return (
     <Screen scroll={false} padded={false}>
       <View className="px-5 pt-2 pb-3 flex-row items-center">
-        <Txt variant="title" headingLevel={1} className="flex-1">Gora</Txt>
+        <Txt variant="title" headingLevel={1} className="flex-1">Gimik</Txt>
         {decisions.length ? (
           <View className="mr-2">
             <IconButton icon="undo" label={t('s.home.undo')} onPress={undoLast} />

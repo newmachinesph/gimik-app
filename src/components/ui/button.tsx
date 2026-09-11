@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { C, tint } from '@/lib/tokens';
-import { GoraIcon, type IconName } from './icon';
+import { GimikIcon, type IconName } from './icon';
 import { Txt } from './txt';
 
 export type ControlState = 'idle' | 'loading' | 'error' | 'success';
@@ -101,7 +101,7 @@ export function Button({
       }`}
     >
       <Pressable
-        className={`gora-control min-h-[52px] flex-row items-center rounded-[4px] border px-5 py-3 active:scale-[0.985] ${
+        className={`gimik-control min-h-[52px] flex-row items-center rounded-[4px] border px-5 py-3 active:scale-[0.985] ${
           previewState === 'active' ? 'scale-[0.985]' : ''
         } ${splitAction ? 'justify-between' : 'justify-center'} ${skin}`}
         accessibilityRole="button"
@@ -117,7 +117,7 @@ export function Button({
         {state === 'loading' ? (
           <ActivityIndicator color={foreground} size="small" style={{ marginRight: 8 }} />
         ) : statusIcon ? (
-          <GoraIcon name={statusIcon} size={18} color={foreground} weight="bold" style={{ marginRight: 8 }} />
+          <GimikIcon name={statusIcon} size={18} color={foreground} weight="bold" style={{ marginRight: 8 }} />
         ) : null}
         <Txt
           variant="button"
@@ -130,10 +130,10 @@ export function Button({
         </Txt>
         {icon && state === 'idle' && variant === 'primary' ? (
           <View className={`ml-4 h-8 w-8 shrink-0 items-center justify-center rounded-full ${disabled ? 'bg-brand-rule' : 'bg-brand-paper/15'}`}>
-            <GoraIcon name={icon} size={17} color={disabled ? C.inkMuted : C.primaryInk} weight="bold" />
+            <GimikIcon name={icon} size={17} color={disabled ? C.inkMuted : C.primaryInk} weight="bold" />
           </View>
         ) : icon && state === 'idle' ? (
-          <GoraIcon name={icon} size={18} color={foreground} weight="bold" style={{ marginLeft: 8 }} />
+          <GimikIcon name={icon} size={18} color={foreground} weight="bold" style={{ marginLeft: 8 }} />
         ) : null}
       </Pressable>
     </View>
@@ -215,7 +215,7 @@ export function IconButton({
       }}
     >
       <Pressable
-        className="gora-control active:scale-[0.96]"
+        className="gimik-control active:scale-[0.96]"
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityState={{ disabled: blocked, busy: state === 'loading' }}
@@ -238,7 +238,7 @@ export function IconButton({
         {state === 'loading' ? (
           <ActivityIndicator color={foreground} size="small" />
         ) : (
-          <GoraIcon
+          <GimikIcon
             name={state === 'error' ? 'warning' : state === 'success' ? 'check' : icon}
             size={size * 0.45}
             color={state === 'error' ? C.danger : state === 'success' ? C.success : foreground}
@@ -279,7 +279,7 @@ export function IconTile({
         width: size,
       }}
     >
-      <GoraIcon
+      <GimikIcon
         name={name}
         size={size * 0.5}
         color={color}

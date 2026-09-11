@@ -14,7 +14,7 @@ import {
 
 import './interop';
 import { C } from '@/lib/tokens';
-import { GoraIcon } from './icon';
+import { GimikIcon } from './icon';
 import { Txt } from './txt';
 
 /** Room for the floating back button that sits over a full-bleed hero. */
@@ -40,7 +40,7 @@ export function BrandedImage({ style, fallback, source, onError, ...props }: Bra
     <View style={style} className="overflow-hidden bg-brand-paper-sunk">
       {!loaded ? (
         <View style={StyleSheet.absoluteFill} className="items-center justify-center opacity-35">
-          <GoraIcon name="cards" size={24} color={C.inkMuted} weight="duotone" />
+          <GimikIcon name="cards" size={24} color={C.inkMuted} weight="duotone" />
         </View>
       ) : null}
       <Image

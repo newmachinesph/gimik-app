@@ -50,7 +50,7 @@ export const screensEn = {
       "searchPh": "Restaurant, park, city…",
       "clear": "Clear the place",
       "freeText": "No match - what you typed will be the place.",
-      "plusOnly": "Place search is part of Gora Plus - what you typed will be the place."
+      "plusOnly": "Place search is part of Gimik Plus - what you typed will be the place."
     },
     "forgot": {
       "title": "Forgotten password",
@@ -83,9 +83,12 @@ export const screensEn = {
       "working": "Signing you in",
       "failedTitle": "That did not work",
       "badCredentials": "That email and password do not match an account.",
-      "offlineTitle": "Cannot reach Gora",
+      "offlineTitle": "Cannot reach Gimik",
       "offlineBody": "The app could not reach the server. Check your connection and try again.",
       "noServer": "No server is configured for this build, so sign-in is unavailable.",
+      "or": "or",
+      "google": "Continue with Google",
+      "googleFailed": "Google could not sign you in. Try your email and password.",
       "demo": "Use demo data instead"
     },
     "welcome": {
@@ -152,7 +155,7 @@ export const screensEn = {
       },
       "city": {
         "title": "Where are you?",
-        "body": "Gora runs in the Philippines. Your city is how people near you find you.",
+        "body": "Gimik runs in the Philippines. Your city is how people near you find you.",
         "searchPh": "City or province"
       },
       "interests": {
@@ -183,7 +186,7 @@ export const screensEn = {
         "body": "One moment."
       },
       "offline": {
-        "title": "Couldn't reach Gora",
+        "title": "Couldn't reach Gimik",
         "body": "Your keeps are safe on this phone. The deck needs a connection to fill up again.",
         "action": "Try again"
       },
@@ -212,7 +215,7 @@ export const screensEn = {
         "body": "One moment."
       },
       "offline": {
-        "title": "Couldn't reach Gora",
+        "title": "Couldn't reach Gimik",
         "body": "Check your connection and try again."
       },
       "empty": {
@@ -360,7 +363,7 @@ export const screensEn = {
       },
       "bill": {
         "title": "The bill",
-        "subtitle": "Gora computes it; money never moves through Gora",
+        "subtitle": "Gimik computes it; money never moves through Gimik",
         "kkb": "KKB",
         "equal": "Equal Split",
         "treat": "My Treat",
@@ -393,7 +396,7 @@ export const screensEn = {
       "backToRecord": "Back to my record"
     },
     "person": {
-      "memberSince": "On Gora since {{date}}",
+      "memberSince": "On Gimik since {{date}}",
       "addFriend": "Add friend",
       "requested": "Requested",
       "message": "Message",
@@ -499,7 +502,7 @@ export const screensEn = {
         "thread": "Group thread",
         "leave": "Leave group",
         "share": "Share invite link",
-        "shareMessage": "Join {{name}} on Gora: {{url}}"
+        "shareMessage": "Join {{name}} on Gimik: {{url}}"
       }
     },
     "join": {
@@ -617,8 +620,8 @@ export const screensEn = {
       "resetTitle": "Reset?",
       "resetBody": "Wipes everything on this device.",
       "resetConfirm": "Reset",
-      "footer": "Gora {{version}} demo - flat data, no server.",
-      "footerLive": "Gora {{version}}"
+      "footer": "Gimik {{version}} demo - flat data, no server.",
+      "footerLive": "Gimik {{version}}"
     },
     "opening": {
       "eyebrow": "While you were away",

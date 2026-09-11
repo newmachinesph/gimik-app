@@ -11,7 +11,7 @@ import { push } from './endpoints';
  * Everything the product does socially waits on somebody answering: an invite,
  * a message, a friend request. Ably carries those to a running app and nowhere
  * else, so until now an answer arrived only if the other person happened to be
- * looking at Gora already - and invites lapse after a week.
+ * looking at Gimik already - and invites lapse after a week.
  *
  * Three things worth knowing about this file:
  *
@@ -61,7 +61,7 @@ export async function registerForPush(): Promise<string | null> {
       // Android needs the channel to exist before anything can be delivered to
       // it, and the id has to match what the server sends ("default").
       await Notifications.setNotificationChannelAsync('default', {
-        name: 'Gora',
+        name: 'Gimik',
         importance: Notifications.AndroidImportance.DEFAULT,
         vibrationPattern: [0, 180, 90, 180],
       });

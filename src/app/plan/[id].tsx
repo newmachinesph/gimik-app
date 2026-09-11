@@ -11,7 +11,7 @@ import {
   Field,
   FocusablePressable,
   GhostButton,
-  GoraIcon,
+  GimikIcon,
   NavRow,
   PrimaryButton,
   RowList,
@@ -64,9 +64,9 @@ export default function PlanScreen() {
           onPress={() => void Linking.openURL(`geo:0,0?q=${encodeURIComponent(plan.place ?? '')}`).catch(() => {})}
           className="flex-row items-center mt-2 active:opacity-70"
         >
-          <GoraIcon name="map-pin" size={15} color={C.ink} weight="fill" />
+          <GimikIcon name="map-pin" size={15} color={C.ink} weight="fill" />
           <Txt variant="label" className="text-brand-ink ml-2 flex-1" numberOfLines={1}>{plan.place}</Txt>
-          <GoraIcon name="chevron-right" size={14} color={C.inkMuted} />
+          <GimikIcon name="chevron-right" size={14} color={C.inkMuted} />
         </FocusablePressable>
       ) : null}
 

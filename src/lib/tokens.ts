@@ -1,7 +1,7 @@
 import palette from './colors';
 
 /**
- * Native Gora tokens for values that cannot travel through NativeWind classes
+ * Native Gimik tokens for values that cannot travel through NativeWind classes
  * (icons, animated styles, dimensions, and font family names).
  */
 export const C = {

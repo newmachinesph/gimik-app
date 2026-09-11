@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 
 import { C, RADIUS } from '@/lib/tokens';
 import type { ControlState } from './button';
-import { GoraIcon } from './icon';
+import { GimikIcon } from './icon';
 import { Txt } from './txt';
 
 export function Chip({
@@ -43,7 +43,7 @@ export function Chip({
       }}
     >
       <Pressable
-        className={`gora-control min-h-11 px-[18px] py-2 items-center justify-center rounded-[4px] border active:opacity-85 ${
+        className={`gimik-control min-h-11 px-[18px] py-2 items-center justify-center rounded-[4px] border active:opacity-85 ${
           selected
             ? 'bg-brand-night border-brand-night'
             : 'bg-brand-paper border-brand-rule hover:bg-brand-paper-sunk'
@@ -98,7 +98,7 @@ export function FilterBar({
         onPress={onFilter}
         className="w-11 h-11 rounded-full items-center justify-center bg-brand-paper border border-brand-rule mr-2 active:opacity-70"
       >
-        <GoraIcon name="filter" size={20} color={C.ink} weight="bold" />
+        <GimikIcon name="filter" size={20} color={C.ink} weight="bold" />
         {filtersActive ? (
           <View className="absolute top-[9px] right-[9px] w-2 h-2 rounded-full bg-brand-orange" />
         ) : null}
@@ -197,7 +197,7 @@ export function Field({
         >
           <TextInput
             {...rest}
-            className="gora-control font-geist leading-[22px] text-[16px] text-brand-ink"
+            className="gimik-control font-geist leading-[22px] text-[16px] text-brand-ink"
             aria-invalid={state === 'error'}
             accessibilityLabel={rest.accessibilityLabel ?? label}
             accessibilityState={{ disabled, busy: state === 'loading' }}
@@ -220,9 +220,9 @@ export function Field({
             {state === 'loading' ? (
               <ActivityIndicator color={C.skyDeep} size="small" />
             ) : state === 'error' ? (
-              <GoraIcon name="warning" size={19} color={C.danger} weight="bold" />
+              <GimikIcon name="warning" size={19} color={C.danger} weight="bold" />
             ) : state === 'success' ? (
-              <GoraIcon name="success" size={19} color={C.success} weight="bold" />
+              <GimikIcon name="success" size={19} color={C.success} weight="bold" />
             ) : null}
           </View>
         </View>
@@ -262,10 +262,10 @@ export function SearchField(props: TextInputProps) {
           paddingHorizontal: 16,
         }}
       >
-        <GoraIcon name="search" size={19} color={C.inkMuted} weight="bold" />
+        <GimikIcon name="search" size={19} color={C.inkMuted} weight="bold" />
         <TextInput
           {...rest}
-          className="gora-control font-geist leading-[22px] text-[16px] text-brand-ink"
+          className="gimik-control font-geist leading-[22px] text-[16px] text-brand-ink"
           onBlur={(event) => {
             setFocused(false);
             onBlur?.(event);

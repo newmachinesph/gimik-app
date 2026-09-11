@@ -5,4 +5,4 @@
  * checks are reachable, and a stale link in a shipped build cannot be fixed
  * without shipping another one.
  */
-export const SITE_URL = 'https://getgora.app';
+export const SITE_URL = 'https://gimik.app';

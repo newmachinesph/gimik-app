@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { BrandedImage, FocusablePressable, GoraIcon, Txt } from '@/components/ui';
+import { BrandedImage, FocusablePressable, GimikIcon, Txt } from '@/components/ui';
 import { wantTitle, type Want } from '@/lib/mock';
 import { CATALOG_FALLBACK } from '@/lib/storage';
 import { C } from '@/lib/tokens';
@@ -16,7 +16,7 @@ export function SomedayRow({ want, line, accent = false, chevron = true, onPress
         <Txt variant="label" className="text-brand-ink" numberOfLines={2}>{wantTitle(want)}</Txt>
         <Txt variant={accent ? 'date' : 'caption'} className="mt-1" numberOfLines={1}>{line}</Txt>
       </View>
-      {chevron ? <GoraIcon name="chevron-right" size={16} color={C.inkMuted} /> : null}
+      {chevron ? <GimikIcon name="chevron-right" size={16} color={C.inkMuted} /> : null}
     </FocusablePressable>
   );
 }

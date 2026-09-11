@@ -1,12 +1,12 @@
-# Gora — the corpus
+# Gimik — the corpus
 
-The complete definition of the product as it ships next: what Gora is, the
+The complete definition of the product as it ships next: what Gimik is, the
 words it uses, how people reach each other, what every screen is for, and what
 is cut. Approved before the UI is rebuilt against it. Everything here runs on
 static data — the seeded catalog and seeded people — so every state can be seen
 on a phone with or without the API.
 
-## 1. What Gora is
+## 1. What Gimik is
 
 **A bucket list that gets you invited.**
 
@@ -104,7 +104,7 @@ Discover · Activity · **Somedays** · Invites · Profile. Flat paper bar,
 |---|---|---|---|
 | **Discover** | *What could I want?* | Search, category chips, catalog grid, **+** in the header. No rails. | "Nothing matches — try a category." |
 | **Activity** | *What's happening?* | **Locked** (soonest first, countdown) · **Waiting for a date** · **Done** (last 3 → Record) · **Messages** row with unread count | "Nothing moving yet. Keep a someday and it lands here." → Somedays |
-| **Somedays** | *Is this one mine?* | **Gora** wordmark left; undo + **filter** right. The deck: full-bleed card, swipe right keep / left pass, tap for detail. Nothing else. | "You've seen everything for now" → Discover |
+| **Somedays** | *Is this one mine?* | **Gimik** wordmark left; undo + **filter** right. The deck: full-bleed card, swipe right keep / left pass, tap for detail. Nothing else. | "You've seen everything for now" → Discover |
 | **Invites** | *Who wants to do this with me?* | §7. Envelope (inbox) in the header. Badge when new. | "No invites yet. Keep a few somedays that take company." → Somedays |
 | **Profile** | *Who am I to them?* | §9. | Record empty: "Nothing finished yet." |
 
@@ -155,7 +155,7 @@ next step (photo → name → city → bio → three somedays → first lock).
 
 **Edit profile**: up to **eight photos**, the first is your face everywhere;
 name, bio, and **city** are changeable any time (city from the Philippine list
-only — Gora is Philippines-only, and city is how *Everyone* finds you).
+only — Gimik is Philippines-only, and city is how *Everyone* finds you).
 **Birthday and gender are set once at sign-up and cannot be changed**; age is
 derived from birthday. Then
 **Friends · N** and **Groups · N** rows. Then **Record** — one number, one

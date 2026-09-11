@@ -7,7 +7,7 @@ import {
   BottomSheet,
   FocusablePressable,
   GhostButton,
-  GoraIcon,
+  GimikIcon,
   PrimaryButton,
   SecondaryButton,
   Txt,
@@ -42,7 +42,7 @@ export function InviteSheet({ row, onAccept, onNotNow, onHide, onDismiss }: {
               <Txt variant="label" className="text-brand-ink">{row.person.name} {genderMark(row.person.gender)}{row.person.age ? `, ${row.person.age}` : ''}</Txt>
               <Txt variant="caption" numberOfLines={1}>{row.person.city}{row.person.bio ? ` · ${row.person.bio}` : ''}</Txt>
             </View>
-            <GoraIcon name="chevron-right" size={16} color={C.inkMuted} />
+            <GimikIcon name="chevron-right" size={16} color={C.inkMuted} />
           </FocusablePressable>
           <Txt variant="body" className="mt-4">{row.party === 'group' ? t('s.inviteSheet.bodyGroup', { name: first }) : t('s.inviteSheet.body', { name: first })}</Txt>
           <View className="mt-5"><PrimaryButton label={t('s.inviteSheet.accept')} icon="arrow-right" onPress={onAccept} /></View>

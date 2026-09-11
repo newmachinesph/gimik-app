@@ -2,7 +2,7 @@
 export const coreScreensEn = {
   "core": {
     "common": {
-      "goraMember": "Gora member"
+      "gimikMember": "Gimik member"
     },
     "tabs": {
       "home": "Somedays",

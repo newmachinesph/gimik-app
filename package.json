@@ -1,5 +1,5 @@
 {
-  "name": "gora-v2",
+  "name": "gimik-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
@@ -8,6 +8,7 @@
     "@expo-google-fonts/instrument-serif": "^0.4.1",
     "@expo/ui": "~57.0.14",
     "@react-native-async-storage/async-storage": "^3.1.1",
+    "@react-native-google-signin/google-signin": "^16.1.5",
     "@sentry/react-native": "~7.11.0",
     "ably": "^2.28.0",
     "expo": "~57.0.17",

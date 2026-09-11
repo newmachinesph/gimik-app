@@ -13,7 +13,7 @@ import type { TokenPair } from './schema';
  */
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') ?? '';
-const TOKEN_KEY = 'gora-v2-tokens';
+const TOKEN_KEY = 'gimik-v2-tokens';
 const TIMEOUT_MS = 15_000;
 
 /** Whether an API is configured at all. False means the app is on demo data. */
@@ -98,7 +98,7 @@ async function send(path: string, options: RequestOptions, accessToken: string |
       signal: controller.signal,
     });
   } catch (cause) {
-    throw new NetworkError(controller.signal.aborted ? 'The request timed out.' : 'Could not reach Gora.', cause);
+    throw new NetworkError(controller.signal.aborted ? 'The request timed out.' : 'Could not reach Gimik.', cause);
   } finally {
     clearTimeout(timer);
   }

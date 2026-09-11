@@ -20,7 +20,7 @@ every phase via Metro + `adb reverse tcp:8081`.
   480px WebP artwork), people (gender, age, city, bio, bundled photos), demo
   states (fresh / a-week-in / veteran). `Settings → Developer` switches state.
 - Reuse v1's proven kit where it is already right: tokens, `Txt`, `Card`,
-  `Chip`, buttons, `GoraIcon`, `BrandedImage`, `ScrollingTitle`,
+  `Chip`, buttons, `GimikIcon`, `BrandedImage`, `ScrollingTitle`,
   `DecideDeck`, `TabBar`, `ProgressRing`, `Avatar`. Port, then re-scale.
 
 ## Phases

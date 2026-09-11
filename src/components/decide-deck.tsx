@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, PanResponder, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { BrandedImage, FocusablePressable, GoraIcon, ScrollingTitle, Txt } from '@/components/ui';
+import { BrandedImage, FocusablePressable, GimikIcon, ScrollingTitle, Txt } from '@/components/ui';
 import { formatNumber } from '@/i18n/format';
 import { matchedInterestLabel } from '@/lib/interests';
 import { categoryLabel, wantLocationScope, wantTitle, type Want } from '@/lib/mock';
@@ -298,7 +298,7 @@ function DeckCard({
             person asks before deciding, answered before they ask. */}
         <View className="flex-row flex-wrap items-center mt-3" style={{ gap: 8 }}>
           <View className="flex-row items-center">
-            <GoraIcon name="people" size={16} color={tint(C.paper, 'B8')} />
+            <GimikIcon name="people" size={16} color={tint(C.paper, 'B8')} />
             <Txt variant="caption" className="text-brand-paper/70 ml-2">{social}</Txt>
           </View>
           {want.party === 'duo' || want.party === 'group' ? (

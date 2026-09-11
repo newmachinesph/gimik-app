@@ -11,7 +11,7 @@ import {
   Badge,
   Card,
   GhostButton,
-  GoraIcon,
+  GimikIcon,
   IconButton,
   NavRow,
   PillButton,
@@ -53,7 +53,7 @@ export default function SomedayDetail() {
     keep(id);
     toast(t('s.toasts.kept', { title: wantTitle(want) }), { action: { label: t('s.common.undo'), onClick: () => unkeep(id) } });
   };
-  const share = () => void Share.share({ message: t('s.want.share', { title: wantTitle(want).toLowerCase(), url: `https://getgora.app/s/${want.slug ?? want.id}` }) });
+  const share = () => void Share.share({ message: t('s.want.share', { title: wantTitle(want).toLowerCase(), url: `https://gimik.app/s/${want.slug ?? want.id}` }) });
   const openMap = () => {
     if (!place) return;
     const query = place.address ?? `${place.name}, ${place.area}`;
@@ -177,7 +177,7 @@ export default function SomedayDetail() {
               <SectionHead title={t('s.want.where.title')} subtitle={t('s.want.where.subtitle')} />
               <RowList>
                 <NavRow
-                  leading={<GoraIcon name="map-pin" size={20} color={C.ink} weight="fill" />}
+                  leading={<GimikIcon name="map-pin" size={20} color={C.ink} weight="fill" />}
                   title={place.name}
                   caption={place.address ?? place.area}
                   onPress={openMap}

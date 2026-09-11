@@ -1,6 +1,6 @@
 # gora-v2 — the API, wired
 
-The app runs against Gora API v2. Signing in fills the store from the server,
+The app runs against Gimik API v2. Signing in fills the store from the server,
 every mutation is written through, and two phones signed in as two people see
 each other's messages. What follows is how it hangs together, then what is
 still missing.
@@ -20,7 +20,7 @@ adb -s <device> reverse tcp:8100 tcp:8100   # API
 adb -s <device> reverse tcp:9000 tcp:9000   # object store
 ```
 
-Sign in as `bea@gora.ph` / `gora-demo-1234`, or as any of the cast
+Sign in as `bea@gimik.ph` / `gimik-demo-1234`, or as any of the cast
 (`mara@`, `jon@`, `ana@`, `theo@`, `noor@`, `kaz@`, `ivy@`, `ren@`, `dani@`)
 with the same password.
 
@@ -138,7 +138,7 @@ until they are wanted. Zero crashes on either phone since.
 |---|---|---|
 | Sign up | `POST /auth/register` | From onboarding's profile step. Welcome mail on a background task. |
 | Sign in | `POST /auth/login` | 10 attempts per 5 minutes, per IP. |
-| Forgotten password | `POST /auth/password/forgot` | **Always 204**, known address or not: any other answer is an account-existence oracle. Emails a `gora://reset?token=` deep link plus the raw code, because a link that will not fire should not strand someone who is locked out. |
+| Forgotten password | `POST /auth/password/forgot` | **Always 204**, known address or not: any other answer is an account-existence oracle. Emails a `gimik://reset?token=` deep link plus the raw code, because a link that will not fire should not strand someone who is locked out. |
 | Reset | `POST /auth/password/reset` | 30-minute single-purpose token, checked by its `type` claim so an access or refresh token cannot be spent here. Succeeding signs them straight in. |
 | Delete | `DELETE /auth/me` | **Actually deletes.** Every table hanging off a user is `ON DELETE CASCADE`; the object store is swept by hand first, because a deleted account that leaves its photographs behind has not been deleted. |
 

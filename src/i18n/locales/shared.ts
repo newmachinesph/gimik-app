@@ -6,7 +6,7 @@ export const sharedEn = {
       "today": "Today",
       "tomorrow": "Tomorrow",
       "you": "You",
-      "goraMember": "Gora member",
+      "gimikMember": "Gimik member",
       "inDays_one": "In {{count}} day",
       "inDays_other": "In {{count}} days",
       "onlyYou": "Only you",

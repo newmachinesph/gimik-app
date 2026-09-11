@@ -11,7 +11,7 @@ The phone was PIN-locked for most of the night; it came unlocked near the end an
 everything below was then walked on glass, on the RMX3636, against the local
 stack.
 
-- Welcome and sign-in render; signing in as `bea@gora.ph` hydrates the account.
+- Welcome and sign-in render; signing in as `bea@gimik.ph` hydrates the account.
 - **The deck is served by `GET /feed`.** Top card was "Complete a multi-day
   rail-trail journey", the same card and order the API returns, with its real
   artwork out of MinIO and **"2 friends want this"** matching the API's

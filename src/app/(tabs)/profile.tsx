@@ -7,7 +7,7 @@ import {
   Avatar,
   EmptyState,
   FocusablePressable,
-  GoraIcon,
+  GimikIcon,
   IconButton,
   NavRow,
   ProgressRing,
@@ -40,7 +40,7 @@ export default function Profile() {
   const { done } = useMine();
   const age = ageFrom(profile.birthday);
   const { fraction: completeness, next } = useProfileCompleteness();
-  const name = profile.name || t('core.common.goraMember');
+  const name = profile.name || t('core.common.gimikMember');
   const interests = profile.interests ?? [];
   const languages = profile.languages ?? [];
 
@@ -61,7 +61,7 @@ export default function Profile() {
         </Txt>
         {profile.handle ? <Txt variant="caption" className="mt-[2px]">@{profile.handle}</Txt> : null}
         <FocusablePressable accessibilityRole="button" onPress={() => router.push('/city' as never)} className="flex-row items-center mt-1 active:opacity-70">
-          <GoraIcon name="map-pin" size={13} color={profile.city ? C.ink : C.inkMuted} weight={profile.city ? 'fill' : 'regular'} />
+          <GimikIcon name="map-pin" size={13} color={profile.city ? C.ink : C.inkMuted} weight={profile.city ? 'fill' : 'regular'} />
           <Txt variant="label" className={`ml-1 ${profile.city ? 'text-brand-ink' : ''}`}>
             {profile.city ?? t('s.profile.addCity')}{profile.hometown ? ` \u00B7 ${t('s.profile.from', { name: profile.hometown })}` : ''}
           </Txt>
@@ -71,13 +71,13 @@ export default function Profile() {
           <View className="mt-2 items-center" style={{ gap: 4 }}>
             {profile.work ? (
               <View className="flex-row items-center">
-                <GoraIcon name="work" size={14} color={C.inkMuted} />
+                <GimikIcon name="work" size={14} color={C.inkMuted} />
                 <Txt variant="label" className="ml-2" numberOfLines={1}>{profile.work}</Txt>
               </View>
             ) : null}
             {profile.education ? (
               <View className="flex-row items-center">
-                <GoraIcon name="education" size={14} color={C.inkMuted} />
+                <GimikIcon name="education" size={14} color={C.inkMuted} />
                 <Txt variant="label" className="ml-2" numberOfLines={1}>{profile.education}</Txt>
               </View>
             ) : null}
@@ -102,7 +102,7 @@ export default function Profile() {
           </FocusablePressable>
         ) : (
           <View className="mt-4 flex-row items-center rounded-full bg-brand-paper-sunk border border-brand-rule px-4 py-2">
-            <GoraIcon name="success" size={14} color={C.success} weight="fill" />
+            <GimikIcon name="success" size={14} color={C.success} weight="fill" />
             <Txt variant="caption" className="text-brand-ink ml-1">{t('s.profile.complete')}</Txt>
           </View>
         )}

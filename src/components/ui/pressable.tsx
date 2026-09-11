@@ -9,5 +9,5 @@ export type FocusablePressableProps = PressableProps & { className?: string };
 
 /** Shared focus and touch-target contract for non-button interactions. */
 export function FocusablePressable({ className = '', ...props }: FocusablePressableProps) {
-  return <Pressable {...props} className={`gora-pressable ${className}`} />;
+  return <Pressable {...props} className={`gimik-pressable ${className}`} />;
 }

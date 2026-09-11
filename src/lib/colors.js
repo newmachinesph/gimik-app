@@ -1,4 +1,4 @@
-// Gora brand palette. This is the native source of truth; Tailwind consumes it
+// Gimik brand palette. This is the native source of truth; Tailwind consumes it
 // directly and `tokens.ts` exposes the same values to style props.
 //
 // The first group mirrors getgoraapp/src/styles/tokens.css exactly. Compatibility

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Animated, AppState, Modal, Pressable, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GoraIcon, NavRow, SecondaryButton, Txt } from '@/components/ui';
+import { GimikIcon, NavRow, SecondaryButton, Txt } from '@/components/ui';
 import { dayLabel } from '@/lib/format';
 import { isInviteLive } from '@/lib/invites';
 import { wantTitle } from '@/lib/mock';
@@ -138,7 +138,7 @@ export function OpeningSheet() {
               avatar={item.person}
               leading={item.person ? undefined : (
                 <View className="w-10 h-10 rounded-full bg-brand-paper-sunk items-center justify-center">
-                  <GoraIcon name="calendar" size={18} color={C.ink} />
+                  <GimikIcon name="calendar" size={18} color={C.ink} />
                 </View>
               )}
               title={item.title}

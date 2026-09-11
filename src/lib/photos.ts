@@ -31,7 +31,7 @@ export const PHOTO = {
   bucketSurf: catalogPhoto('learn-to-surf'),
 };
 
-// The transparent marks (assets/images/gora-mark.png and gora-mark-orange.png) are
+// The transparent marks (assets/images/gimik-mark.png and gimik-mark-orange.png) are
 // the icon masters and are deliberately NOT exported here — nothing renders them in
 // app right now, and Metro only bundles what is required, so they cost nothing on
 // disk. Add an export when a screen actually shows the wordmark.

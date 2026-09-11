@@ -27,7 +27,7 @@ export default function GroupDetail() {
   const leave = useApp((s) => s.leaveGroup);
   if (!group) return <NotFound />;
   const thread = threads.find((item) => item.kind === 'group' && item.refId === group.id);
-  const share = () => void Share.share({ message: t('s.groups.detail.shareMessage', { name: group.name, url: `https://getgora.app/join/${group.inviteToken}` }) });
+  const share = () => void Share.share({ message: t('s.groups.detail.shareMessage', { name: group.name, url: `https://gimik.app/join/${group.inviteToken}` }) });
 
   return (
     <Screen inset={false} footer={<PrimaryButton label={t('s.groups.detail.share')} icon="arrow-right" onPress={share} />}>

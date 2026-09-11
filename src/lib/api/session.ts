@@ -3,6 +3,7 @@ import { resetRegistry } from '@/lib/registry';
 import { useApp } from '@/store';
 import { auth, ops } from './endpoints';
 import { hasApi, loadTokens, setTokens } from './client';
+import { forgetGoogle, getGoogleIdToken } from './google';
 import { resetDirectory } from './directory';
 import { unregisterForPush } from './push';
 import { disconnectRealtime } from './realtime';
@@ -24,6 +25,19 @@ export async function signIn(email: string, password: string): Promise<void> {
   await hydrateFromApi();
 }
 
+/**
+ * Sign in with Google. Covers signing up too: the server decides which one it
+ * was, since only it knows whether that Google account has been here before.
+ *
+ * Throws GoogleCancelled when the person simply backed out, which callers are
+ * expected to swallow rather than show as a failure.
+ */
+export async function signInWithGoogle(): Promise<void> {
+  const idToken = await getGoogleIdToken();
+  await auth.google({ id_token: idToken });
+  await hydrateFromApi();
+}
+
 export async function signUp(input: {
   email: string;
   password: string;
@@ -42,6 +56,8 @@ export async function signUp(input: {
 }
 
 export async function signOut(): Promise<void> {
+  // Drop Google too, or the next sign-in silently reuses this account.
+  await forgetGoogle();
   disconnectRealtime();
   void unregisterForPush();
   await auth.signOut();

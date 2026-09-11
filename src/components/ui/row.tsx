@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { C } from '@/lib/tokens';
 import { Card, Divider } from './card';
-import { GoraIcon, type IconName } from './icon';
+import { GimikIcon, type IconName } from './icon';
 import { Avatar } from './photo';
 import { FocusablePressable } from './pressable';
 import { Txt } from './txt';
@@ -103,7 +103,7 @@ export function NavRow({
   const art = leading ?? (avatar !== undefined ? (
     <Avatar name={avatar} size={size === 'lg' ? 44 : 40} source={avatarPhoto} />
   ) : icon ? (
-    <GoraIcon name={icon} size={20} color={danger ? C.orange : C.ink} />
+    <GimikIcon name={icon} size={20} color={danger ? C.orange : C.ink} />
   ) : null);
 
   return (
@@ -142,7 +142,7 @@ export function NavRow({
       {count !== undefined ? <Txt variant="caption" className="ml-2">{count}</Txt> : null}
       {trailing ? <View className="shrink-0 ml-2">{trailing}</View> : null}
       {!trailing && chevron && onPress ? (
-        <GoraIcon name="chevron-right" size={16} color={C.inkMuted} style={{ marginLeft: 8 }} />
+        <GimikIcon name="chevron-right" size={16} color={C.inkMuted} style={{ marginLeft: 8 }} />
       ) : null}
     </FocusablePressable>
   );

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, View } from 'react-native';
 
-import { FocusablePressable, GoraIcon, SearchField, Txt } from '@/components/ui';
+import { FocusablePressable, GimikIcon, SearchField, Txt } from '@/components/ui';
 import { newSearchSession, placeLabel, searchPlaces, type PlacePick } from '@/lib/places';
 import { C } from '@/lib/tokens';
 
@@ -60,10 +60,10 @@ export function PlaceField({ value, onChange }: {
   if (value && !query) {
     return (
       <View className="flex-row items-center bg-brand-paper-sunk rounded-[4px] px-3 py-3">
-        <GoraIcon name="map-pin" size={16} color={C.ink} weight="fill" />
+        <GimikIcon name="map-pin" size={16} color={C.ink} weight="fill" />
         <Txt variant="label" className="text-brand-ink flex-1 ml-2" numberOfLines={1}>{value}</Txt>
         <FocusablePressable accessibilityRole="button" accessibilityLabel={t('s.place.clear')} onPress={() => { onChange(''); setQuery(''); }} className="p-1 active:opacity-60">
-          <GoraIcon name="close" size={14} color={C.inkMuted} />
+          <GimikIcon name="close" size={14} color={C.inkMuted} />
         </FocusablePressable>
       </View>
     );
@@ -84,7 +84,7 @@ export function PlaceField({ value, onChange }: {
               onPress={() => pick(item)}
               className={`flex-row items-center px-3 py-3 active:opacity-70 ${index ? 'border-t border-brand-rule' : ''}`}
             >
-              <GoraIcon name="map-pin" size={15} color={C.inkMuted} />
+              <GimikIcon name="map-pin" size={15} color={C.inkMuted} />
               <View className="flex-1 ml-2 min-w-0">
                 <Txt variant="label" className="text-brand-ink" numberOfLines={1}>{item.name}</Txt>
                 <Txt variant="caption" numberOfLines={1}>{item.area}</Txt>

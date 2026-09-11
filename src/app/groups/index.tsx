@@ -7,7 +7,7 @@ import { toast } from 'sonner-native';
 import {
   EmptyState,
   Field,
-  GoraIcon,
+  GimikIcon,
   NavRow,
   PrimaryButton,
   RowList,
@@ -48,7 +48,7 @@ export default function Groups() {
                 key={group.id}
                 leading={
                   <View className="w-11 h-11 rounded-full bg-brand-paper-sunk items-center justify-center">
-                    <GoraIcon name="people" size={20} color={C.ink} />
+                    <GimikIcon name="people" size={20} color={C.ink} />
                   </View>
                 }
                 title={group.name}

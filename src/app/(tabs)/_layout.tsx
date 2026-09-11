@@ -49,7 +49,7 @@ export default function TabsLayout() {
             <TabButton icon="heart" badge={newInvites}>{t('core.tabs.invites')}</TabButton>
           </TabTrigger>
           <TabTrigger name="profile" href="/profile" asChild>
-            <TabButton icon="profile" avatar={profile.name || t('core.common.goraMember')} photo={profile.photos[0]} progress={fraction}>
+            <TabButton icon="profile" avatar={profile.name || t('core.common.gimikMember')} photo={profile.photos[0]} progress={fraction}>
               {t('core.tabs.profile')}
             </TabButton>
           </TabTrigger>

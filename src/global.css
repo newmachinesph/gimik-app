@@ -25,13 +25,13 @@ body > div,
   height: 100%;
 }
 
-.gora-pressable {
+.gimik-pressable {
   min-height: 44px;
   min-width: 44px;
   touch-action: manipulation;
 }
 
-.gora-pressable:focus-visible {
+.gimik-pressable:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
@@ -43,12 +43,12 @@ body > div,
 
 /* Button, chip, and field primitives draw their own non-animating ring on the
    fixed-size outer wrapper, so the browser ring would duplicate it. */
-.gora-control:focus-visible {
+.gimik-control:focus-visible {
   outline: none;
 }
 
-.gora-control[aria-disabled='true'],
-.gora-control:disabled {
+.gimik-control[aria-disabled='true'],
+.gimik-control:disabled {
   cursor: not-allowed;
 }
 

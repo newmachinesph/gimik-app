@@ -22,11 +22,23 @@ const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL?.replace(/\/$/, '');
 /** Whether the object store is configured at all. */
 export const hasMediaStore = Boolean(mediaUrl);
 
+/**
+ * True when the media host is an R2 public bucket hostname, which is already
+ * rooted at one bucket. MinIO addresses buckets by path and so needs the name
+ * as a segment; repeating it on r2.dev yields a 404. Mirrors the same decision
+ * in the API's storage.catalog_url.
+ */
+const hostIsBucketRooted = Boolean(mediaUrl && /\.r2\.dev$/.test(mediaUrl.replace(/^https?:\/\//, '')));
+
+function objectUrl(key: string): string {
+  return hostIsBucketRooted ? `${mediaUrl}/${key}` : `${mediaUrl}/${CATALOG_BUCKET}/${key}`;
+}
+
 export function catalogPhoto(slug: string): PhotoSource {
   // A bundled photograph rather than a broken tile when the store is not
   // configured — the catalog is the first thing a new person sees.
   if (!mediaUrl) return CATALOG_FALLBACK;
-  return `${mediaUrl}/${CATALOG_BUCKET}/catalog/${encodeURIComponent(slug)}.webp`;
+  return objectUrl(`catalog/${encodeURIComponent(slug)}.webp`);
 }
 
 /**

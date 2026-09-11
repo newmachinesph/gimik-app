@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { C, RADIUS } from '@/lib/tokens';
 import { IconTile, SecondaryButton } from './button';
-import { GoraIcon, type IconName } from './icon';
+import { GimikIcon, type IconName } from './icon';
 import { Txt } from './txt';
 
 export function EmptyState({
@@ -65,7 +65,7 @@ export function InlineNotice({
         padding: 16,
       }}
     >
-      <GoraIcon name={icon} size={20} color={color} weight="bold" />
+      <GimikIcon name={icon} size={20} color={color} weight="bold" />
       <View className="flex-1 ml-3">
         <Txt variant="label" style={{ color: C.ink }}>
           {title}
