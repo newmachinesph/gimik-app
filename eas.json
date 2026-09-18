@@ -13,6 +13,9 @@
       }
     },
     "preview": {
+      "env": {
+        "EXPO_PUBLIC_CATALOG_URL": "https://cdn.gimik.app"
+      },
       "distribution": "internal",
       "channel": "preview",
       "android": {
@@ -20,6 +23,9 @@
       }
     },
     "production": {
+      "env": {
+        "EXPO_PUBLIC_CATALOG_URL": "https://cdn.gimik.app"
+      },
       "channel": "production",
       "autoIncrement": true
     }

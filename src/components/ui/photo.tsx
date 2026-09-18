@@ -34,7 +34,8 @@ type BrandedImageProps = Omit<ImageProps, 'style' | 'onLoad' | 'onLoadStart'> & 
 /** Keeps image geometry stable and makes a slow local or remote asset look intentional. */
 export function BrandedImage({ style, fallback, source, onError, ...props }: BrandedImageProps) {
   const [loaded, setLoaded] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failedSource, setFailedSource] = useState<ImageProps['source']>();
+  const failed = failedSource !== undefined && failedSource === source;
   const resolved = failed && fallback !== undefined ? fallback : source;
   return (
     <View style={style} className="overflow-hidden bg-brand-paper-sunk">
@@ -58,7 +59,7 @@ export function BrandedImage({ style, fallback, source, onError, ...props }: Bra
         // Own handler first, then the caller's: a gallery needs to hear about a
         // dead source even though this component also reacts to it.
         onError={(event) => {
-          setFailed(true);
+          setFailedSource(source);
           onError?.(event);
         }}
       />

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { resetRegistry, registeredWant } from '@/lib/registry';
+import { wantById } from '@/lib/somedays';
 import { resetDirectory, planId, somedayId, threadId, userId } from './directory';
 import {
   toFriends,
@@ -16,6 +17,23 @@ import {
 import type { GroupOut, HolderOut, PersonOut, ProfileOut, SomedayOut, ThreadOut } from './schema';
 
 const ME = 'Bea';
+
+describe('live catalog artwork', () => {
+  it('replaces bundled artwork and refreshes URLs for an existing saved activity', () => {
+    const original = 'https://cdn.gimik.app/gimik/catalog/see-an-aurora.webp';
+    const corrected = 'https://cdn.gimik.app/catalog/see-an-aurora.webp';
+    const keep = (artwork_url: string) => ({
+      someday: someday({ artwork_url }),
+      kept_at: '2026-09-18T00:00:00Z',
+      open_to: ['friends'],
+      party_as: ['duo'],
+    });
+    const { keptIds } = toKeeps([keep(original)]);
+    expect(wantById(keptIds[0])?.photo).toBe(original);
+    toKeeps([keep(corrected)]);
+    expect(wantById(keptIds[0])?.photo).toBe(corrected);
+  });
+});
 
 const someday = (over: Partial<SomedayOut> = {}): SomedayOut => ({
   id: 'sd-uuid-1',

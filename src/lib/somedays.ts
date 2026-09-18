@@ -12,15 +12,20 @@ import { useApp } from '@/store';
 const BUNDLED_BY_ID = new Map(WANTS.map((want) => [want.id, want]));
 export const WANT_BY_SLUG = new Map(WANTS.filter((want) => want.slug).map((want) => [want.slug!, want]));
 
-/** Bundled first - it carries the authored photograph and note - then whatever
- *  the server registered this session. Same `.get` shape the call sites expect. */
+/** Keep authored notes, but use live catalog artwork when the API supplies it. */
 export const WANT_BY_ID = {
-  get: (id: string): Want | undefined => BUNDLED_BY_ID.get(id) ?? registeredWant(id),
+  get: (id: string): Want | undefined => {
+    const bundledWant = BUNDLED_BY_ID.get(id);
+    const liveWant = registeredWant(id);
+    return bundledWant && liveWant
+      ? { ...bundledWant, photo: liveWant.photo }
+      : liveWant ?? bundledWant;
+  },
 };
 export const wantById = (id: string | undefined) => (id ? WANT_BY_ID.get(id) : undefined);
 
 /** The app's own id for a server slug: the bundled want when there is one, so
- *  authored artwork wins, otherwise the slug itself. */
+ *  existing saved IDs stay stable, otherwise the slug itself. */
 export const wantIdForSlug = (slug: string) => WANT_BY_SLUG.get(slug)?.id ?? slug;
 
 /** Days a kept someday has waited without a date before the deck asks again. */

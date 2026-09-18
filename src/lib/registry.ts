@@ -19,7 +19,7 @@ const wants = new Map<string, Want>();
 const people = new Map<string, Person>();
 
 export function registerWant(want: Want): void {
-  if (!wants.has(want.id)) wants.set(want.id, want);
+  wants.set(want.id, want);
 }
 
 export function registerPerson(person: Person): void {
