@@ -20,6 +20,7 @@ import {
  */
 
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '';
+const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? '';
 
 /** False when no client id was built in, so the UI can hide the button. */
 export const hasGoogleSignIn = WEB_CLIENT_ID.length > 0;
@@ -44,7 +45,10 @@ let configured = false;
 
 function configure(): void {
   if (configured) return;
-  GoogleSignin.configure({ webClientId: WEB_CLIENT_ID });
+  GoogleSignin.configure({
+    webClientId: WEB_CLIENT_ID,
+    ...(IOS_CLIENT_ID ? { iosClientId: IOS_CLIENT_ID } : {}),
+  });
   configured = true;
 }
 

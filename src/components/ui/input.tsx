@@ -168,13 +168,17 @@ export function Field({
   };
 
   return (
-    <View className="mb-5">
+    <View className="mb-5" collapsable={false}>
       {label ? (
         <Txt variant="eyebrow" className="mb-2">
           {label}
         </Txt>
       ) : null}
       <View
+        // Keep the native parents stable as focus/disabled opacity changes.
+        // Fabric on Android otherwise reparents the input's status slot while
+        // the form is submitting, which can crash with "child already has a parent".
+        collapsable={false}
         style={{
           borderColor: focused || previewState === 'focus' ? C.focus : 'transparent',
           borderRadius: RADIUS.input + 4,
@@ -184,6 +188,7 @@ export function Field({
         }}
       >
         <View
+          collapsable={false}
           style={{
             alignItems: multiline ? 'stretch' : 'center',
             backgroundColor: previewState === 'hover' ? C.paper : C.paperSunk,

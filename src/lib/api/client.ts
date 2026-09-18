@@ -56,19 +56,42 @@ export class NetworkError extends Error {
 }
 
 let tokens: TokenPair | null = null;
-let refreshing: Promise<TokenPair | null> | null = null;
+let sessionGeneration = 0;
+let refreshing: { generation: number; promise: Promise<TokenPair | null> } | null = null;
+const expiryListeners = new Set<() => void>();
+
+/** Session owners clear their cached state when credentials are rejected. */
+export function onSessionExpired(listener: () => void): () => void {
+  expiryListeners.add(listener);
+  return () => { expiryListeners.delete(listener); };
+}
 
 export async function loadTokens(): Promise<TokenPair | null> {
   if (tokens) return tokens;
+  const generation = sessionGeneration;
   const raw = await AsyncStorage.getItem(TOKEN_KEY);
-  tokens = raw ? (JSON.parse(raw) as TokenPair) : null;
+  if (generation === sessionGeneration) tokens = raw ? (JSON.parse(raw) as TokenPair) : null;
   return tokens;
 }
 
 export async function setTokens(next: TokenPair | null): Promise<void> {
+  sessionGeneration += 1;
+  await persistTokens(next);
+}
+
+async function persistTokens(next: TokenPair | null): Promise<void> {
   tokens = next;
   if (next) await AsyncStorage.setItem(TOKEN_KEY, JSON.stringify(next));
   else await AsyncStorage.removeItem(TOKEN_KEY);
+}
+
+async function expireSession(generation: number): Promise<void> {
+  if (generation !== sessionGeneration || !tokens) return;
+  const clearing = setTokens(null);
+  // Notify synchronously: the protected-route guard must close even while
+  // AsyncStorage is still removing the credentials.
+  for (const listener of expiryListeners) listener();
+  await clearing;
 }
 
 export const isSignedIn = () => Boolean(tokens);
@@ -108,25 +131,33 @@ async function send(path: string, options: RequestOptions, accessToken: string |
  * One refresh at a time. Six screens waking at once must not fire six refreshes
  * and race each other into signing the person out.
  */
-async function refreshTokens(): Promise<TokenPair | null> {
-  if (refreshing) return refreshing;
+async function refreshTokens(generation: number): Promise<TokenPair | null> {
+  if (generation !== sessionGeneration) return null;
+  if (refreshing?.generation === generation) return refreshing.promise;
   const current = tokens;
   if (!current) return null;
-  refreshing = (async () => {
+  const promise = (async () => {
     try {
       const response = await send('/auth/refresh', { method: 'POST', body: { refresh_token: current.refresh_token }, anonymous: true }, null);
+      if (generation !== sessionGeneration) return null;
       if (!response.ok) {
-        await setTokens(null);
-        return null;
+        if (response.status === 401 || response.status === 403) {
+          await expireSession(generation);
+          return null;
+        }
+        // A server outage or rate limit is not an expired session.
+        throw await failureOf(response);
       }
       const next = (await response.json()) as TokenPair;
-      await setTokens(next);
+      if (generation !== sessionGeneration) return null;
+      await persistTokens(next);
       return next;
     } finally {
-      refreshing = null;
+      if (refreshing?.generation === generation) refreshing = null;
     }
   })();
-  return refreshing;
+  refreshing = { generation, promise };
+  return promise;
 }
 
 async function failureOf(response: Response): Promise<ApiError> {
@@ -143,16 +174,26 @@ async function failureOf(response: Response): Promise<ApiError> {
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   if (!hasApi) throw new NetworkError('EXPO_PUBLIC_API_URL is not set.');
   const current = options.anonymous ? null : (await loadTokens())?.access_token ?? null;
+  const generation = sessionGeneration;
   let response = await send(path, options, current);
 
   // Exactly one retry, and only for the one condition refreshing can fix.
   if (response.status === 401 && !options.anonymous) {
-    const next = await refreshTokens();
+    // Another request may already have refreshed this same session.
+    const next = generation === sessionGeneration && tokens?.access_token !== current
+      ? tokens
+      : await refreshTokens(generation);
     if (!next) throw await failureOf(response);
     response = await send(path, options, next.access_token);
+    if (response.status === 401) await expireSession(generation);
   }
 
   if (!response.ok) throw await failureOf(response);
-  if (response.status === 204) return undefined as T;
-  return (await response.json()) as T;
+  const data = response.status === 204 ? undefined : await response.json();
+  if (!options.anonymous && generation !== sessionGeneration) {
+    // A response from before sign-out must not refill the signed-out store or
+    // overwrite the next person's data.
+    throw new NetworkError('The session changed during the request.');
+  }
+  return data as T;
 }

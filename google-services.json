@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "836409883978",
+    "project_id": "gimik-75f39",
+    "storage_bucket": "gimik-75f39.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836409883978:android:490f53f1e4eb87e4a455b3",
+        "android_client_info": {
+          "package_name": "com.sumnora.gimik"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzJgt1TZ6sJR8eXRk1Ognw7agHO-MILig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

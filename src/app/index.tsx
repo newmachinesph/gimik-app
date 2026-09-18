@@ -16,8 +16,7 @@ import { useApp } from '@/store';
  */
 export default function Boot() {
   const onboarded = useApp((state) => state.onboarded);
-  const source = useApp((state) => state.source);
-  const [restoring, setRestoring] = useState(hasApi && source === 'api');
+  const [restoring, setRestoring] = useState(hasApi);
 
   useEffect(() => {
     if (!restoring) return;

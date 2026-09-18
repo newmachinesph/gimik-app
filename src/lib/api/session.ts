@@ -2,7 +2,7 @@ import { resetPlaceCache } from '@/lib/places';
 import { resetRegistry } from '@/lib/registry';
 import { useApp } from '@/store';
 import { auth, ops } from './endpoints';
-import { hasApi, loadTokens, setTokens } from './client';
+import { ApiError, hasApi, loadTokens, onSessionExpired, setTokens } from './client';
 import { forgetGoogle, getGoogleIdToken } from './google';
 import { resetDirectory } from './directory';
 import { unregisterForPush } from './push';
@@ -19,6 +19,19 @@ import { hydrateFromApi } from './sync';
  */
 
 export { hasApi };
+
+function clearLocalSession(): void {
+  disconnectRealtime();
+  resetDirectory();
+  resetRegistry();
+  resetPlaceCache();
+  useApp.getState().reset();
+}
+
+/** Mounted by the root so expiry is handled from any authenticated screen. */
+export function watchSessionExpiry(): () => void {
+  return onSessionExpired(clearLocalSession);
+}
 
 export async function signIn(email: string, password: string): Promise<void> {
   await auth.login({ email: email.trim().toLowerCase(), password });
@@ -61,29 +74,33 @@ export async function signOut(): Promise<void> {
   disconnectRealtime();
   void unregisterForPush();
   await auth.signOut();
-  resetDirectory();
-  resetRegistry();
-  resetPlaceCache();
-  useApp.getState().reset();
+  clearLocalSession();
 }
 
 /**
  * On a cold start, turn a stored token back into a filled store.
  *
- * Returns false when there is nothing to restore or the token is spent, which
- * the boot gate reads as "show the door". A refresh failure has already
- * cleared the tokens by the time this returns.
+ * Rejected/missing credentials clear the cached account as well as tokens.
+ * A temporary outage keeps an existing account available offline.
  */
 export async function restoreSession(): Promise<boolean> {
   if (!hasApi) return false;
   const tokens = await loadTokens();
-  if (!tokens) return false;
+  if (!tokens) {
+    if (useApp.getState().source === 'api') clearLocalSession();
+    return false;
+  }
   try {
     await hydrateFromApi();
     return true;
-  } catch {
-    await setTokens(null);
-    return false;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      await setTokens(null);
+      clearLocalSession();
+      return false;
+    }
+    const state = useApp.getState();
+    return state.source === 'api' && state.onboarded;
   }
 }
 

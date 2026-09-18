@@ -18,6 +18,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-notifications",
       [
         "expo-splash-screen",
         {
@@ -27,7 +28,12 @@
         }
       ],
       "@sentry/react-native",
-      "@react-native-google-signin/google-signin",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.570531243224-n0sotkj91ovbi9abqih5tdq5cpq82oj0"
+        }
+      ],
       "./plugins/with-debug-keystore.js"
     ],
     "experiments": {
@@ -42,12 +48,13 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.sumnora.gimik"
+      "package": "com.sumnora.gimik",
+      "googleServicesFile": "./google-services.json"
     },
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "80c7c42a-07ab-44c5-933d-b77fb00c9637"
+        "projectId": "a30c58e1-5be3-4981-823b-b8ce06050289"
       }
     },
     "owner": "sumnora"

@@ -12,6 +12,7 @@ import { Toaster } from 'sonner-native';
 
 import { ErrorBoundary } from '@/components/error-boundary';
 import { startMonitoring } from '@/lib/monitoring';
+import { watchSessionExpiry } from '@/lib/api/session';
 import { LOCALE } from '@/i18n';
 import { C, FONT } from '@/lib/tokens';
 import { useApp } from '@/store';
@@ -31,6 +32,7 @@ SplashScreen.preventAutoHideAsync();
 startMonitoring();
 
 export default function RootLayout() {
+  useEffect(watchSessionExpiry, []);
   const hydrated = useApp((state) => state.hydrated);
   const onboarded = useApp((state) => state.onboarded);
   const [loaded, error] = useFonts({
