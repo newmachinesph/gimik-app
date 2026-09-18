@@ -85,7 +85,7 @@ export function Avatar({
     .toUpperCase();
   return (
     <View
-      style={{ width: size, height: size, borderRadius: size / 2 }}
+      style={{ width: size, height: size, borderRadius: 4 }}
       className="overflow-hidden items-center justify-center bg-brand-night"
     >
       {source ? (

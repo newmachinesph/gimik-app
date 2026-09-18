@@ -99,10 +99,11 @@ export default function Invites() {
         onDismiss={close}
         onNotNow={() => { if (open) notNow(open); close(); }}
         onHide={() => { if (open) hide(open); close(); }}
-        onAccept={() => {
+        onAccept={async () => {
           if (!open) return;
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          const thread = acceptInvite(open.invite.id);
+          const thread = await acceptInvite(open.invite.id);
+          if (!thread) return;
           close();
           toast(t('s.toasts.inviteAccepted'));
           router.push(`/messages/${thread.id}` as never);

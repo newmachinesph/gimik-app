@@ -38,16 +38,6 @@ import { useApp } from '@/store';
 
 const SPEAKS = '\u{1F5E3}';
 
-/** A person joined when their id says they did: stable across renders, never a slot machine. */
-function memberSince(id: string): Date {
-  let hash = 0;
-  for (let index = 0; index < id.length; index += 1) hash = (hash * 31 + id.charCodeAt(index)) >>> 0;
-  const monthsAgo = 4 + (hash % 20);
-  const date = new Date();
-  date.setMonth(date.getMonth() - monthsAgo);
-  return date;
-}
-
 /** The public face of someone in the seeded world. Photos first, then the overlap. */
 export default function PersonProfile() {
   const { t } = useTranslation();
@@ -88,7 +78,7 @@ export default function PersonProfile() {
         </View>
 
         <View className="items-center px-5 pt-5 pb-6">
-          <Txt variant="title">{person.name}, {person.age} {genderMark(person.gender)}</Txt>
+          <Txt variant="title">{person.name}{person.age > 0 ? `, ${person.age}` : ''} {genderMark(person.gender)}</Txt>
           <Txt variant="label" className="mt-1">
             {person.city}{person.hometown && person.hometown !== person.city ? ` \u00B7 ${t('s.profile.from', { name: person.hometown })}` : ''}
           </Txt>
@@ -114,12 +104,12 @@ export default function PersonProfile() {
               return label ? <Tag key={slug} tone="outline" label={`${SPEAKS} ${label}`} /> : null;
             })}
           </View>
-          <Txt variant="caption" className="mt-2">
-            {t('s.person.memberSince', { date: formatDate(memberSince(person.id), { month: 'long', year: 'numeric' }) })}
-          </Txt>
+          {person.createdAt ? <Txt variant="caption" className="mt-2">
+            {t('s.person.memberSince', { date: formatDate(new Date(person.createdAt), { month: 'long', year: 'numeric' }) })}
+          </Txt> : null}
           <View className="flex-row gap-2 mt-4">
             {isFriend ? (
-              <SecondaryButton label={t('s.person.message')} icon="chat" tone="ink" onPress={() => { const thread = openThread('solo', person.name, person.name); router.push(`/messages/${thread.id}` as never); }} />
+              <SecondaryButton label={t('s.person.message')} icon="chat" tone="ink" onPress={async () => { const thread = await openThread('solo', person.name, person.name); if (thread) router.push(`/messages/${thread.id}` as never); }} />
             ) : (
               <SecondaryButton label={requested ? t('s.person.requested') : t('s.person.addFriend')} icon={requested ? 'success' : 'plus'} tone="ink" disabled={requested} onPress={sendRequest} />
             )}
@@ -141,10 +131,8 @@ export default function PersonProfile() {
                       <PillButton
                         label={t('s.want.ask')}
                         accessibilityLabel={t('s.want.askPerson', { name: first })}
-                        onPress={() => {
-                          const thread = askPerson(person.name, want.id, wantTitle(want), want.party === 'group' ? 'group' : 'duo');
-                          toast(t('s.toasts.asked', { name: first }));
-                          router.push(`/messages/${thread.id}` as never);
+                        onPress={async () => {
+                          if (await askPerson(person.name, want.id, wantTitle(want), want.party === 'group' ? 'group' : 'duo')) toast(t('s.toasts.asked', { name: first }));
                         }}
                       />
                     </View>

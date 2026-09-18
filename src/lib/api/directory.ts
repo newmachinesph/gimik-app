@@ -26,9 +26,9 @@ const threadIdByRef = new Map<string, Uuid>();
 const photoIdByUrl = new Map<string, Uuid>();
 
 export function rememberSomeday(someday: SomedayOut): void {
-  if (!someday.slug) return;
-  somedayIdBySlug.set(someday.slug, someday.id);
-  slugBySomedayId.set(someday.id, someday.slug);
+  const key = someday.slug ?? someday.id;
+  somedayIdBySlug.set(key, someday.id);
+  slugBySomedayId.set(someday.id, key);
 }
 
 export function rememberPerson(person: HolderOut | PersonOut): void {

@@ -54,10 +54,22 @@ export default function EditProfile() {
   const [bio, setBio] = useState(profile.bio);
   const [work, setWork] = useState(profile.work ?? '');
   const [education, setEducation] = useState(profile.education ?? '');
+  const [saving, setSaving] = useState(false);
   const [sheet, setSheet] = useState<SheetName>(null);
   const [languages, setLanguages] = useState<string[]>(profile.languages ?? []);
   const percent = Math.round(fraction * 100);
   const interests = profile.interests ?? [];
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    const saved = await update({ bio: bio.trim(), work: work.trim(), education: education.trim() });
+    setSaving(false);
+    if (saved) {
+      toast(t('s.toasts.profileSaved'));
+      router.back();
+    }
+  };
 
   const addPhoto = async () => {
     if (profile.photos.length >= MAX_PHOTOS) return;
@@ -77,7 +89,7 @@ export default function EditProfile() {
     setLanguages((current) => current.includes(slug) ? current.filter((item) => item !== slug) : [...current, slug]);
 
   return (
-    <Screen inset={false} footer={<PrimaryButton label={t('s.common.save')} onPress={() => { update({ bio: bio.trim(), work: work.trim(), education: education.trim() }); toast(t('s.toasts.profileSaved')); router.back(); }} />}>
+    <Screen inset={false} footer={<PrimaryButton label={t('s.common.save')} disabled={saving} state={saving ? 'loading' : 'idle'} onPress={() => void save()} />}>
       <TopBar title={t('s.editProfile.title')} />
 
       {/* Profile strength - tap for the how-to, exactly like the ring elsewhere. */}
@@ -92,21 +104,23 @@ export default function EditProfile() {
         <Txt variant="caption" className="mt-2">{t('s.editProfile.strength.tip')}</Txt>
       </FocusablePressable>
 
-      <View className="mb-2">
+      <View className="mb-4">
         <SectionHead title={t('s.editProfile.photos.title')} subtitle={t('s.editProfile.photos.subtitle')} />
         <View className="flex-row flex-wrap" style={{ gap: 8 }}>
           {slots.map((uri, index) => (
-            <FocusablePressable key={uri ?? `empty-${index}`} accessibilityRole="button" onPress={() => (uri ? photoActions(uri) : void addPhoto())} style={{ width: '23%', aspectRatio: 4 / 5 }} className="rounded-[4px] overflow-hidden bg-brand-paper-sunk items-center justify-center active:opacity-75">
-              {uri ? <Image source={uri} style={{ width: '100%', height: '100%' }} contentFit="cover" /> : <GimikIcon name={index === 0 ? 'camera' : 'plus'} size={20} color={C.inkMuted} />}
-            </FocusablePressable>
+            <View key={uri ?? `empty-${index}`} style={{ width: '23%', aspectRatio: 4 / 5 }}>
+              <FocusablePressable accessibilityRole="button" onPress={() => (uri ? photoActions(uri) : void addPhoto())} style={{ width: '100%', height: '100%' }} className="rounded-[4px] overflow-hidden bg-brand-paper-sunk items-center justify-center active:opacity-75">
+                {uri ? <Image source={uri} style={{ width: '100%', height: '100%' }} contentFit="cover" /> : <GimikIcon name={index === 0 ? 'camera' : 'plus'} size={20} color={C.inkMuted} />}
+              </FocusablePressable>
+            </View>
           ))}
         </View>
       </View>
 
       <Section>
-        <Field label={t('s.editProfile.about')} placeholder={t('s.editProfile.aboutPh')} value={bio} onChangeText={setBio} multiline />
-        <Field label={t('s.editProfile.work')} placeholder={t('s.editProfile.workPh')} value={work} onChangeText={setWork} />
-        <Field label={t('s.editProfile.education')} placeholder={t('s.editProfile.educationPh')} value={education} onChangeText={setEducation} />
+        <Field spacing="compact" label={t('s.editProfile.about')} placeholder={t('s.editProfile.aboutPh')} value={bio} onChangeText={setBio} multiline />
+        <Field spacing="compact" label={t('s.editProfile.work')} placeholder={t('s.editProfile.workPh')} value={work} onChangeText={setWork} />
+        <Field spacing="compact" label={t('s.editProfile.education')} placeholder={t('s.editProfile.educationPh')} value={education} onChangeText={setEducation} />
 
         <PickerRow
           label={t('s.editProfile.interests.title')}

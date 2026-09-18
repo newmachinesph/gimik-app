@@ -3,7 +3,7 @@ import { Children, type Ref } from 'react';
 import { Pressable, StyleSheet, View, type ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Avatar, GimikIcon, type IconName, ProgressRing, TAB_BAR_HEIGHT, Txt } from '@/components/ui';
+import { Avatar, GimikIcon, type IconName, TAB_BAR_HEIGHT, Txt } from '@/components/ui';
 import { C } from '@/lib/tokens';
 
 /** Flat paper bar, five labelled destinations, the deck in the middle. */
@@ -21,7 +21,7 @@ type TabButtonProps = TabTriggerSlotProps & {
   /** A name renders the person's avatar in place of the icon - the Profile tab. */
   avatar?: string;
   photo?: string;
-  /** 0-1 profile completeness; drawn as the ring around the avatar. */
+  /** 0-1 profile completeness; drawn as a small bar below the square avatar. */
   progress?: number;
   /** Unread count; hidden at zero. */
   badge?: number;
@@ -43,19 +43,10 @@ export function TabButton({ icon, avatar, photo, progress, badge = 0, children, 
       <View className="flex-1 items-center justify-center">
         <View>
           {avatar ? (
-            progress !== undefined ? (
-              // The same completion arc as the profile screen, in miniature:
-              // the tab shows how far the profile is at a glance.
-              <View style={isFocused ? null : styles.avatarDim}>
-                <ProgressRing value={progress} size={28} stroke={2} gap={1}>
-                  <Avatar name={avatar} size={20} source={photo} />
-                </ProgressRing>
-              </View>
-            ) : (
-              <View style={[styles.avatarRing, isFocused ? styles.avatarRingActive : null]}>
-                <Avatar name={avatar} size={22} source={photo} />
-              </View>
-            )
+            <View style={[styles.avatarRing, isFocused ? styles.avatarRingActive : styles.avatarDim]}>
+              <Avatar name={avatar} size={22} source={photo} />
+              {progress !== undefined ? <View style={[styles.avatarProgress, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]} /> : null}
+            </View>
           ) : (
             <GimikIcon name={icon} size={24} color={isFocused ? C.ink : C.inkMuted} weight={isFocused ? 'fill' : 'regular'} />
           )}
@@ -78,7 +69,8 @@ export function TabButton({ icon, avatar, photo, progress, badge = 0, children, 
 const styles = StyleSheet.create({
   trigger: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   label: { marginTop: 3, fontSize: 10, lineHeight: 12 },
-  avatarRing: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent' },
+  avatarRing: { width: 28, height: 28, borderRadius: 5, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent' },
+  avatarProgress: { position: 'absolute', bottom: -4, height: 2, backgroundColor: C.orange },
   avatarRingActive: { borderColor: C.ink },
   avatarDim: { opacity: 0.75 },
   badge: { position: 'absolute', top: -4, right: -10, minWidth: 16, height: 16, borderRadius: 8, paddingHorizontal: 4, backgroundColor: C.orange, alignItems: 'center', justifyContent: 'center' },

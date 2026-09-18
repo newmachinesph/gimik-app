@@ -13,7 +13,7 @@ import { GoogleCancelled, hasGoogleSignIn } from '@/lib/api/google';
 import { InterestBank } from '@/components/interest-bank';
 import { SomedayTile } from '@/components/someday-tile';
 import { Avatar, Chip, Field, GhostButton, IconButton, InlineNotice, PrimaryButton, SearchField, Txt } from '@/components/ui';
-import { addProfilePhoto, keep } from '@/lib/actions';
+import { addProfilePhoto, keep, updateProfile } from '@/lib/actions';
 import { PH_CITIES } from '@/lib/cities';
 import { useDeck } from '@/lib/feed';
 import { interestCategories } from '@/lib/interests';
@@ -55,6 +55,7 @@ export default function Onboarding() {
   const [birthday, setBirthday] = useState('');
   const [gender, setGender] = useState<Gender | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
 
   /**
    * Google covers signing up as well as signing in - the server decides which
@@ -171,21 +172,47 @@ export default function Onboarding() {
     }
   };
 
-  const next = () => {
-    if (step === 'profile') update({ name: name.trim(), handle: name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '') || 'gimik', birthday: birthday || null, gender });
-    if (step === 'photo' && photo) void addProfilePhoto(photo);
-    if (step === 'city') update({ city });
-    if (step === 'about') update({ bio: bio.trim(), work: work.trim(), education: education.trim() });
-    if (step === 'interests') update({ interests: needs });
-    if (step === 'picks') {
-      picks.forEach((id) => keep(id));
-      setOnboarded(true);
-      router.replace('/(tabs)/home' as never);
-      return;
+  const next = async () => {
+    if (busy) return;
+    setError(null);
+    setBusy(true);
+    try {
+      // Registration owns fixed fields and the server-assigned handle.
+      if (step === 'profile') {
+        if (hasApi) {
+          if (!(await register())) return;
+        } else {
+          update({ name: name.trim(), handle: name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '') || 'gimik', birthday: birthday || null, gender });
+        }
+      }
+      if (step === 'photo' && photo && photo !== uploadedPhoto) {
+        if (!(await addProfilePhoto(photo))) {
+          setError(t('s.toasts.photoFailed'));
+          return;
+        }
+        setUploadedPhoto(photo);
+      }
+      const patch = step === 'city' ? { city }
+        : step === 'about' ? { bio: bio.trim(), work: work.trim(), education: education.trim() }
+          : step === 'interests' ? { interests: needs } : null;
+      if (patch && !(await updateProfile(patch))) {
+        setError(t('s.toasts.syncFailed'));
+        return;
+      }
+      if (step === 'picks') {
+        picks.forEach((id) => keep(id));
+        setOnboarded(true);
+        router.replace('/(tabs)/home' as never);
+        return;
+      }
+      setStep(ORDER[index + 1]);
+    } finally {
+      setBusy(false);
     }
-    setStep(ORDER[index + 1]);
   };
-  const back = () => (index === 0 ? router.back() : setStep(ORDER[index - 1]));
+  // Once registered, fixed identity cannot be edited or registered a second time.
+  const canGoBack = !busy && !(hasApi && step === 'photo');
+  const back = () => { if (canGoBack) { setError(null); if (index === 0) router.back(); else setStep(ORDER[index - 1]); } };
   const valid = step === 'account' ? email.includes('@') && email.includes('.') && password.length >= 8 : step === 'profile' ? name.trim().length >= 2 && /^\d{4}-\d{2}-\d{2}$/.test(birthday) && gender !== null : step === 'photo' ? photo !== null : step === 'city' ? Boolean(city) : step === 'picks' ? picks.length >= 3 : true;
 
   // The story is its own full-bleed room; the form steps share the framed one.
@@ -221,12 +248,13 @@ export default function Onboarding() {
   return (
     <View className="flex-1 bg-brand-paper" style={{ paddingTop: insets.top }}>
       <View className="px-5 flex-row items-center">
-        <IconButton icon="back" label={t('s.common.back')} onPress={back} />
+        <IconButton icon="back" label={t('s.common.back')} disabled={!canGoBack} onPress={back} />
         <View className="flex-1 flex-row gap-1 ml-4">
           {Array.from({ length: formCount }, (_, i) => <View key={i} className={`flex-1 h-1 rounded-full ${i <= formIndex ? 'bg-brand-ink' : 'bg-brand-rule'}`} />)}
         </View>
       </View>
       <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingTop: 20, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+        {error ? <View className="mb-4"><InlineNotice tone="error" title={t('s.onboarding.account.failedTitle')} body={error} /></View> : null}
         {step === 'account' ? (
           <View>
             <Txt variant="title">{t('s.onboarding.account.title')}</Txt>
@@ -258,11 +286,6 @@ export default function Onboarding() {
         ) : null}
         {step === 'profile' ? (
           <View>
-            {error ? (
-              <View className="mb-4">
-                <InlineNotice tone="error" title={t('s.onboarding.account.failedTitle')} body={error} />
-              </View>
-            ) : null}
             <Txt variant="title">{t('s.onboarding.profile.title')}</Txt>
             <Txt variant="body" className="mt-2 mb-6">{t('s.onboarding.profile.body')}</Txt>
             <Field label={t('s.onboarding.profile.firstName')} placeholder={t('s.onboarding.profile.firstNamePh')} value={name} onChangeText={setName} autoCapitalize="words" />
@@ -327,17 +350,9 @@ export default function Onboarding() {
           icon="arrow-right"
           disabled={!valid || busy}
           state={busy ? 'loading' : 'idle'}
-          onPress={() => {
-            // The profile step is the one that talks to the server; every other
-            // step is local and advances immediately.
-            if (step === 'profile' && hasApi) {
-              void register().then((ok) => { if (ok) next(); });
-              return;
-            }
-            next();
-          }}
+          onPress={() => void next()}
         />
-        {step === 'interests' || step === 'about' ? <View className="mt-1"><GhostButton label={t('s.onboarding.skip')} tone="muted" onPress={next} /></View> : null}
+        {step === 'interests' || step === 'about' ? <View className="mt-1"><GhostButton label={t('s.onboarding.skip')} tone="muted" disabled={busy} onPress={next} /></View> : null}
       </View>
     </View>
   );

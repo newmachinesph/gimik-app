@@ -8,6 +8,8 @@ import { NotFound } from '@/components/not-found';
 import { AttachSheet } from '@/components/attach-sheet';
 import { Avatar, FocusablePressable, GimikIcon, ICON_BUTTON_INSET, ICON_BUTTON_SIZE, IconButton, Txt } from '@/components/ui';
 import { markThreadRead as markRead, sendMessage as send } from '@/lib/actions';
+import { hasApi } from '@/lib/api/client';
+import { loadThread } from '@/lib/api/sync';
 import { dayLabel, timeAgo } from '@/lib/format';
 import { wantTitle } from '@/lib/mock';
 import { wantById } from '@/lib/somedays';
@@ -45,6 +47,8 @@ export default function ThreadScreen() {
   const [draft, setDraft] = useState('');
   const [attaching, setAttaching] = useState(false);
   const list = useRef<ScrollView>(null);
+  const historyHead = thread?.messages[0]?.id;
+  useEffect(() => { if (id && hasApi && useApp.getState().source === 'api') void loadThread(id).catch(() => {}); }, [id, historyHead]);
   useEffect(() => { if (id) markRead(id); }, [id, thread?.messages.length]);
   if (!thread || !id) return <NotFound />;
   const pinnedId = thread.kind === 'plan' ? thread.refId : thread.wantId;

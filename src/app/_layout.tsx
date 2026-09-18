@@ -4,7 +4,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,7 +12,7 @@ import { Toaster } from 'sonner-native';
 
 import { ErrorBoundary } from '@/components/error-boundary';
 import { startMonitoring } from '@/lib/monitoring';
-import { watchSessionExpiry } from '@/lib/api/session';
+import { hasApi, restoreSession, watchSessionExpiry } from '@/lib/api/session';
 import { LOCALE } from '@/i18n';
 import { C, FONT } from '@/lib/tokens';
 import { useApp } from '@/store';
@@ -35,6 +35,13 @@ export default function RootLayout() {
   useEffect(watchSessionExpiry, []);
   const hydrated = useApp((state) => state.hydrated);
   const onboarded = useApp((state) => state.onboarded);
+  const [restored, setRestored] = useState(!hasApi);
+  useEffect(() => {
+    if (!hydrated || !hasApi) return;
+    let mounted = true;
+    void restoreSession().catch(() => false).finally(() => { if (mounted) setRestored(true); });
+    return () => { mounted = false; };
+  }, [hydrated]);
   const [loaded, error] = useFonts({
     Geist_400Regular,
     Geist_500Medium,
@@ -49,10 +56,10 @@ export default function RootLayout() {
   // Copy resolves synchronously (one locale, `initAsync: false`), so the only
   // things the splash waits on are the typefaces and the persisted store.
   useEffect(() => {
-    if ((loaded || error) && hydrated) SplashScreen.hideAsync();
-  }, [error, hydrated, loaded]);
+    if ((loaded || error) && hydrated && restored) SplashScreen.hideAsync();
+  }, [error, hydrated, loaded, restored]);
 
-  if ((!loaded && !error) || !hydrated) return null;
+  if ((!loaded && !error) || !hydrated || !restored) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

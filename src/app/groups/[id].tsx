@@ -15,7 +15,7 @@ import {
   Txt,
 } from '@/components/ui';
 import { NotFound } from '@/components/not-found';
-import { openThread } from '@/lib/actions';
+import { leaveGroup as leave, openThread } from '@/lib/actions';
 import { useApp } from '@/store';
 
 /** One group: who is in it, its thread, and the link that lets anyone join. */
@@ -24,7 +24,6 @@ export default function GroupDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const group = useApp((s) => s.groups.find((item) => item.id === id));
   const threads = useApp((s) => s.threads);
-  const leave = useApp((s) => s.leaveGroup);
   if (!group) return <NotFound />;
   const thread = threads.find((item) => item.kind === 'group' && item.refId === group.id);
   const share = () => void Share.share({ message: t('s.groups.detail.shareMessage', { name: group.name, url: `https://gimik.app/join/${group.inviteToken}` }) });
@@ -61,9 +60,9 @@ export default function GroupDetail() {
             icon="chat"
             title={t('s.groups.detail.thread')}
             size="lg"
-            onPress={() => {
-              const th = thread ?? openThread('group', group.id, group.name);
-              router.push(`/messages/${th.id}` as never);
+            onPress={async () => {
+              const th = thread ?? await openThread('group', group.id, group.name);
+              if (th) router.push(`/messages/${th.id}` as never);
             }}
           />
         </RowList>

@@ -134,6 +134,8 @@ export type FieldProps = TextInputProps & {
   hint?: string;
   message?: string;
   state?: ControlState;
+  /** Compact groups omit the empty helper row; input and touch sizes stay unchanged. */
+  spacing?: 'default' | 'compact';
   /** Showcase-only forced state; real fields use pointer and focus events. */
   previewState?: 'hover' | 'focus';
 };
@@ -143,6 +145,7 @@ export function Field({
   hint,
   message,
   state = 'idle',
+  spacing = 'default',
   previewState,
   editable = true,
   multiline = false,
@@ -168,7 +171,7 @@ export function Field({
   };
 
   return (
-    <View className="mb-5" collapsable={false}>
+    <View className={spacing === 'compact' ? 'mb-3' : 'mb-5'} collapsable={false}>
       {label ? (
         <Txt variant="eyebrow" className="mb-2">
           {label}
@@ -232,7 +235,7 @@ export function Field({
           </View>
         </View>
       </View>
-      <View style={{ minHeight: 18, marginTop: 4 }}>
+      <View style={{ minHeight: helper || spacing === 'default' ? 18 : 0, marginTop: helper || spacing === 'default' ? 4 : 0 }}>
         {helper ? (
           <Txt variant="caption" accessibilityLiveRegion="polite" style={{ color: helperColor }}>
             {helper}

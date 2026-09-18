@@ -9,6 +9,8 @@ import { useProfileCompleteness } from '@/lib/completeness';
 import { isInviteLive } from '@/lib/invites';
 import { useApp } from '@/store';
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
+import { hydrateFromApi } from '@/lib/api/sync';
 
 // Five destinations in the order of the journey: find, track, decide, people,
 // me. The deck sits in the middle because deciding is the habit.
@@ -27,7 +29,10 @@ export default function TabsLayout() {
     // After sign-in rather than at launch: a cold permission prompt on first
     // open is the one people decline without reading.
     void registerForPush();
-    return () => disconnectRealtime();
+    const listener = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void hydrateFromApi().catch(() => {});
+    });
+    return () => { listener.remove(); disconnectRealtime(); };
   }, [source]);
 
   return (

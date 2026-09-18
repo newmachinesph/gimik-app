@@ -84,9 +84,9 @@ export async function connectRealtime(): Promise<void> {
   if (!id) return;
 
   userChannel = client.channels.get(`user:${id}`);
-  await userChannel.subscribe('message', (event) => {
+  await userChannel.subscribe((event) => {
     const data = event.data as { threadId?: string } | undefined;
-    void onServerEvent(data?.threadId);
+    void onServerEvent(event.name === 'message' ? data?.threadId : undefined);
   });
 }
 

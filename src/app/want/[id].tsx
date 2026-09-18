@@ -150,10 +150,8 @@ export default function SomedayDetail() {
                       <PillButton
                         label={t('s.want.ask')}
                         accessibilityLabel={t('s.want.askPerson', { name: person!.name.split(' ')[0] })}
-                        onPress={() => {
-                          const thread = askPerson(person!.name, id, wantTitle(want), want.party === 'group' ? 'group' : 'duo');
-                          toast(t('s.toasts.asked', { name: person!.name.split(' ')[0] }));
-                          router.push(`/messages/${thread.id}` as never);
+                        onPress={async () => {
+                          if (await askPerson(person!.name, id, wantTitle(want), want.party === 'group' ? 'group' : 'duo')) toast(t('s.toasts.asked', { name: person!.name.split(' ')[0] }));
                         }}
                       />
                     }

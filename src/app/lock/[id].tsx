@@ -18,7 +18,7 @@ import {
   TopBar,
   Txt,
 } from '@/components/ui';
-import { lock, openThread } from '@/lib/actions';
+import { lock } from '@/lib/actions';
 import { dayLabel } from '@/lib/format';
 import { formatDate } from '@/i18n/format';
 import { wantTitle } from '@/lib/mock';
@@ -51,7 +51,6 @@ export default function Lock() {
     if (!date) return;
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     lock({ wantId: id, date, time: time ?? undefined, place: place || undefined, people, split: 'kkb', confirmed: [] });
-    openThread('plan', id, wantTitle(want));
     toast(t('s.toasts.locked', { date: dayLabel(date) }));
     router.replace(`/plan/${id}` as never);
   };

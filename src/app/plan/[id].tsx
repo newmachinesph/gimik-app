@@ -102,7 +102,7 @@ export default function PlanScreen() {
             title={t('s.plan.thread')}
             count={thread?.messages.length ?? 0}
             size="lg"
-            onPress={() => { const th = thread ?? openThread('plan', id, wantTitle(want)); router.push(`/messages/${th.id}` as never); }}
+            onPress={async () => { const th = thread ?? await openThread('plan', id, wantTitle(want)); if (th) router.push(`/messages/${th.id}` as never); }}
           />
         </RowList>
       </Section>

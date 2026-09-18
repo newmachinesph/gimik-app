@@ -22,22 +22,29 @@ const TYPES: Record<string, string> = {
   jpeg: 'image/jpeg',
   png: 'image/png',
   webp: 'image/webp',
-  heic: 'image/jpeg',
+  heic: 'image/heic',
+  heif: 'image/heif',
+  hif: 'image/heif',
+  avif: 'image/avif',
+  gif: 'image/gif',
+  tif: 'image/tiff',
+  tiff: 'image/tiff',
+  bmp: 'image/bmp',
 };
 
 function describe(uri: string): { filename: string; contentType: string } {
   const clean = uri.split('?')[0];
   const name = clean.split('/').pop() || `photo-${Date.now()}.jpg`;
   const extension = name.includes('.') ? name.split('.').pop()!.toLowerCase() : 'jpg';
-  // The server only accepts three types; anything exotic is declared as JPEG,
-  // which is what the picker hands back for a HEIC anyway.
+  // The backend checks the actual bytes and normalizes supported images to WebP.
+  // Keep the original type when the picker preserves an iPhone HEIC/HEIF file.
   return { filename: name, contentType: TYPES[extension] ?? 'image/jpeg' };
 }
 
 export class UploadError extends Error {}
 
-/** Uploads one local image and returns the row the server created for it. */
-export async function uploadPhoto(uri: string): Promise<PhotoOut> {
+/** Upload raw bytes; the claiming endpoint validates and normalizes the image. */
+export async function uploadImage(uri: string): Promise<string> {
   const { filename, contentType } = describe(uri);
   const ticket = await media.presign({ filename, content_type: contentType });
 
@@ -50,7 +57,10 @@ export async function uploadPhoto(uri: string): Promise<PhotoOut> {
     throw new UploadError(`The store refused the upload (${result.status})`);
   }
 
-  // Claiming is what ties the object to the account; an unclaimed object is
-  // orphaned rather than owned, which is the safe way round.
-  return media.claimPhoto(ticket.key);
+  return ticket.key;
+}
+
+/** Uploads one profile image and returns the normalized photo row. */
+export async function uploadPhoto(uri: string): Promise<PhotoOut> {
+  return media.claimPhoto(await uploadImage(uri));
 }

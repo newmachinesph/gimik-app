@@ -26,10 +26,16 @@ export default function Groups() {
   const groups = useApp((s) => s.groups);
   const [name, setName] = useState('');
   const [creating, setCreating] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const create = () => {
+  const create = async () => {
+    if (saving) return;
     const trimmed = name.trim();
-    const id = createGroup(trimmed);
+    if (!trimmed) return;
+    setSaving(true);
+    const id = await createGroup(trimmed);
+    setSaving(false);
+    if (!id) return;
     setName('');
     setCreating(false);
     toast(t('s.toasts.groupCreated', { name: trimmed }));
@@ -66,7 +72,7 @@ export default function Groups() {
         {creating ? (
           <View>
             <Field label={t('s.groups.name')} placeholder={t('s.groups.namePh')} value={name} onChangeText={setName} autoFocus />
-            <PrimaryButton label={t('s.groups.create')} icon="plus" disabled={!name.trim()} onPress={create} />
+            <PrimaryButton label={t('s.groups.create')} icon="plus" disabled={!name.trim() || saving} state={saving ? 'loading' : 'idle'} onPress={create} />
           </View>
         ) : (
           <PrimaryButton label={t('s.groups.newGroup')} icon="plus" onPress={() => setCreating(true)} />

@@ -35,6 +35,7 @@ export function watchSessionExpiry(): () => void {
 
 export async function signIn(email: string, password: string): Promise<void> {
   await auth.login({ email: email.trim().toLowerCase(), password });
+  clearLocalSession();
   await hydrateFromApi();
 }
 
@@ -48,6 +49,7 @@ export async function signIn(email: string, password: string): Promise<void> {
 export async function signInWithGoogle(): Promise<void> {
   const idToken = await getGoogleIdToken();
   await auth.google({ id_token: idToken });
+  clearLocalSession();
   await hydrateFromApi();
 }
 
@@ -65,6 +67,7 @@ export async function signUp(input: {
     birthday: input.birthday ?? null,
     gender: input.gender ?? null,
   });
+  clearLocalSession();
   await hydrateFromApi();
 }
 

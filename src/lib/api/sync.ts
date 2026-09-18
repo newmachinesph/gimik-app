@@ -1,6 +1,5 @@
-import { resetRegistry } from '@/lib/registry';
 import { useApp, type AppData } from '@/store';
-import { resetDirectory, somedaySlug } from './directory';
+import { somedaySlug } from './directory';
 import { auth, catalog, groups as groupsApi, plans as plansApi, social, threads as threadsApi } from './endpoints';
 import {
   toFriends,
@@ -23,13 +22,10 @@ import { wantIdForSlug } from '@/lib/somedays';
  * hydration a single thing that can succeed or fail. The requests are issued
  * together because none of them depend on another's answer.
  *
- * The directory is cleared first: it maps names and slugs onto server ids, and
- * a stale entry would point a write at the wrong row.
+ * Keep same-account catalog identities: a refresh must not erase the IDs of
+ * cards still visible on screen. Session changes clear these caches instead.
  */
 export async function hydrateFromApi(): Promise<void> {
-  resetDirectory();
-  resetRegistry();
-
   const [profile, keeps, invites, friends, groups, threads, plans, hidden] = await Promise.all([
     auth.me(),
     catalog.mine(),
@@ -45,8 +41,18 @@ export async function hydrateFromApi(): Promise<void> {
   const kept = toKeeps(keeps);
   const planned = toPlans(plans, me);
   const friendship = toFriends(friends);
+  const current = useApp.getState();
 
   const data: Partial<AppData> = {
+    // These are device preferences or lazily loaded records, not part of the
+    // eight-request snapshot. A foreground refresh must not erase them.
+    ...(current.source === 'api' ? {
+      journal: current.journal,
+      passedIds: current.passedIds,
+      seenNewsKeys: current.seenNewsKeys,
+      defaultVisibility: current.defaultVisibility,
+      rememberVisibility: current.rememberVisibility,
+    } : {}),
     profile: toProfile(profile),
     ...kept,
     ...planned,
@@ -87,6 +93,6 @@ export async function loadJournal(wantId: string): Promise<void> {
     return resolved ? wantIdForSlug(resolved) : undefined;
   });
   useApp.setState((state) => ({
-    journal: [...state.journal.filter((entry) => entry.wantId !== wantId), ...mapped],
+    journal: [...state.journal.filter((entry) => entry.wantId !== wantId), ...mapped.reverse()],
   }));
 }

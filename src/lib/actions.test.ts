@@ -57,13 +57,13 @@ const endpoints = vi.hoisted(() => ({
 vi.mock('@/lib/api/endpoints', () => endpoints);
 
 const { hydrateFromApi } = vi.hoisted(() => ({ hydrateFromApi: vi.fn().mockResolvedValue(undefined) }));
-vi.mock('@/lib/api/sync', () => ({ hydrateFromApi }));
+vi.mock('@/lib/api/sync', () => ({ hydrateFromApi, loadJournal: vi.fn().mockResolvedValue(undefined) }));
 
 const { toast } = vi.hoisted(() => ({ toast: vi.fn() }));
 vi.mock('sonner-native', () => ({ toast }));
 
-const { uploadPhoto } = vi.hoisted(() => ({ uploadPhoto: vi.fn() }));
-vi.mock('@/lib/api/media', () => ({ uploadPhoto }));
+const { uploadPhoto, uploadImage } = vi.hoisted(() => ({ uploadPhoto: vi.fn(), uploadImage: vi.fn() }));
+vi.mock('@/lib/api/media', () => ({ uploadPhoto, uploadImage }));
 
 import * as actions from './actions';
 import { rememberPerson, rememberPhoto, rememberPlan, rememberSomeday, resetDirectory } from '@/lib/api/directory';
@@ -205,6 +205,45 @@ describe('plans', () => {
   });
 });
 
+describe('profile saves', () => {
+  it('uploads journal images and keeps the normalized URL', async () => {
+    signedIn();
+    uploadImage.mockResolvedValueOnce('owner/journal.heic');
+    endpoints.plans.addJournal.mockResolvedValueOnce({ photo_url: 'https://store/journal.webp' });
+    expect(await actions.addJournal({ wantId: SLUG, body: 'Memory', photo: 'file:///journal.heic' })).toBe(true);
+    expect(endpoints.plans.addJournal).toHaveBeenCalledWith(SOMEDAY_UUID, { body: 'Memory', photo_key: 'owner/journal.heic' });
+    expect(useApp.getState().journal.at(-1)?.photo).toBe('https://store/journal.webp');
+  });
+
+  it('waits for server confirmation before reporting success', async () => {
+    signedIn();
+    let confirm!: () => void;
+    endpoints.auth.updateMe.mockImplementationOnce(() => new Promise<void>((resolve) => { confirm = resolve; }));
+    const result = actions.updateProfile({ city: 'Makati', bio: 'QA bio', work: 'QA', education: 'School', interests: ['nature'] });
+    let settled = false;
+    void result.then(() => { settled = true; });
+    await flush();
+    expect(settled).toBe(false);
+    expect(endpoints.auth.updateMe).toHaveBeenCalledWith({ city: 'Makati', bio: 'QA bio', work: 'QA', education: 'School', interests: ['nature'] });
+    confirm();
+    expect(await result).toBe(true);
+  });
+
+  it('returns failure and reconciles a rejected save', async () => {
+    signedIn();
+    endpoints.auth.updateMe.mockRejectedValueOnce(new Error('offline'));
+    expect(await actions.updateProfile({ bio: 'Not saved' })).toBe(false);
+    expect(hydrateFromApi).toHaveBeenCalled();
+    expect(toast).toHaveBeenCalled();
+  });
+
+  it('saves locally in demo mode', async () => {
+    expect(await actions.updateProfile({ city: 'Makati' })).toBe(true);
+    expect(useApp.getState().profile.city).toBe('Makati');
+    expect(endpoints.auth.updateMe).not.toHaveBeenCalled();
+  });
+});
+
 describe('profile photos', () => {
   it('shows the local file at once, then swaps it for the served URL', async () => {
     signedIn();
@@ -214,8 +253,14 @@ describe('profile photos', () => {
     // Visible before the upload finishes - the grid fills as the picker closes.
     expect(useApp.getState().profile.photos).toEqual(['file:///tmp/a.jpg']);
 
-    await pending;
+    expect(await pending).toBe(true);
     expect(useApp.getState().profile.photos).toEqual(['https://store/p1.webp']);
+    // The freshly uploaded photo is editable before any full-profile refresh.
+    actions.makePhotoFirst('https://store/p1.webp');
+    actions.removeProfilePhoto('https://store/p1.webp');
+    await flush();
+    expect(endpoints.media.makeFirst).toHaveBeenCalledWith('photo-1');
+    expect(endpoints.media.deletePhoto).toHaveBeenCalledWith('photo-1');
   });
 
   it('removes just that photo when the upload fails, and says so', async () => {
@@ -223,7 +268,7 @@ describe('profile photos', () => {
     useApp.getState().updateProfile({ photos: ['https://store/kept.webp'] });
     uploadPhoto.mockRejectedValueOnce(new Error('store refused'));
 
-    await actions.addProfilePhoto('file:///tmp/b.jpg');
+    expect(await actions.addProfilePhoto('file:///tmp/b.jpg')).toBe(false);
 
     // The existing photo survives; only the failed one disappears.
     expect(useApp.getState().profile.photos).toEqual(['https://store/kept.webp']);
@@ -264,6 +309,42 @@ describe('profile photos', () => {
 });
 
 describe('messages and groups', () => {
+  it('opens the server thread after accepting an invite', async () => {
+    signedIn();
+    endpoints.social.acceptInvite.mockResolvedValueOnce({ thread_id: 'server-thread' });
+    expect(await actions.acceptInvite('invite-1')).toEqual({ id: 'server-thread' });
+    expect(hydrateFromApi).toHaveBeenCalled();
+  });
+
+  it('does not open a local conversation when accepting fails', async () => {
+    signedIn();
+    endpoints.social.acceptInvite.mockRejectedValueOnce(new Error('offline'));
+    expect(await actions.acceptInvite('invite-1')).toBeNull();
+    expect(useApp.getState().threads).toEqual([]);
+  });
+
+  it('uses the new server UUID for a direct conversation', async () => {
+    signedIn();
+    endpoints.threads.openSolo.mockResolvedValueOnce({ id: 'server-solo' });
+    expect(await actions.openThread('solo', 'Mara Ilagan', 'Mara Ilagan')).toEqual({ id: 'server-solo' });
+    expect(endpoints.threads.openSolo).toHaveBeenCalledWith('user-1');
+  });
+
+  it('sending an invite does not invent a chat before acceptance', async () => {
+    signedIn();
+    expect(await actions.askPerson('Mara Ilagan', SLUG, 'Aurora', 'duo')).toBe(true);
+    expect(endpoints.social.invite).toHaveBeenCalledWith({ to_user_id: 'user-1', someday_id: SOMEDAY_UUID, party: 'duo' });
+    expect(useApp.getState().threads).toEqual([]);
+  });
+
+  it('can remove a custom someday with no catalog slug', async () => {
+    signedIn();
+    rememberSomeday({ id: 'custom-uuid', slug: null, title: 'Custom', category: 'City', party: 'any', needs: [] });
+    actions.unkeep('custom-uuid');
+    await flush();
+    expect(endpoints.catalog.unkeep).toHaveBeenCalledWith('custom-uuid');
+  });
+
   it('renames the attachment field the store uses to the one the wire expects', async () => {
     signedIn();
     useApp.setState({
@@ -286,9 +367,24 @@ describe('messages and groups', () => {
 
   it('refetches after creating a group, because the server allocates its id and token', async () => {
     signedIn();
-    actions.createGroup('Sunrise Crew');
-    await flush();
+    endpoints.groups.create.mockResolvedValueOnce({ id: 'server-group' });
+    expect(await actions.createGroup('Sunrise Crew')).toBe('server-group');
     expect(endpoints.groups.create).toHaveBeenCalledWith('Sunrise Crew');
+    expect(hydrateFromApi).toHaveBeenCalled();
+  });
+
+  it('does not create a fake group when the server refuses', async () => {
+    signedIn();
+    endpoints.groups.create.mockRejectedValueOnce(new Error('Plus required'));
+    expect(await actions.createGroup('QA Group')).toBeNull();
+    expect(useApp.getState().groups).toEqual([]);
+  });
+
+  it('can join an invitation not already in the local group list', async () => {
+    signedIn();
+    endpoints.groups.join.mockResolvedValueOnce({ id: 'invited-group' });
+    expect(await actions.joinGroup('new-invitation')).toEqual({ id: 'invited-group' });
+    expect(endpoints.groups.join).toHaveBeenCalledWith('new-invitation');
     expect(hydrateFromApi).toHaveBeenCalled();
   });
 });

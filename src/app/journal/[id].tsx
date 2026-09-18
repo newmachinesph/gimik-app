@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { toast } from 'sonner-native';
@@ -9,6 +9,8 @@ import { toast } from 'sonner-native';
 import { NotFound } from '@/components/not-found';
 import { Card, Chip, Field, PrimaryButton, Screen, Section, SectionHead, TopBar, Txt } from '@/components/ui';
 import { addJournal } from '@/lib/actions';
+import { hasApi } from '@/lib/api/client';
+import { loadJournal } from '@/lib/api/sync';
 import { timestampDayLabel } from '@/lib/format';
 import { wantTitle } from '@/lib/mock';
 import { wantById } from '@/lib/somedays';
@@ -24,15 +26,21 @@ export default function Journal() {
   const doneAt = useApp((s) => (id ? s.doneAt[id] : undefined));
   const [body, setBody] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { if (id && hasApi && useApp.getState().source === 'api') void loadJournal(id).catch(() => {}); }, [id]);
   if (!want || !id) return <NotFound />;
 
   const pick = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [4, 3], quality: 0.8 });
     if (!result.canceled && result.assets[0]) setPhoto(result.assets[0].uri);
   };
-  const save = () => {
+  const save = async () => {
+    if (saving) return;
     if (!body.trim() && !photo) return;
-    addJournal({ wantId: id, body: body.trim(), photo: photo ?? undefined });
+    setSaving(true);
+    const saved = await addJournal({ wantId: id, body: body.trim(), photo: photo ?? undefined });
+    setSaving(false);
+    if (!saved) return;
     setBody('');
     setPhoto(null);
     toast(t('s.toasts.journalSaved'));
@@ -48,7 +56,7 @@ export default function Journal() {
         {photo ? <View className="h-[180px] rounded-[4px] overflow-hidden mb-3"><Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" /></View> : null}
         <View className="flex-row gap-2 mb-3"><Chip label={photo ? t('s.journal.changePhoto') : t('s.journal.addPhoto')} selected={Boolean(photo)} onPress={() => void pick()} /></View>
         <Field placeholder={t('s.journal.ph')} value={body} onChangeText={setBody} multiline />
-        <PrimaryButton label={t('s.journal.save')} icon="plus" disabled={!body.trim() && !photo} onPress={save} />
+        <PrimaryButton label={t('s.journal.save')} icon="plus" disabled={saving || (!body.trim() && !photo)} state={saving ? 'loading' : 'idle'} onPress={save} />
       </Section>
       <Section>
         <SectionHead title={t('s.journal.entries')} subtitle={`${entries.length}`} />

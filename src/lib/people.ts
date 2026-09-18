@@ -24,6 +24,7 @@ export type Person = {
    * bundled cast, who have no server rows.
    */
   handle?: string;
+  createdAt?: string;
   leans: string[];
   gender: 'woman' | 'man' | 'nonbinary';
   age: number;
