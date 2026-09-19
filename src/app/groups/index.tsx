@@ -45,7 +45,7 @@ export default function Groups() {
   return (
     <Screen inset={false}>
       <TopBar title={t('s.groups.title')} />
-      <Section>
+      {groups.length || !creating ? <Section>
         <SectionHead title={t('s.groups.yours')} subtitle={`${groups.length}`} />
         {groups.length ? (
           <RowList>
@@ -66,12 +66,12 @@ export default function Groups() {
         ) : (
           <EmptyState icon="people" title={t('s.groups.empty.title')} body={t('s.groups.empty.body')} />
         )}
-      </Section>
+      </Section> : null}
       <Section>
         <SectionHead title={t('s.groups.startOne')} />
         {creating ? (
           <View>
-            <Field label={t('s.groups.name')} placeholder={t('s.groups.namePh')} value={name} onChangeText={setName} autoFocus />
+            <Field label={t('s.groups.name')} placeholder={t('s.groups.namePh')} value={name} onChangeText={setName} autoFocus spacing="compact" />
             <PrimaryButton label={t('s.groups.create')} icon="plus" disabled={!name.trim() || saving} state={saving ? 'loading' : 'idle'} onPress={create} />
           </View>
         ) : (

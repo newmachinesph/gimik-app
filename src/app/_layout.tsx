@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toaster } from 'sonner-native';
 
@@ -64,6 +65,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
+        <KeyboardProvider statusBarTranslucent navigationBarTranslucent preserveEdgeToEdge preload={false}>
         <View style={{ flex: 1 }} accessibilityLanguage={LOCALE}>
           <StatusBar style="dark" />
           <ErrorBoundary onReset={() => useApp.getState().reset()}>
@@ -89,6 +91,7 @@ export default function RootLayout() {
               <Stack.Screen name="groups/[id]" />
               <Stack.Screen name="join/[token]" />
               <Stack.Screen name="settings" />
+              <Stack.Screen name="plus" />
               <Stack.Screen name="edit-profile" />
               <Stack.Screen name="interests" />
               <Stack.Screen name="city" />
@@ -130,6 +133,7 @@ export default function RootLayout() {
             }}
           />
         </View>
+        </KeyboardProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

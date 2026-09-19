@@ -19,6 +19,10 @@ export type Party = 'duo' | 'group';
 export type Audience = 'friends' | 'groups' | 'everyone';
 
 export type Profile = {
+  /** Stable backend identity; absent in demo/old cached profiles. */
+  id?: string;
+  tier?: 'free' | 'plus';
+  plusUntil?: string | null;
   name: string;
   handle: string;
   birthday: string | null;
@@ -76,6 +80,7 @@ export type Plan = {
   time?: string;
   people: string[];
   place?: string;
+  placeId?: string;
   /** How the bill goes: KKB (kanya-kanyang bayad), equal split, my treat, or others. */
   split: 'kkb' | 'equal' | 'treat' | 'others';
   /** Only "others" needs saying out loud: "Jon covers gas, KKB on food". */

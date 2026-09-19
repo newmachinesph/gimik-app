@@ -4,7 +4,7 @@ import { photoId as photoIdFor, planId as planIdFor, rememberPhoto, somedayId, t
 import { auth, catalog, groups as groupsApi, media as mediaApi, plans as plansApi, social, threads as threadsApi } from '@/lib/api/endpoints';
 import { hydrateFromApi, loadJournal } from '@/lib/api/sync';
 import { reportError } from '@/lib/monitoring';
-import { WANT_BY_SLUG } from '@/lib/somedays';
+import { WANT_BY_ID, WANT_BY_SLUG } from '@/lib/somedays';
 import { useApp, type Party, type Visibility } from '@/store';
 import { toast } from 'sonner-native';
 
@@ -34,7 +34,12 @@ function sync(run: () => Promise<unknown>, failure: string): void {
 
 /** The server's id for a someday the store knows by its own id. */
 function somedayUuid(wantId: string): string | undefined {
-  const slug = WANT_BY_SLUG.get(wantId)?.slug ?? wantId;
+  // A server someday whose slug the app bundles is stored under the bundled
+  // want's own id (`wantIdForSlug`), not its slug - so look the want up by id
+  // to get back to the slug the directory is keyed by. Looking it up by slug
+  // alone found nothing, and every write for it (keep, lock, pass...) was
+  // silently skipped: a locked plan lived only on the phone.
+  const slug = WANT_BY_SLUG.get(wantId)?.slug ?? WANT_BY_ID.get(wantId)?.slug ?? wantId;
   return somedayId(slug) ?? somedayId(wantId);
 }
 
@@ -225,7 +230,18 @@ export async function createGroup(name: string): Promise<string | null> {
     const group = await groupsApi.create(name);
     await hydrateFromApi();
     return group.id;
-  } catch {
+  } catch (cause) {
+    // Creating a group is a Plus feature: the server says 402, and that is an
+    // offer to make, not a failure to report. It used to read "that did not save".
+    if ((cause as { needsPlus?: boolean } | null)?.needsPlus) {
+      toast(i18n.t('s.toasts.groupsNeedPlus'), {
+        action: {
+          label: i18n.t('s.toasts.seePlus'),
+          onClick: () => { void import('expo-router').then(({ router }) => router.push('/plus' as never)); },
+        },
+      });
+      return null;
+    }
     toast(i18n.t('s.toasts.syncFailed'));
     return null;
   }
@@ -297,6 +313,7 @@ export function lock(plan: Parameters<ReturnType<typeof useApp.getState>['lock']
       date: plan.date,
       time_slot: plan.time ?? null,
       place: plan.place ?? null,
+      place_id: plan.placeId ?? null,
       people: plan.people.map((name) => userId(name)).filter((value): value is string => Boolean(value)),
       split: plan.split,
     })

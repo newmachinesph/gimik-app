@@ -10,6 +10,7 @@ import {
   GimikIcon,
   IconButton,
   NavRow,
+  ProgressRing,
   RowList,
   Screen,
   Section,
@@ -50,8 +51,10 @@ export default function Profile() {
       </View>
 
       <View className="items-center pb-6">
-        <FocusablePressable accessibilityRole="button" accessibilityLabel={t('s.profile.edit')} onPress={() => router.push('/edit-profile' as never)} className="active:opacity-80">
-          <Avatar name={name} size={108} source={profile.photos[0]} />
+        <FocusablePressable accessibilityRole="button" accessibilityLabel={`${t('s.profile.edit')}, ${t('s.editProfile.strength.title')}, ${Math.round(completeness * 100)}%`} onPress={() => router.push('/edit-profile' as never)} className="active:opacity-80">
+          <ProgressRing value={completeness} size={122} stroke={4} gap={3}>
+            <Avatar name={name} size={108} source={profile.photos[0]} shape="circle" />
+          </ProgressRing>
         </FocusablePressable>
         <Txt variant="title" headingLevel={1} className="mt-3">
           {name}{age ? `, ${age}` : ''}{profile.gender ? ` ${genderMark(profile.gender)}` : ''}

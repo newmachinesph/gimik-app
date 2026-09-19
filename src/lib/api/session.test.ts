@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
+  resetBilling: vi.fn(),
   hydrate: vi.fn(), disconnect: vi.fn(), resetDirectory: vi.fn(), resetRegistry: vi.fn(), resetPlaces: vi.fn(),
 }));
 vi.mock('./sync', () => ({ hydrateFromApi: mocks.hydrate }));
@@ -10,6 +11,7 @@ vi.mock('./realtime', () => ({ disconnectRealtime: mocks.disconnect }));
 vi.mock('./directory', () => ({ resetDirectory: mocks.resetDirectory }));
 vi.mock('@/lib/registry', () => ({ resetRegistry: mocks.resetRegistry }));
 vi.mock('@/lib/places', () => ({ resetPlaceCache: mocks.resetPlaces }));
+vi.mock('@/lib/billing', () => ({ resetBillingSession: mocks.resetBilling }));
 
 const pair = { access_token: 'test-access', refresh_token: 'test-refresh', token_type: 'bearer' };
 beforeEach(() => {
@@ -49,6 +51,7 @@ describe('session restoration and expiry', () => {
     expect(mocks.resetDirectory).toHaveBeenCalled();
     expect(mocks.resetRegistry).toHaveBeenCalled();
     expect(mocks.resetPlaces).toHaveBeenCalled();
+    expect(mocks.resetBilling).toHaveBeenCalled();
   });
 
   it.each(['offline', 'server', 'forbidden'])('preserves cached data and credentials for %s failures', async (kind) => {

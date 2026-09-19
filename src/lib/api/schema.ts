@@ -133,7 +133,7 @@ export type ThreadOut = {
 };
 export type ThreadDetailOut = ThreadOut & { messages: MessageOut[] };
 
-export type PlaceOut = { id: Uuid; name: string; area: string; lat: number | null; lon: number | null };
+export type PlaceOut = { id: Uuid; name: string; area: string; lat: number | null; lon: number | null; provider?: string };
 
 export type PlanCreate = {
   someday_id: Uuid;

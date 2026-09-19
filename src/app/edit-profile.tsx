@@ -108,7 +108,7 @@ export default function EditProfile() {
         <SectionHead title={t('s.editProfile.photos.title')} subtitle={t('s.editProfile.photos.subtitle')} />
         <View className="flex-row flex-wrap" style={{ gap: 8 }}>
           {slots.map((uri, index) => (
-            <View key={uri ?? `empty-${index}`} style={{ width: '23%', aspectRatio: 4 / 5 }}>
+            <View key={uri ?? `empty-${index}`} style={{ width: '23%', aspectRatio: 1 }}>
               <FocusablePressable accessibilityRole="button" onPress={() => (uri ? photoActions(uri) : void addPhoto())} style={{ width: '100%', height: '100%' }} className="rounded-[4px] overflow-hidden bg-brand-paper-sunk items-center justify-center active:opacity-75">
                 {uri ? <Image source={uri} style={{ width: '100%', height: '100%' }} contentFit="cover" /> : <GimikIcon name={index === 0 ? 'camera' : 'plus'} size={20} color={C.inkMuted} />}
               </FocusablePressable>

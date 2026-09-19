@@ -46,14 +46,14 @@ export const screensEn = {
     },
     "place": {
       "title": "Where",
-      "subtitle": "The exact place - name it and it sticks",
+      "subtitle": "The exact place – name it and it sticks",
       "searchPh": "Restaurant, park, city…",
       "clear": "Clear the place",
-      "freeText": "No match - what you typed will be the place.",
-      "plusOnly": "Place search is part of Gimik Plus - what you typed will be the place."
+      "freeText": "No match – what you typed will be the place.",
+      "plusOnly": "Place search is part of Gimik Plus – what you typed will be the place."
     },
     "forgot": {
-      "title": "Forgotten password",
+      "title": "Forgot password",
       "body": "Tell us the email on the account and we will send a link that opens straight back here.",
       "action": "Send the link",
       "sentTitle": "Check your email",
@@ -62,7 +62,7 @@ export const screensEn = {
     },
     "reset": {
       "title": "Choose a new password",
-      "body": "This link works once. Pick something you have not used here before.",
+      "body": "This code works once. Pick something you have not used here before.",
       "code": "Reset code",
       "codePh": "Paste the code from the email",
       "password": "New password",
@@ -77,9 +77,9 @@ export const screensEn = {
       "email": "Email",
       "emailPh": "you@example.com",
       "password": "Password",
-      "passwordPh": "Choose a password",
+      "passwordPh": "Your password",
       "action": "Sign in",
-      "forgot": "Forgotten your password?",
+      "forgot": "Forgot password?",
       "working": "Signing you in",
       "failedTitle": "That did not work",
       "badCredentials": "That email and password do not match an account.",
@@ -88,9 +88,7 @@ export const screensEn = {
       "noServer": "No server is configured for this build, so sign-in is unavailable.",
       "or": "or",
       "google": "Continue with Google",
-      "googleFailed": "Google could not sign you in. Try your email and password.",
-      "demo": "Use demo data instead"
-    },
+      "googleFailed": "Google could not sign you in. Try your email and password."    },
     "welcome": {
       "someday": "Someday,",
       "headline": "with a date on it.",
@@ -105,11 +103,11 @@ export const screensEn = {
       },
       "seen": {
         "title": "Be seen",
-        "body": "Wanting one opens it to the people you choose - and they can invite you to do it together."
+        "body": "Wanting one opens it to the people you choose – and they can invite you to do it together."
       },
       "lock": {
         "title": "Lock it",
-        "body": "Talk, pick a day, and \"sometime\" stops being an answer. Done ones join your record."
+        "body": "Talk, pick a day, and “sometime” stops being an answer. Done ones join your record."
       },
       "skip": "Skip",
       "next": "Next"
@@ -138,9 +136,9 @@ export const screensEn = {
         "title": "Let's start with you.",
         "body": "Your birthday and gender are set once and stay put.",
         "firstName": "First name",
-        "firstNamePh": "Bea",
+        "firstNamePh": "e.g. Bea",
         "birthday": "Birthday",
-        "birthdayPh": "1998-03-14",
+        "birthdayPh": "e.g. 1998-03-14",
         "birthdayHint": "YYYY-MM-DD",
         "gender": "Gender",
         "woman": "Woman",
@@ -149,7 +147,7 @@ export const screensEn = {
       },
       "photo": {
         "title": "A photo of you.",
-        "body": "Required - it is what people see when they invite you. You can add five more later.",
+        "body": "Required – it is what people see when they invite you. You can add five more later.",
         "choose": "Choose a photo",
         "change": "Change photo"
       },
@@ -160,11 +158,11 @@ export const screensEn = {
       },
       "interests": {
         "title": "What are you into?",
-        "body": "Pick up to ten - they become the badges on your profile and tune your starter list."
+        "body": "They become the badges on your profile and tune your starter list."
       },
       "about": {
         "title": "The things a stranger leads with.",
-        "body": "A line about you, what you do, where you studied. All optional - all of it helps the right people say yes."
+        "body": "A line about you, what you do, where you studied. All optional – all of it helps the right people say yes."
       },
       "picks": {
         "title": "Start full, then make it yours.",
@@ -230,7 +228,7 @@ export const screensEn = {
       "empty": {
         "title": "Nothing moving yet",
         "body": "Keep a someday and it lands here. Lock a date and it starts counting down.",
-        "action": "Decide some somedays"
+        "action": "Find some somedays"
       },
       "locked": {
         "title": "Locked",
@@ -265,8 +263,8 @@ export const screensEn = {
       "expiryNote": "Invites fade after a week. Ignoring one is an answer too.",
       "empty": {
         "title": "No invites yet",
-        "body": "Keep a few somedays that take company - a duo or a group - and the people who want them turn up here.",
-        "action": "Decide some somedays"
+        "body": "Keep a few somedays that take company – a duo or a group – and the people who want them turn up here.",
+        "action": "Find some somedays"
       }
     },
     "profile": {
@@ -291,7 +289,7 @@ export const screensEn = {
         "done_other": "{{count}} done",
         "emptySubtitle": "The list gets shorter. The record gets longer.",
         "emptyTitle": "Nothing finished yet",
-        "emptyBody": "Mark a plan done and it leaves your list for good - and turns up here with its journal."
+        "emptyBody": "Mark a plan done and it leaves your list for good – and turns up here with its journal."
       }
     },
     "want": {
@@ -318,7 +316,10 @@ export const screensEn = {
         "title": "Who's in",
         "subtitle_one": "{{count}} person wants this",
         "subtitle_other": "{{count}} people want this",
-        "nobody": "Nobody yet. That is a real answer."
+        "nobody": "Nobody yet. That is a real answer.",
+        "onlyOpen": "Only the people open to you are listed.",
+        "noneOpenTitle": "None of them are open to you yet.",
+        "noneOpenBody": "Keep it and they can find you. Or send it to someone you know."
       },
       "first": {
         "title": "You'd be the first.",
@@ -331,7 +332,7 @@ export const screensEn = {
         "title": "Where",
         "subtitle": "Tap to open it in Maps"
       },
-      "share": "I want to {{title}} - you in?",
+      "share": "I want to {{title}} – you in?",
       "lockDate": "Lock a date",
       "openPlan": "Open plan",
       "openJournal": "Open journal"
@@ -368,7 +369,7 @@ export const screensEn = {
         "equal": "Equal Split",
         "treat": "My Treat",
         "others": "Others",
-        "notePh": "Jon covers gas, KKB on food",
+        "notePh": "e.g. Jon covers gas, KKB on food",
         "noteHint": "Say how it splits"
       },
       "openMap": "Open in maps",
@@ -389,7 +390,7 @@ export const screensEn = {
       },
       "addPhoto": "Add photo",
       "changePhoto": "Change photo",
-      "ph": "Colder than expected. Would do it again tomorrow.",
+      "ph": "e.g. Colder than expected. Would do it again tomorrow.",
       "save": "Save entry",
       "entries": "Entries",
       "nothing": "Nothing written yet.",
@@ -404,7 +405,7 @@ export const screensEn = {
         "title": "Somedays in common",
         "subtitle_one": "{{count}} you both want",
         "subtitle_other": "{{count}} you both want",
-        "none": "Nothing yet - keep something they hold",
+        "none": "Nothing yet – keep something they hold",
         "line": "You both want this"
       },
       "record": {
@@ -437,7 +438,7 @@ export const screensEn = {
       "solo": "Duo",
       "group": "Group",
       "plan": "Plan",
-      "noDate": "No date yet - propose one below",
+      "noDate": "No date yet – propose one below",
       "msgPh": "Message",
       "attach": "Attach a date, someday, or place",
       "send": "Send",
@@ -492,12 +493,12 @@ export const screensEn = {
       },
       "startOne": "Start one",
       "name": "Name",
-      "namePh": "Saturday People",
+      "namePh": "e.g. Saturday People",
       "create": "Create",
       "newGroup": "New group",
       "detail": {
         "eyebrow": "Group",
-        "body": "Members can invite you to any someday open to Groups - friends or not.",
+        "body": "Members can invite you to any someday open to Groups – friends or not.",
         "members": "Members",
         "thread": "Group thread",
         "leave": "Leave group",
@@ -507,6 +508,9 @@ export const screensEn = {
     },
     "join": {
       "invited": "You are invited",
+      "aGroup": "A group on Gimik",
+      "alreadyIn": "You are already in",
+      "open": "Open the group",
       "join": "Join",
       "expired": {
         "title": "This link has expired",
@@ -523,7 +527,7 @@ export const screensEn = {
       "eyebrow": "New someday",
       "title": "What do you keep saying you should do?",
       "body": "One sentence. No date, no place needed yet.",
-      "ph": "See the northern lights",
+      "ph": "e.g. See the northern lights",
       "keepQuoted": "Keep \"{{title}}\"",
       "searching": "Looking through the catalog...",
       "noMatch": "Nothing in the catalog matches that.",
@@ -545,11 +549,11 @@ export const screensEn = {
         "remove": "Remove"
       },
       "about": "About you",
-      "aboutPh": "Weekend climber, loves street food",
+      "aboutPh": "e.g. Weekend climber, loves street food",
       "work": "Work",
-      "workPh": "Product designer at Canva",
+      "workPh": "e.g. Product designer at Canva",
       "education": "Education",
-      "educationPh": "BS Architecture, UP Diliman",
+      "educationPh": "e.g. BS Architecture, UP Diliman",
       "city": "Location",
       "chooseCity": "Choose your city",
       "hometown": "Hometown",
@@ -620,14 +624,14 @@ export const screensEn = {
       "resetTitle": "Reset?",
       "resetBody": "Wipes everything on this device.",
       "resetConfirm": "Reset",
-      "footer": "Gimik {{version}} demo - flat data, no server.",
+      "footer": "Gimik {{version}} demo – flat data, no server.",
       "footerLive": "Gimik {{version}}"
     },
     "opening": {
       "eyebrow": "While you were away",
       "title_one": "{{count}} new thing",
       "title_other": "{{count}} new things",
-      "body": "People answered your list.",
+      "body": "Here's what came in.",
       "wantsFriends": "{{name}} wants to be friends",
       "locked": "Locked · {{date}}",
       "more_one": "and {{count}} more",
@@ -647,8 +651,8 @@ export const screensEn = {
     "inviteSheet": {
       "duo": "Duo invite",
       "group": "Group invite",
-      "body": "{{name}} wants to do this with you. Accepting opens a thread - the someday stays pinned to it.",
-      "bodyGroup": "{{name}} wants to do this with you and a few others. Accepting opens a thread - the someday stays pinned to it.",
+      "body": "{{name}} wants to do this with you. Accepting opens a thread – the someday stays pinned to it.",
+      "bodyGroup": "{{name}} wants to do this with you and a few others. Accepting opens a thread – the someday stays pinned to it.",
       "accept": "Accept",
       "notNow": "Not now",
       "hide": "Hide {{name}}"
@@ -681,7 +685,7 @@ export const screensEn = {
       "letGo": "Let go · {{title}}",
       "broughtBack": "Brought back",
       "inviteAccepted": "You are in. Say hi.",
-      "asked": "Asked {{name}} - the thread is open",
+      "asked": "Asked {{name}} – the thread is open",
       "inviteNotNow": "Quietly declined",
       "hidden": "{{name}} is hidden",
       "unhidden": "{{name}} can invite you again",
@@ -689,6 +693,8 @@ export const screensEn = {
       "requestAccepted": "You and {{name}} are friends",
       "requestDeclined": "Request declined",
       "groupCreated": "{{name}} is live · share the link",
+      "groupsNeedPlus": "Starting a group is part of Gimik Plus.",
+      "seePlus": "See Plus",
       "groupJoined": "You are in {{name}}",
       "groupLeft": "You left {{name}}",
       "locked": "Locked · {{date}}",

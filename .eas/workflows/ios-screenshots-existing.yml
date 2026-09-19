@@ -1,0 +1,22 @@
+name: Gimik screenshots from an existing simulator build
+on:
+  workflow_dispatch:
+    inputs:
+      build_id:
+        type: string
+        required: true
+jobs:
+  screenshots:
+    type: maestro
+    environment: preview
+    runs_on: macos-medium
+    image: latest
+    params:
+      build_id: ${{ inputs.build_id }}
+      flow_path: .maestro/app-store.yml
+      device_identifier: Gimik Screenshots
+      retries: 0
+    hooks:
+      after_checkout:
+        - name: Prepare screenshot fixture and iPhone
+          run: node scripts/prepare-ios-screenshots.cjs

@@ -211,15 +211,10 @@ export const media = {
 };
 
 export const places = {
-  /**
-   * `session` groups one search's keystrokes into a single billable session at
-   * the provider. Without it every debounced request is priced on its own, so
-   * it is a cost control rather than a correctness one - but it is the whole
-   * difference between one charge per search and one per keystroke.
-   */
-  search: (query: string, session?: string) =>
+  /** Catalogue-first lookup; Google session pricing also requires termination. */
+  search: (query: string, session?: string, activity?: string) =>
     request<PlaceOut[]>(
-      `/places/search?q=${encodeURIComponent(query)}${session ? `&session=${encodeURIComponent(session)}` : ''}`,
+      `/places/search?q=${encodeURIComponent(query)}${session ? `&session=${encodeURIComponent(session)}` : ''}${activity ? `&activity=${encodeURIComponent(activity)}` : ''}${query ? '' : '&live=false'}`,
     ),
 };
 

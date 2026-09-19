@@ -1,5 +1,6 @@
 import { resetPlaceCache } from '@/lib/places';
 import { resetRegistry } from '@/lib/registry';
+import { resetBillingSession } from '@/lib/billing';
 import { useApp } from '@/store';
 import { auth, ops } from './endpoints';
 import { ApiError, hasApi, loadTokens, onSessionExpired, setTokens } from './client';
@@ -21,6 +22,7 @@ import { hydrateFromApi } from './sync';
 export { hasApi };
 
 function clearLocalSession(): void {
+  resetBillingSession();
   disconnectRealtime();
   resetDirectory();
   resetRegistry();

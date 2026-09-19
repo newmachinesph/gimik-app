@@ -43,18 +43,7 @@ export default function Reset() {
   };
 
   return (
-    <Screen
-      inset={false}
-      footer={
-        <PrimaryButton
-          label={t('s.reset.action')}
-          icon="arrow-right"
-          disabled={token.trim().length < 10 || password.length < 8 || busy}
-          state={busy ? 'loading' : 'idle'}
-          onPress={() => void submit()}
-        />
-      }
-    >
+    <Screen inset={false}>
       <TopBar title="" />
       <Txt variant="title">{t('s.reset.title')}</Txt>
       <Txt variant="body" className="mt-2 mb-6">{t('s.reset.body')}</Txt>
@@ -74,8 +63,8 @@ export default function Reset() {
           onChangeText={setToken}
           autoCapitalize="none"
           autoCorrect={false}
-          multiline
           editable={!busy}
+          spacing="compact"
         />
       )}
       <Field
@@ -86,7 +75,17 @@ export default function Reset() {
         secureTextEntry
         autoCapitalize="none"
         editable={!busy}
+        spacing="compact"
       />
+      <View className="mt-2">
+        <PrimaryButton
+          label={t('s.reset.action')}
+          icon="arrow-right"
+          disabled={token.trim().length < 10 || password.length < 8 || busy}
+          state={busy ? 'loading' : 'idle'}
+          onPress={() => void submit()}
+        />
+      </View>
     </Screen>
   );
 }

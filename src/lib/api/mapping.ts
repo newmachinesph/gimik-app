@@ -57,6 +57,9 @@ function adoptPerson(dto: PersonOut | { id: string; name: string; handle: string
 export function toProfile(dto: ProfileOut): Profile {
   dto.photos.forEach((photo) => rememberPhoto(photo.url, photo.id));
   return {
+    id: dto.id,
+    tier: dto.tier ?? 'free',
+    plusUntil: dto.plus_until ?? null,
     name: dto.name,
     handle: dto.handle,
     birthday: dto.birthday,
@@ -211,6 +214,7 @@ export function toPlans(dtos: PlanOut[], me: string): {
       time: dto.time_slot ?? undefined,
       people,
       place: dto.place ?? undefined,
+      placeId: dto.place_id ?? undefined,
       split: dto.split as Plan['split'],
       confirmed: confirmedNames,
     };

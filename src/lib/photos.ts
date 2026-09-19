@@ -8,10 +8,13 @@ export const PHOTO = {
   hero: bundled(() => require('@/assets/images/hero.jpg'), 'hero.jpg'),
   aurora: bundled(() => require('@/assets/images/aurora.jpg'), 'aurora.jpg'),
   balloons: bundled(() => require('@/assets/images/balloons.jpg'), 'balloons.jpg'),
-  surf: bundled(() => require('@/assets/images/surf.jpg'), 'surf.jpg'),
-  market: bundled(() => require('@/assets/images/market.jpg'), 'market.jpg'),
+  // The three story slides are full-bleed on a portrait phone, so they are shot
+  // portrait. The landscape originals are still here: `market.jpg` is the
+  // catalog fallback, where a wide crop in a small tile is the right shape.
+  surf: bundled(() => require('@/assets/images/onboarding/surf.jpg'), 'onboarding/surf.jpg'),
+  market: bundled(() => require('@/assets/images/onboarding/market.jpg'), 'onboarding/market.jpg'),
   reef: bundled(() => require('@/assets/images/reef.jpg'), 'reef.jpg'),
-  summit: bundled(() => require('@/assets/images/summit.jpg'), 'summit.jpg'),
+  summit: bundled(() => require('@/assets/images/onboarding/summit.jpg'), 'onboarding/summit.jpg'),
   bucketAurora: catalogPhoto('see-an-aurora'),
   bucketBalloon: catalogPhoto('ride-a-hot-air-balloon'),
   bucketClimb: catalogPhoto('climb-to-a-mountain-summit'),

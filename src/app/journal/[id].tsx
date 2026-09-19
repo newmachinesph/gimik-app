@@ -55,7 +55,7 @@ export default function Journal() {
         <SectionHead title={t('s.journal.how.title')} subtitle={t('s.journal.how.subtitle')} />
         {photo ? <View className="h-[180px] rounded-[4px] overflow-hidden mb-3"><Image source={photo} style={StyleSheet.absoluteFill} contentFit="cover" /></View> : null}
         <View className="flex-row gap-2 mb-3"><Chip label={photo ? t('s.journal.changePhoto') : t('s.journal.addPhoto')} selected={Boolean(photo)} onPress={() => void pick()} /></View>
-        <Field placeholder={t('s.journal.ph')} value={body} onChangeText={setBody} multiline />
+        <Field placeholder={t('s.journal.ph')} value={body} onChangeText={setBody} multiline spacing="compact" />
         <PrimaryButton label={t('s.journal.save')} icon="plus" disabled={saving || (!body.trim() && !photo)} state={saving ? 'loading' : 'idle'} onPress={save} />
       </Section>
       <Section>

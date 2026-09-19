@@ -73,6 +73,7 @@ export default function Create() {
         value={text}
         onChangeText={(next) => { setText(next); setWriting(false); }}
         autoFocus
+        spacing="compact"
       />
 
       {matches.length && !writing ? (

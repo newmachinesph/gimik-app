@@ -46,7 +46,7 @@ export function InviteSheet({ row, onAccept, onNotNow, onHide, onDismiss }: {
           </FocusablePressable>
           <Txt variant="body" className="mt-4">{row.party === 'group' ? t('s.inviteSheet.bodyGroup', { name: first }) : t('s.inviteSheet.body', { name: first })}</Txt>
           <View className="mt-5"><PrimaryButton label={t('s.inviteSheet.accept')} icon="arrow-right" onPress={onAccept} /></View>
-          <View className="mt-2"><SecondaryButton label={t('s.inviteSheet.notNow')} tone="ink" onPress={onNotNow} /></View>
+          <View className="mt-2"><SecondaryButton label={t('s.inviteSheet.notNow')} onPress={onNotNow} /></View>
           <View className="mt-1"><GhostButton label={t('s.inviteSheet.hide', { name: first })} tone="muted" onPress={onHide} /></View>
         </View>
       ) : null}

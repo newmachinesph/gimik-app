@@ -38,6 +38,8 @@ export default function SomedayDetail() {
   const want = wantById(id);
   const state = useSomedayState(id);
   const holders = useHolders(want);
+  // Everyone who kept it (what the deck card says), never fewer than the people listed.
+  const wantersTotal = Math.max(want?.holders ?? 0, holders.length);
   const progress = useProgress(want);
   const plan = useApp((s) => (id ? s.plans[id] : undefined));
   const visibility = useApp((s) => (id ? s.visibility[id] : undefined) ?? s.defaultVisibility);
@@ -134,7 +136,12 @@ export default function SomedayDetail() {
           ) : null}
 
           <Section className="mt-6">
-            <SectionHead title={t('s.want.whosIn.title')} subtitle={holders.length ? t('s.want.whosIn.subtitle', { count: holders.length }) : t('s.want.whosIn.nobody')} />
+            <SectionHead title={t('s.want.whosIn.title')} subtitle={wantersTotal ? t('s.want.whosIn.subtitle', { count: wantersTotal }) : t('s.want.whosIn.nobody')} />
+            {/* The deck counts everyone who kept it; this list is only the people
+                open to you. Say so, or the two numbers read as a contradiction. */}
+            {holders.length && wantersTotal > holders.length ? (
+              <Txt variant="caption" className="mb-3">{t('s.want.whosIn.onlyOpen')}</Txt>
+            ) : null}
             {holders.length ? (
               <RowList>
                 {holders.map((person) => (
@@ -160,8 +167,8 @@ export default function SomedayDetail() {
               </RowList>
             ) : (
               <Card className="p-4">
-                <Txt variant="label" className="text-brand-ink">{t('s.want.first.title')}</Txt>
-                <Txt variant="caption" className="mt-1">{t('s.want.first.body')}</Txt>
+                <Txt variant="label" className="text-brand-ink">{wantersTotal ? t('s.want.whosIn.noneOpenTitle') : t('s.want.first.title')}</Txt>
+                <Txt variant="caption" className="mt-1">{wantersTotal ? t('s.want.whosIn.noneOpenBody') : t('s.want.first.body')}</Txt>
                 <View className="mt-3"><GhostButton label={t('s.want.first.action')} tone="muted" onPress={share} /></View>
               </Card>
             )}

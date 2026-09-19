@@ -72,10 +72,12 @@ export function Avatar({
   name,
   size = 40,
   source,
+  shape = 'square',
 }: {
   name: string;
   size?: number;
   source?: PhotoSource;
+  shape?: 'square' | 'circle';
 }) {
   const initials = name
     .split(' ')
@@ -85,7 +87,7 @@ export function Avatar({
     .toUpperCase();
   return (
     <View
-      style={{ width: size, height: size, borderRadius: 4 }}
+      style={{ width: size, height: size, borderRadius: shape === 'circle' ? size / 2 : 4 }}
       className="overflow-hidden items-center justify-center bg-brand-night"
     >
       {source ? (

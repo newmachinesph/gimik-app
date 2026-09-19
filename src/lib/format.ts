@@ -1,9 +1,20 @@
 import { i18n } from '@/i18n';
 import { formatDate } from '@/i18n/format';
 
-/** Dates the way the app speaks them: SAT 14 MAR, or a countdown when close. */
+/**
+ * A Date's calendar day in the device's timezone, as YYYY-MM-DD.
+ * `toISOString().slice(0, 10)` is UTC's day: in Manila (UTC+8) that is still
+ * yesterday until 8am, which shifted every day the lock strip offered.
+ */
+export function localIsoDate(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/** Dates the way the app speaks them: Sat, 14 Mar, or a countdown when close. */
 export function dayLabel(iso: string): string {
-  return formatDate(new Date(`${iso}T00:00:00`), { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
+  return formatDate(new Date(`${iso}T00:00:00`), { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
 export function countdown(iso: string): string {

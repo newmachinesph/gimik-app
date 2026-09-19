@@ -32,22 +32,7 @@ export default function Forgot() {
   };
 
   return (
-    <Screen
-      inset={false}
-      footer={
-        sent ? (
-          <PrimaryButton label={t('s.forgot.back')} onPress={() => router.replace('/sign-in' as never)} />
-        ) : (
-          <PrimaryButton
-            label={t('s.forgot.action')}
-            icon="arrow-right"
-            disabled={!email.includes('@') || busy}
-            state={busy ? 'loading' : 'idle'}
-            onPress={() => void submit()}
-          />
-        )
-      }
-    >
+    <Screen inset={false}>
       <TopBar title="" />
       <Txt variant="title">{t('s.forgot.title')}</Txt>
       <Txt variant="body" className="mt-2 mb-6">{t('s.forgot.body')}</Txt>
@@ -56,20 +41,35 @@ export default function Forgot() {
         <View>
           <InlineNotice tone="success" title={t('s.forgot.sentTitle')} body={t('s.forgot.sentBody')} />
           <View className="mt-4">
+            <PrimaryButton label={t('s.forgot.back')} onPress={() => router.replace('/sign-in' as never)} />
+          </View>
+          <View className="mt-2">
             <GhostButton label={t('s.reset.title')} tone="muted" onPress={() => router.replace('/reset' as never)} />
           </View>
         </View>
       ) : (
-        <Field
-          label={t('s.signIn.email')}
-          placeholder={t('s.signIn.emailPh')}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!busy}
-        />
+        <View>
+          <Field
+            label={t('s.signIn.email')}
+            placeholder={t('s.signIn.emailPh')}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!busy}
+            spacing="compact"
+          />
+          <View className="mt-2">
+            <PrimaryButton
+              label={t('s.forgot.action')}
+              icon="arrow-right"
+              disabled={!email.includes('@') || busy}
+              state={busy ? 'loading' : 'idle'}
+              onPress={() => void submit()}
+            />
+          </View>
+        </View>
       )}
     </Screen>
   );

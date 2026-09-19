@@ -1,0 +1,96 @@
+appId: com.sumnora.gimik
+name: Gimik native App Store preview footage
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- openLink: gimik://sign-in
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: Welcome back
+    timeout: 30000
+- tapOn: you@example.com
+- inputText: ${MAESTRO_SCREENSHOT_EMAIL}
+- tapOn: Choose a password
+- inputText: ${MAESTRO_SCREENSHOT_PASSWORD}
+- hideKeyboard
+- tapOn:
+    text: Sign in
+    retryTapIfNoChange: false
+- tapOn:
+    text: Not Now
+    optional: true
+- tapOn:
+    text: See everything
+    optional: true
+- extendedWaitUntil:
+    notVisible: Welcome back
+    timeout: 60000
+- openLink: gimik://discover
+- extendedWaitUntil:
+    visible: Search somedays
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible: Loading the catalog
+    timeout: 60000
+- waitForAnimationToEnd
+- startRecording: ${MAESTRO_SCREENSHOT_DIR}/preview-01-discover
+- runScript:
+    file: hold-frame.js
+    env:
+      HOLD_MS: 2500
+- swipe:
+    start: 50%, 77%
+    end: 50%, 49%
+    duration: 1600
+- waitForAnimationToEnd
+- runScript:
+    file: hold-frame.js
+    env:
+      HOLD_MS: 3000
+- stopRecording
+- openLink: gimik://want/mountain-climbing
+- extendedWaitUntil:
+    visible: Mountain climbing
+    timeout: 30000
+- waitForAnimationToEnd
+- startRecording: ${MAESTRO_SCREENSHOT_DIR}/preview-02-activity
+- runScript:
+    file: hold-frame.js
+    env:
+      HOLD_MS: 3500
+- tapOn: Open plan
+- extendedWaitUntil:
+    visible: Who's in
+    timeout: 30000
+- waitForAnimationToEnd
+- runScript:
+    file: hold-frame.js
+    env:
+      HOLD_MS: 4000
+- stopRecording
+- openLink: gimik://messages/${MAESTRO_SCREENSHOT_THREAD}
+- extendedWaitUntil:
+    visible: Deal. No more saying sometime.
+    timeout: 30000
+- waitForAnimationToEnd
+- startRecording: ${MAESTRO_SCREENSHOT_DIR}/preview-03-conversation
+- runScript:
+    file: hold-frame.js
+    env:
+      HOLD_MS: 6500
+- stopRecording
+- openLink: gimik://journal/aquarium-touring
+- extendedWaitUntil:
+    visible: Finally made time for this.*
+    timeout: 30000
+- waitForAnimationToEnd
+- startRecording: ${MAESTRO_SCREENSHOT_DIR}/preview-04-journal
+- runScript:
+    file: hold-frame.js
+    env:
+      HOLD_MS: 6500
+- stopRecording

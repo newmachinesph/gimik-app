@@ -1,0 +1,23 @@
+name: Gimik App Store preview footage
+on:
+  workflow_dispatch:
+    inputs:
+      build_id:
+        type: string
+        required: true
+jobs:
+  preview:
+    type: maestro
+    environment: preview
+    runs_on: macos-medium
+    image: latest
+    params:
+      build_id: ${{ inputs.build_id }}
+      flow_path: .maestro/app-preview.yml
+      device_identifier: Gimik Screenshots
+      maestro_version: 2.6.1
+      retries: 0
+    hooks:
+      after_checkout:
+        - name: Prepare private demo and iPhone
+          run: node scripts/prepare-ios-screenshots.cjs

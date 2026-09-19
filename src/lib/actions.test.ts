@@ -196,6 +196,17 @@ describe('plans', () => {
     );
   });
 
+  it('resolves a bundled want id back to its server someday', async () => {
+    // A server someday whose slug the app bundles is stored under the bundled
+    // id ('w5' is dive-a-coral-reef). Resolving that by slug alone found
+    // nothing, and the lock never left the phone.
+    signedIn();
+    rememberSomeday({ id: 'reef-uuid', slug: 'dive-a-coral-reef', title: 'Dive a coral reef', category: 'Water', party: 'duo', needs: [] });
+    actions.lock({ wantId: 'w5', date: '2026-09-26', people: [], split: 'kkb', confirmed: [] });
+    await flush();
+    expect(endpoints.plans.lock).toHaveBeenCalledWith(expect.objectContaining({ someday_id: 'reef-uuid' }));
+  });
+
   it('uses the plan id the directory learned, not the someday id', async () => {
     signedIn();
     rememberPlan(SLUG, 'plan-uuid-9');
@@ -378,6 +389,14 @@ describe('messages and groups', () => {
     endpoints.groups.create.mockRejectedValueOnce(new Error('Plus required'));
     expect(await actions.createGroup('QA Group')).toBeNull();
     expect(useApp.getState().groups).toEqual([]);
+  });
+
+  it('offers Plus, not an error, when the server says groups need it', async () => {
+    signedIn();
+    toast.mockClear();
+    endpoints.groups.create.mockRejectedValueOnce({ status: 402, needsPlus: true });
+    expect(await actions.createGroup('QA Group')).toBeNull();
+    expect(toast).toHaveBeenCalledWith('Starting a group is part of Gimik Plus.', expect.objectContaining({ action: expect.objectContaining({ label: 'See Plus' }) }));
   });
 
   it('can join an invitation not already in the local group list', async () => {

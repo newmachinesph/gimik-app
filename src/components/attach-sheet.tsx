@@ -56,7 +56,7 @@ export function AttachSheet({ visible, onDismiss, onSend, pinnedWantId }: {
         {!somedays.length ? <Txt variant="caption">{t('s.attach.keepFirst')}</Txt> : null}
       </View>
       <Txt variant="eyebrow" className="mt-6">{t('s.attach.aPlace')}</Txt>
-      <View className="mt-2 mb-3"><PlaceField value={place} onChange={setPlace} /></View>
+      <View className="mt-2 mb-3"><PlaceField value={place} onChange={setPlace} activity={pinnedWantId} /></View>
       <PrimaryButton label={t('s.attach.sendPlace')} disabled={!place.trim()} onPress={() => send(t('s.attach.meetAt', { place: place.trim() }), { type: 'place', refId: place.trim(), label: place.trim() })} />
     </BottomSheet>
   );

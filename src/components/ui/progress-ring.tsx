@@ -6,7 +6,7 @@ import { C } from '@/lib/tokens';
 /**
  * A circular progress track that wraps whatever it is given — the profile
  * avatar, in practice. The child sits inside the ring's inner diameter, so a
- * `size` here is the outer edge and the child should be `size - 2 * stroke - gap`.
+ * `size` here is the outer edge and the child should be `size - 2 * (stroke + gap)`.
  *
  * Drawn with SVG rather than a rotated border trick: the arc has to start at
  * twelve o'clock and be exact at every fraction, and borders cannot do partial.
@@ -46,7 +46,7 @@ export function ProgressRing({
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            stroke={fraction >= 1 ? C.green : C.orange}
+            stroke={fraction >= 1 ? C.success : C.primary}
             strokeWidth={stroke}
             strokeLinecap="round"
             strokeDasharray={`${circumference} ${circumference}`}

@@ -26,10 +26,19 @@ export default function Join() {
   return (
     <Screen inset={false}>
       <TopBar title="" />
-      {token ? (
+      {/* The name is only known once you are in - there is no preview of a
+          group you have not joined. So a known group means you are already a
+          member, and an unknown one gets a neutral title, never "Groups". */}
+      {token && group ? (
+        <>
+          <Txt variant="eyebrow">{t('s.join.alreadyIn')}</Txt>
+          <Txt variant="title" className="mt-1 mb-6">{group.name}</Txt>
+          <PrimaryButton label={t('s.join.open')} icon="arrow-right" onPress={() => router.replace(`/groups/${group.id}` as never)} />
+        </>
+      ) : token ? (
         <>
           <Txt variant="eyebrow">{t('s.join.invited')}</Txt>
-          <Txt variant="title" className="mt-1 mb-6">{group?.name ?? t('s.groups.title')}</Txt>
+          <Txt variant="title" className="mt-1 mb-6">{t('s.join.aGroup')}</Txt>
           <PrimaryButton label={t('s.join.join')} icon="arrow-right" disabled={joining} state={joining ? 'loading' : 'idle'} onPress={() => void accept()} />
         </>
       ) : <EmptyState icon="warning" title={t('s.join.expired.title')} body={t('s.join.expired.body')} />}

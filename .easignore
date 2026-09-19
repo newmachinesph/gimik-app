@@ -1,0 +1,26 @@
+# Cloud builds regenerate native projects and use EAS-managed signing.
+node_modules/
+.git/
+.expo/
+android/
+ios/
+.kotlin/
+dist/
+web-build/
+screenshots/
+example/
+*.jks
+*.keystore
+*.p8
+*.p12
+*.pem
+*.key
+*.mobileprovision
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+DESIGN_REVIEW.md

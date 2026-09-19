@@ -7,9 +7,7 @@ import { toast } from 'sonner-native';
 import { VisibilityChips } from '@/components/visibility-chips';
 import {
   Card,
-  Chip,
   Divider,
-  GhostButton,
   GimikIcon,
   NavRow,
   RowList,
@@ -23,10 +21,9 @@ import { deleteAccount } from '@/lib/actions';
 import { signOut } from '@/lib/api/session';
 import * as WebBrowser from 'expo-web-browser';
 
-import { DEMO } from '@/data/demo';
 import { SITE_URL } from '@/lib/links';
 import { C } from '@/lib/tokens';
-import { useApp, type DemoState } from '@/store';
+import { useApp } from '@/store';
 
 /** Defaults, quiet lists, and the way out. Nothing here is needed daily. */
 /** Whatever the manifest says, so the footer cannot drift from the build. */
@@ -34,20 +31,12 @@ const APP_VERSION = Constants.expoConfig?.version ?? '';
 
 export default function Settings() {
   const { t } = useTranslation();
-  const demoState = useApp((s) => s.demoState);
   const source = useApp((s) => s.source);
   const hidden = useApp((s) => s.hiddenPeople);
   const unhide = useApp((s) => s.unhidePerson);
   const defaultVisibility = useApp((s) => s.defaultVisibility);
   const remember = useApp((s) => s.rememberVisibility);
   const setDefaultVisibility = useApp((s) => s.setDefaultVisibility);
-  const loadDemo = useApp((s) => s.loadDemo);
-
-  const states: { value: DemoState; label: string }[] = [
-    { value: 'fresh', label: t('s.settings.developer.fresh') },
-    { value: 'week-in', label: t('s.settings.developer.weekIn') },
-    { value: 'veteran', label: t('s.settings.developer.veteran') },
-  ];
 
   const confirm = (title: string, body: string, action: string, onPress: () => void) =>
     Alert.alert(title, body, [{ text: t('s.settings.keep'), style: 'cancel' }, { text: action, style: 'destructive', onPress }]);
@@ -56,23 +45,6 @@ export default function Settings() {
   // keeps a refresh token is still signed in as far as the server is concerned.
   const leave = () => {
     void signOut().finally(() => router.replace('/welcome' as never));
-  };
-
-  /**
-   * Demo data and a live session are mutually exclusive.
-   *
-   * `loadDemo` flips the store to fabricated rows but leaves the auth token
-   * where it is, which produced the worst of both: signed in, showing invented
-   * data, realtime disconnected, and writes going nowhere. Signing out first
-   * means "demo" always means exactly what it says.
-   */
-  const enterDemo = (state: DemoState, label: string) => {
-    const load = () => {
-      loadDemo(state, DEMO[state]());
-      toast(t('s.toasts.demoLoaded', { state: label }));
-    };
-    if (source === 'api') void signOut().finally(load);
-    else load();
   };
 
   // Deleting is not signing out. The confirmation promises the account and
@@ -124,6 +96,7 @@ export default function Settings() {
       <Section>
         <SectionHead title={t('s.settings.account')} />
         <RowList>
+          <NavRow icon="plus" title="Gimik Plus" size="lg" onPress={() => router.push('/plus' as never)} />
           <NavRow icon="people" title={t('s.settings.editProfile')} size="lg" onPress={() => router.push('/edit-profile' as never)} />
           <NavRow
             icon="close"
@@ -170,34 +143,6 @@ export default function Settings() {
           />
         </RowList>
       </Section>
-
-      {__DEV__ ? (
-        <Section>
-          <SectionHead title={t('s.settings.developer.title')} subtitle={t('s.settings.developer.subtitle')} />
-          <View className="flex-row gap-2">
-            {states.map((item) => (
-              <Chip
-                key={item.value}
-                label={item.label}
-                selected={demoState === item.value}
-                onPress={() => enterDemo(item.value, item.label)}
-              />
-            ))}
-          </View>
-          <View className="mt-4">
-            <GhostButton
-              label={t('s.settings.reset')}
-              tone="muted"
-              onPress={() => confirm(t('s.settings.resetTitle'), t('s.settings.resetBody'), t('s.settings.resetConfirm'), () => {
-                void signOut().finally(() => {
-                  toast(t('s.toasts.resetDone'));
-                  router.replace('/welcome' as never);
-                });
-              })}
-            />
-          </View>
-        </Section>
-      ) : null}
 
       <View className="flex-row items-center mt-2">
         <GimikIcon name="info" size={14} color={C.inkMuted} />

@@ -22,15 +22,37 @@
         "buildType": "apk"
       }
     },
+    "screenshots": {
+      "extends": "production",
+      "environment": "production",
+      "distribution": "internal",
+      "developmentClient": false,
+      "autoIncrement": false,
+      "withoutCredentials": true,
+      "ios": {
+        "simulator": true
+      }
+    },
     "production": {
       "env": {
-        "EXPO_PUBLIC_CATALOG_URL": "https://cdn.gimik.app"
+        "EXPO_PUBLIC_CATALOG_URL": "https://cdn.gimik.app",
+        "EXPO_PUBLIC_API_URL": "https://api.gimik.app",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "570531243224-3sn574l97eig2e93neeg1s3gi5r4a6cl.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "570531243224-n0sotkj91ovbi9abqih5tdq5cpq82oj0.apps.googleusercontent.com",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "goog_QLvGNOMOHsnuQjgGJbRjXoOyEkG",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_xPqOmQOhxKobRINWAowDReUBIMT",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       },
+      "android": { "buildType": "app-bundle", "credentialsSource": "remote" },
       "channel": "production",
       "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6813533953"
+      }
+    }
   }
 }

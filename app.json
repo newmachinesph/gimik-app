@@ -8,8 +8,11 @@
     "scheme": "gimik",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.sumnora.gimik",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "supportsTablet": false
     },
     "web": {
@@ -34,7 +37,8 @@
           "iosUrlScheme": "com.googleusercontent.apps.570531243224-n0sotkj91ovbi9abqih5tdq5cpq82oj0"
         }
       ],
-      "./plugins/with-debug-keystore.js"
+      "./plugins/with-debug-keystore.js",
+      "./plugins/with-billing.js"
     ],
     "experiments": {
       "typedRoutes": true,

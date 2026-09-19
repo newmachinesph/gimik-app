@@ -51,11 +51,13 @@ export default function Friends() {
       <TopBar title={t('s.friends.title')} />
       {/* The way in. Without this a new account cannot reach anybody: the only
           other routes are a group invite link or already knowing a handle. */}
-      <SearchField
-        placeholder={t('s.friends.searchPh')}
-        value={query}
-        onChangeText={setQuery}
-      />
+      <View className="mb-5">
+        <SearchField
+          placeholder={t('s.friends.searchPh')}
+          value={query}
+          onChangeText={setQuery}
+        />
+      </View>
       {looking ? (
         <Section>
           {tooShort ? (

@@ -24,11 +24,11 @@ afterEach(() => {
 });
 
 describe('searchPlaces', () => {
-  it('passes the session token through so one search is billed once', async () => {
+  it('passes the session token through', async () => {
     search.mockResolvedValue([ROW]);
     const session = newSearchSession();
     await searchPlaces('toyo eatery', session);
-    expect(search).toHaveBeenCalledWith('toyo eatery', session);
+    expect(search).toHaveBeenCalledWith('toyo eatery', session, undefined);
   });
 
   it('reports needsPlus on a 402 rather than looking like no match', async () => {
@@ -55,6 +55,19 @@ describe('searchPlaces', () => {
 
   it('mints a different session token each time', () => {
     expect(newSearchSession()).not.toEqual(newSearchSession());
+  });
+
+  it('submits repeat searches so the server can record both', async () => {
+    search.mockResolvedValue([ROW]);
+    await searchPlaces('toyo eatery', 'a');
+    await searchPlaces('toyo eatery', 'b');
+    expect(search).toHaveBeenCalledTimes(2);
+  });
+
+  it('loads activity suggestions before typing', async () => {
+    search.mockResolvedValue([ROW]);
+    expect((await searchPlaces('', undefined, 'picnic')).picks).toEqual([ROW]);
+    expect(search).toHaveBeenCalledWith('', undefined, 'picnic');
   });
 });
 

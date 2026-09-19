@@ -22,7 +22,7 @@ export default function Welcome() {
         <Txt variant="display" className="text-brand-paper">{t('s.welcome.headline')}</Txt>
         <Txt variant="body" className="text-brand-paper/80 mt-3 mb-8">{t('s.welcome.body')}</Txt>
         <PrimaryButton label={t('s.welcome.start')} icon="arrow-right" onPress={() => router.push('/onboarding' as never)} />
-        <View className="mt-2"><GhostButton label={t('s.welcome.haveAccount')} tone="white" onPress={signIn} /></View>
+        <View className="-mt-3"><GhostButton label={t('s.welcome.haveAccount')} tone="white" onPress={signIn} /></View>
       </View>
     </View>
   );

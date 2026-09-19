@@ -1,9 +1,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView, KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppleButton, GoogleButton } from '@/components/auth-buttons';
@@ -12,14 +13,14 @@ import { hasApi, signUp, signInWithGoogle } from '@/lib/api/session';
 import { GoogleCancelled, hasGoogleSignIn } from '@/lib/api/google';
 import { InterestBank } from '@/components/interest-bank';
 import { SomedayTile } from '@/components/someday-tile';
-import { Avatar, Chip, Field, GhostButton, IconButton, InlineNotice, PrimaryButton, SearchField, Txt } from '@/components/ui';
+import { Avatar, Chip, Field, GhostButton, IconButton, InlineNotice, PrimaryButton, SearchField, SecondaryButton, Txt } from '@/components/ui';
 import { addProfilePhoto, keep, updateProfile } from '@/lib/actions';
 import { PH_CITIES } from '@/lib/cities';
 import { useDeck } from '@/lib/feed';
 import { interestCategories } from '@/lib/interests';
+import { keyboardFooterLayout } from '@/lib/keyboard-layout';
 import { WANTS } from '@/lib/mock';
 import { PHOTO } from '@/lib/photos';
-import { C } from '@/lib/tokens';
 import { useApp, type Gender } from '@/store';
 
 type Step = 'story' | 'account' | 'profile' | 'photo' | 'city' | 'about' | 'interests' | 'picks';
@@ -51,6 +52,9 @@ export default function Onboarding() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [footerHeight, setFooterHeight] = useState(0);
+  const footerPaddingBottom = insets.bottom + 12;
+  const keyboardFooter = keyboardFooterLayout(footerHeight, footerPaddingBottom);
   const [name, setName] = useState('');
   const [birthday, setBirthday] = useState('');
   const [gender, setGender] = useState<Gender | null>(null);
@@ -89,6 +93,15 @@ export default function Onboarding() {
    * behind it has them.
    */
   const starter = useDeck('All', NOTHING as Set<string>, NOTHING as Set<string>);
+  // The deck's first page lands the moment the account exists - before the
+  // interests step - so it was ranked with no interests at all and read as A-Z.
+  // Re-rank once on arrival, now that the PATCH has gone through.
+  const refreshStarter = starter.retry;
+  useEffect(() => {
+    if (step === 'picks') refreshStarter();
+    // Only on arriving at the step; retry is a fresh function every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
   const [picks, setPicks] = useState<string[]>([]);
   const index = ORDER.indexOf(step);
 
@@ -226,14 +239,14 @@ export default function Onboarding() {
         <View className="flex-1 justify-between px-6" style={{ paddingTop: insets.top + 8, paddingBottom: insets.bottom + 24 }}>
           <View className="flex-row items-center justify-between">
             <IconButton icon="back" label={t('s.common.back')} tone="glass" onPress={() => (page ? setPage(page - 1) : router.back())} />
-            <GhostButton label={t('s.story.skip')} tone="white" onPress={next} />
+            {/* On the last page Skip and the main button do the same thing. */}
+            {page < STORY.length - 1 ? <GhostButton label={t('s.story.skip')} tone="white" onPress={next} /> : null}
           </View>
           <View>
             <View className="flex-row gap-1 mb-5">
               {STORY.map((item, i) => <View key={item.key} className={`flex-1 h-1 rounded-full ${i <= page ? 'bg-brand-paper' : 'bg-brand-paper/30'}`} />)}
             </View>
-            <Txt variant="eyebrow" style={{ color: `${C.paper}B3` }}>{`${page + 1} / ${STORY.length}`}</Txt>
-            <Txt variant="display" className="text-brand-paper mt-2">{t(`s.story.${current.key}.title`)}</Txt>
+            <Txt variant="display" className="text-brand-paper">{t(`s.story.${current.key}.title`)}</Txt>
             <Txt variant="body" className="text-brand-paper/85 mt-3 mb-8">{t(`s.story.${current.key}.body`)}</Txt>
             <PrimaryButton label={page < STORY.length - 1 ? t('s.story.next') : t('s.welcome.start')} icon="arrow-right" onPress={advance} />
           </View>
@@ -245,6 +258,21 @@ export default function Onboarding() {
   const formIndex = index - 1;
   const formCount = ORDER.length - 1;
 
+  // Short forms carry their button under the last field, like sign-in. The two
+  // long lists keep it pinned, so it stays reachable without scrolling the list.
+  const inlineAction = step !== 'interests' && step !== 'picks';
+  // No Skip: every optional step already continues with nothing filled in, so a
+  // second button that does the same thing only asks which one to press.
+  const action = (
+    <PrimaryButton
+      label={step === 'picks' ? t('s.onboarding.buildList') : t('s.onboarding.continue')}
+      icon="arrow-right"
+      disabled={!valid || busy}
+      state={busy ? 'loading' : 'idle'}
+      onPress={() => void next()}
+    />
+  );
+
   return (
     <View className="flex-1 bg-brand-paper" style={{ paddingTop: insets.top }}>
       <View className="px-5 flex-row items-center">
@@ -253,32 +281,36 @@ export default function Onboarding() {
           {Array.from({ length: formCount }, (_, i) => <View key={i} className={`flex-1 h-1 rounded-full ${i <= formIndex ? 'bg-brand-ink' : 'bg-brand-rule'}`} />)}
         </View>
       </View>
-      <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingTop: 20, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScrollView style={{ flex: 1 }} bottomOffset={keyboardFooter.inputClearance} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
         {error ? <View className="mb-4"><InlineNotice tone="error" title={t('s.onboarding.account.failedTitle')} body={error} /></View> : null}
         {step === 'account' ? (
           <View>
             <Txt variant="title">{t('s.onboarding.account.title')}</Txt>
             <Txt variant="body" className="mt-2 mb-6">{t('s.onboarding.account.body')}</Txt>
-            <Field label={t('s.onboarding.account.email')} placeholder={t('s.onboarding.account.emailPh')} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+            <Field label={t('s.onboarding.account.email')} placeholder={t('s.onboarding.account.emailPh')} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} spacing="compact" />
             <Field
               label={t('s.onboarding.account.password')}
-              placeholder={t('s.onboarding.account.passwordPh')}
               hint={t('s.onboarding.account.passwordHint')}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
               autoCapitalize="none"
+              spacing="compact"
             />
+            <View className="mt-2">{action}</View>
             <View className="flex-row items-center my-5"><View className="flex-1 h-px bg-brand-rule" /><Txt variant="caption" className="mx-3">{t('s.onboarding.account.or')}</Txt><View className="flex-1 h-px bg-brand-rule" /></View>
             {/* Google is live once a client id is built in. Apple stays
                 disabled and still says so, because faking a button that skips
-                the form while pretending to authenticate is worse than waiting. */}
+                the form while pretending to authenticate is worse than waiting.
+                Android never gets Apple at all: there it is not "coming", it is absent. */}
             <GoogleButton
               label={t('s.onboarding.account.google')}
               disabled={!hasGoogleSignIn || busy}
               onPress={() => void withGoogle()}
             />
-            <View className="mt-2"><AppleButton label={t('s.onboarding.account.apple')} disabled onPress={() => {}} /></View>
+            {Platform.OS === 'ios' ? (
+              <View className="mt-2"><AppleButton label={t('s.onboarding.account.apple')} disabled onPress={() => {}} /></View>
+            ) : null}
             {!hasGoogleSignIn ? (
               <Txt variant="caption" className="mt-2 text-center">{t('s.onboarding.account.socialSoon')}</Txt>
             ) : null}
@@ -288,9 +320,9 @@ export default function Onboarding() {
           <View>
             <Txt variant="title">{t('s.onboarding.profile.title')}</Txt>
             <Txt variant="body" className="mt-2 mb-6">{t('s.onboarding.profile.body')}</Txt>
-            <Field label={t('s.onboarding.profile.firstName')} placeholder={t('s.onboarding.profile.firstNamePh')} value={name} onChangeText={setName} autoCapitalize="words" />
-            <Field label={t('s.onboarding.profile.birthday')} placeholder={t('s.onboarding.profile.birthdayPh')} hint={t('s.onboarding.profile.birthdayHint')} value={birthday} onChangeText={setBirthday} keyboardType="numbers-and-punctuation" />
-            <Txt variant="label" className="text-brand-ink mb-2">{t('s.onboarding.profile.gender')}</Txt>
+            <Field label={t('s.onboarding.profile.firstName')} placeholder={t('s.onboarding.profile.firstNamePh')} value={name} onChangeText={setName} autoCapitalize="words" spacing="compact" />
+            <Field label={t('s.onboarding.profile.birthday')} placeholder={t('s.onboarding.profile.birthdayPh')} hint={t('s.onboarding.profile.birthdayHint')} value={birthday} onChangeText={setBirthday} keyboardType="numbers-and-punctuation" spacing="compact" />
+            <Txt variant="eyebrow" className="mb-2">{t('s.onboarding.profile.gender')}</Txt>
             <View className="flex-row gap-2">
               {(['woman', 'man', 'nonbinary'] as Gender[]).map((value) => <Chip key={value} label={t(`s.onboarding.profile.${value}`)} selected={gender === value} onPress={() => setGender(value)} />)}
             </View>
@@ -301,7 +333,7 @@ export default function Onboarding() {
             <Txt variant="title" className="self-start">{t('s.onboarding.photo.title')}</Txt>
             <Txt variant="body" className="self-start mt-2 mb-8">{t('s.onboarding.photo.body')}</Txt>
             {photo ? <Image source={photo} style={{ width: 200, height: 250, borderRadius: 4 }} contentFit="cover" /> : <Avatar name={name || t('s.common.you')} size={140} />}
-            <View className="mt-6 self-stretch"><GhostButton label={photo ? t('s.onboarding.photo.change') : t('s.onboarding.photo.choose')} tone="muted" onPress={() => void pickPhoto()} /></View>
+            <View className="mt-6 self-stretch"><SecondaryButton label={photo ? t('s.onboarding.photo.change') : t('s.onboarding.photo.choose')} onPress={() => void pickPhoto()} /></View>
           </View>
         ) : null}
         {step === 'city' ? (
@@ -318,9 +350,9 @@ export default function Onboarding() {
           <View>
             <Txt variant="title">{t('s.onboarding.about.title')}</Txt>
             <Txt variant="body" className="mt-2 mb-6">{t('s.onboarding.about.body')}</Txt>
-            <Field label={t('s.editProfile.about')} placeholder={t('s.editProfile.aboutPh')} value={bio} onChangeText={setBio} multiline />
-            <Field label={t('s.editProfile.work')} placeholder={t('s.editProfile.workPh')} value={work} onChangeText={setWork} />
-            <Field label={t('s.editProfile.education')} placeholder={t('s.editProfile.educationPh')} value={education} onChangeText={setEducation} />
+            <Field label={t('s.editProfile.about')} placeholder={t('s.editProfile.aboutPh')} value={bio} onChangeText={setBio} multiline spacing="compact" />
+            <Field label={t('s.editProfile.work')} placeholder={t('s.editProfile.workPh')} value={work} onChangeText={setWork} spacing="compact" />
+            <Field label={t('s.editProfile.education')} placeholder={t('s.editProfile.educationPh')} value={education} onChangeText={setEducation} spacing="compact" />
           </View>
         ) : null}
         {step === 'interests' ? (
@@ -336,24 +368,22 @@ export default function Onboarding() {
             <Txt variant="body" className="mt-2 mb-5">{t('s.onboarding.picks.body', { count: picks.length })}</Txt>
             <View className="flex-row flex-wrap" style={{ gap: 12 }}>
               {suggestions.map((want) => (
-                <View key={want.id} style={{ width: '47%', opacity: picks.includes(want.id) ? 1 : 0.55 }}>
-                  <SomedayTile want={want} onPress={() => setPicks((current) => current.includes(want.id) ? current.filter((id) => id !== want.id) : [...current, want.id])} />
+                <View key={want.id} style={{ width: '47%' }}>
+                  <SomedayTile want={want} selected={picks.includes(want.id)} onPress={() => setPicks((current) => current.includes(want.id) ? current.filter((id) => id !== want.id) : [...current, want.id])} />
                 </View>
               ))}
             </View>
           </View>
         ) : null}
-      </ScrollView>
-      <View className="px-5 pt-3 border-t border-brand-rule bg-brand-paper" style={{ paddingBottom: insets.bottom + 12 }}>
-        <PrimaryButton
-          label={step === 'picks' ? t('s.onboarding.buildList') : t('s.onboarding.continue')}
-          icon="arrow-right"
-          disabled={!valid || busy}
-          state={busy ? 'loading' : 'idle'}
-          onPress={() => void next()}
-        />
-        {step === 'interests' || step === 'about' ? <View className="mt-1"><GhostButton label={t('s.onboarding.skip')} tone="muted" disabled={busy} onPress={next} /></View> : null}
+        {inlineAction && step !== 'account' ? <View className="mt-6">{action}</View> : null}
+      </KeyboardAwareScrollView>
+      {inlineAction ? null : (
+      <KeyboardStickyView offset={{ opened: keyboardFooter.openedOffset }}>
+      <View onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)} className="px-5 pt-3 border-t border-brand-rule bg-brand-paper" style={{ paddingBottom: footerPaddingBottom }}>
+        {action}
       </View>
+      </KeyboardStickyView>
+      )}
     </View>
   );
 }

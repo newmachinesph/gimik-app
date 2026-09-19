@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from 'react-native';
+import { ScrollView, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, useKeyboardState } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { NotFound } from '@/components/not-found';
@@ -42,6 +43,7 @@ export default function ThreadScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
+  const keyboardVisible = useKeyboardState((state) => state.isVisible);
   const thread = useApp((s) => s.threads.find((item) => item.id === id));
   const plan = useApp((s) => (thread?.kind === 'plan' ? s.plans[thread.refId] : undefined));
   const [draft, setDraft] = useState('');
@@ -59,7 +61,7 @@ export default function ThreadScreen() {
   const openPinned = () => { if (!want) return; router.push((plan ? `/plan/${want.id}` : `/want/${want.id}`) as never); };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-brand-paper" style={{ paddingTop: insets.top }}>
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1, backgroundColor: C.paper, paddingTop: insets.top }}>
       <View className="flex-row items-center px-3 pb-2 border-b border-brand-rule">
         <IconButton icon="back" label={t('s.common.back')} onPress={() => router.back()} />
         {thread.kind === 'solo' ? (
@@ -108,7 +110,7 @@ export default function ThreadScreen() {
           );
         }) : <Txt variant="caption" className="text-center mt-10">{t('s.messages.sayHiLong')}</Txt>}
       </ScrollView>
-      <View className="flex-row items-end px-3 pt-2 border-t border-brand-rule" style={{ paddingBottom: insets.bottom + 8 }}>
+      <View className="flex-row items-end px-3 pt-2 border-t border-brand-rule" style={{ paddingBottom: (keyboardVisible ? 0 : insets.bottom) + 8 }}>
         <IconButton icon="plus" label={t('s.messages.attach')} onPress={() => setAttaching(true)} />
         {/* The field is sized and offset to the buttons' *circles*, not to the
             boxes they sit in: an IconButton insets its circle by 4px on every

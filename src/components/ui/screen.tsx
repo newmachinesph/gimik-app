@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
-  Keyboard,
   Platform,
-  ScrollView,
   useWindowDimensions,
   View,
   type LayoutChangeEvent,
   type ViewProps,
 } from 'react-native';
+import { KeyboardAwareScrollView, KeyboardStickyView } from 'react-native-keyboard-controller';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { KEYBOARD_GAP, keyboardFooterLayout } from '@/lib/keyboard-layout';
 
 import './interop';
 import { Txt } from './txt';
@@ -28,32 +29,6 @@ export const TAB_BAR_CLEARANCE = 120;
 
 /** Breathing room between the last scrolled item and a pinned footer. */
 const FOOTER_GAP = 20;
-
-/**
- * How far a pinned footer has to rise so the on-screen keyboard cannot bury it.
- *
- * iOS only, for the same reason `messages/[id]` only passes `behavior` there:
- * Android resizes the window for the keyboard, so an absolutely-positioned
- * footer already moves up and a manual lift would double-count. Web has no
- * on-screen keyboard that overlaps the layout viewport.
- */
-function useKeyboardLift() {
-  const [lift, setLift] = useState(0);
-
-  useEffect(() => {
-    if (Platform.OS !== 'ios') return;
-    const show = Keyboard.addListener('keyboardWillShow', (event) =>
-      setLift(event.endCoordinates.height),
-    );
-    const hide = Keyboard.addListener('keyboardWillHide', () => setLift(0));
-    return () => {
-      show.remove();
-      hide.remove();
-    };
-  }, []);
-
-  return lift;
-}
 
 export function Screen({
   children,
@@ -82,7 +57,6 @@ export function Screen({
 }) {
   const { height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const keyboardLift = useKeyboardLift();
   const [footerHeight, setFooterHeight] = useState(0);
   const skin = bg === 'ink' ? 'bg-brand-night' : 'bg-brand-paper';
   const rule = bg === 'ink' ? 'border-brand-rule-invert' : 'border-brand-rule';
@@ -114,8 +88,9 @@ export function Screen({
   // floating dock; everywhere else it bleeds to the screen edge and pads past the
   // home indicator itself. With the keyboard up it rides directly on top of it.
   const dockFloor = inset ? Math.max(insets.bottom, 12) + TAB_BAR_HEIGHT + 12 : 0;
-  const footerFloor = keyboardLift > 0 ? keyboardLift : dockFloor;
-  const footerPadBottom = keyboardLift > 0 || inset ? 16 : Math.max(insets.bottom, 16);
+  const footerPadBottom = inset ? 16 : Math.max(insets.bottom, 16);
+  const keyboardFooter = keyboardFooterLayout(footerHeight, footerPadBottom, dockFloor);
+  const inputClearance = footer ? keyboardFooter.inputClearance : KEYBOARD_GAP;
   // Both no-footer cases have to clear whatever the system draws at the bottom.
   // They were flat numbers, so on a phone with a tall gesture bar the last line
   // of a screen sat underneath it - the settings footer was cut in half by the
@@ -138,7 +113,7 @@ export function Screen({
     <View style={webBound} className={isWeb ? skin : `flex-1 ${skin}`}>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         {scroll ? (
-          <ScrollView
+          <KeyboardAwareScrollView
             // flex:1 is load-bearing. Without it the ScrollView sizes to its
             // content rather than to the viewport, so there is nothing to scroll —
             // the page just renders tall and clips. Dropping this silently broke
@@ -148,18 +123,18 @@ export function Screen({
             // A tap on the pinned action while a field is focused should fire the
             // action, not merely dismiss the keyboard and be swallowed.
             keyboardShouldPersistTaps="handled"
-            automaticallyAdjustKeyboardInsets
+            bottomOffset={inputClearance}
             contentContainerStyle={{
               paddingBottom: contentPadding,
+              paddingHorizontal: padded ? GUTTER : 0,
               // RNW applies the horizontal utility padding to a 100%-wide scroll
               // content node. Without border-box it adds 40px to the viewport and
               // clips cards and controls at narrow mobile widths.
               ...(isWeb ? { boxSizing: 'border-box', width: '100%' } : {}),
             }}
-            contentContainerClassName={gutter}
           >
             {children}
-          </ScrollView>
+          </KeyboardAwareScrollView>
         ) : (
           <View
             className={`flex-1 ${gutter}`}
@@ -172,13 +147,18 @@ export function Screen({
       {overlay}
       {footer ? (
         // No shadow — a hairline and an opaque surface do the separating.
-        <View
-          onLayout={measureFooter}
-          className={`absolute left-0 right-0 border-t pt-4 ${skin} ${rule} ${gutter}`}
-          style={{ bottom: footerFloor, paddingBottom: footerPadBottom }}
+        <KeyboardStickyView
+          offset={{ opened: keyboardFooter.openedOffset }}
+          style={{ position: 'absolute', left: 0, right: 0, bottom: dockFloor }}
         >
-          {footer}
-        </View>
+          <View
+            onLayout={measureFooter}
+            className={`border-t pt-4 ${skin} ${rule} ${gutter}`}
+            style={{ paddingBottom: footerPadBottom }}
+          >
+            {footer}
+          </View>
+        </KeyboardStickyView>
       ) : null}
     </View>
   );

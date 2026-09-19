@@ -192,7 +192,15 @@ const BUNDLED_BY_NAME = new Map(PEOPLE.map((person) => [person.name, person]));
  * seeded person carries authored taste the wire shape does not have.
  */
 export const PERSON_BY_NAME = {
-  get: (name: string): Person | undefined => BUNDLED_BY_NAME.get(name) ?? registeredPerson(name),
+  get: (name: string): Person | undefined => {
+    const bundled = BUNDLED_BY_NAME.get(name);
+    const registered = registeredPerson(name);
+    if (!bundled) return registered;
+    // The seeded cast carries no handle, and the handle is how their profile is
+    // fetched - without the server's, a live profile loaded their bio and never
+    // their list. Keep the authored fields, take the address from the server.
+    return registered?.handle ? { ...bundled, handle: registered.handle } : bundled;
+  },
   has: (name: string): boolean => BUNDLED_BY_NAME.has(name) || registeredPerson(name) !== undefined,
 };
 
