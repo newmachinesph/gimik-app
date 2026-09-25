@@ -1,5 +1,6 @@
 import { request, setTokens } from './client';
 import type {
+  AppleSignInIn,
   GoogleSignInIn,
   CatalogPage,
   FeedOut,
@@ -57,6 +58,12 @@ export const auth = {
    */
   google: async (body: GoogleSignInIn) => {
     const pair = await request<TokenPair>('/auth/google', { method: 'POST', body, anonymous: true });
+    await setTokens(pair);
+    return pair;
+  },
+  /** Same as google, for Sign in with Apple. */
+  apple: async (body: AppleSignInIn) => {
+    const pair = await request<TokenPair>('/auth/apple', { method: 'POST', body, anonymous: true });
     await setTokens(pair);
     return pair;
   },

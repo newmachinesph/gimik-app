@@ -14,9 +14,10 @@ import {
   Txt,
 } from '@/components/ui';
 import { ApiError, NetworkError } from '@/lib/api';
-import { hasApi, signIn, signInWithGoogle } from '@/lib/api/session';
+import { hasApi, signIn, signInWithApple, signInWithGoogle } from '@/lib/api/session';
 import { GoogleCancelled, hasGoogleSignIn } from '@/lib/api/google';
-import { GoogleButton } from '@/components/auth-buttons';
+import { AppleCancelled, hasAppleSignIn } from '@/lib/api/apple';
+import { AppleButton, GoogleButton } from '@/components/auth-buttons';
 
 /** The way back in for an account that already exists. */
 export default function SignIn() {
@@ -28,18 +29,18 @@ export default function SignIn() {
 
   const valid = email.includes('@') && password.length >= 8;
 
-  const withGoogle = async () => {
+  const withSocial = async (signInWith: () => Promise<void>, failedKey: 's.signIn.googleFailed' | 's.signIn.appleFailed') => {
     setBusy(true);
     setError(null);
     try {
-      await signInWithGoogle();
+      await signInWith();
       router.replace('/(tabs)/home' as never);
     } catch (cause) {
-      // Backing out of Google's account picker is a decision, not a failure,
+      // Backing out of the provider's sheet is a decision, not a failure,
       // so it leaves the screen exactly as it was rather than showing an error.
-      if (cause instanceof GoogleCancelled) return;
+      if (cause instanceof GoogleCancelled || cause instanceof AppleCancelled) return;
       if (cause instanceof NetworkError) setError(t('s.signIn.offlineBody'));
-      else setError(t('s.signIn.googleFailed'));
+      else setError(t(failedKey));
     } finally {
       setBusy(false);
     }
@@ -111,18 +112,29 @@ export default function SignIn() {
       </View>
       {busy ? <LoadingState label={t('s.signIn.working')} /> : null}
 
-      {hasApi && hasGoogleSignIn ? (
+      {hasApi && (hasGoogleSignIn || hasAppleSignIn) ? (
         <View className="mt-5">
           <View className="flex-row items-center mb-4">
             <View className="flex-1 h-px bg-brand-rule" />
             <Txt variant="caption" className="mx-3">{t('s.signIn.or')}</Txt>
             <View className="flex-1 h-px bg-brand-rule" />
           </View>
-          <GoogleButton
-            label={t('s.signIn.google')}
-            disabled={busy}
-            onPress={() => void withGoogle()}
-          />
+          {hasGoogleSignIn ? (
+            <GoogleButton
+              label={t('s.signIn.google')}
+              disabled={busy}
+              onPress={() => void withSocial(signInWithGoogle, 's.signIn.googleFailed')}
+            />
+          ) : null}
+          {hasAppleSignIn ? (
+            <View className={hasGoogleSignIn ? 'mt-2' : undefined}>
+              <AppleButton
+                label={t('s.signIn.apple')}
+                disabled={busy}
+                onPress={() => void withSocial(signInWithApple, 's.signIn.appleFailed')}
+              />
+            </View>
+          ) : null}
         </View>
       ) : null}
 

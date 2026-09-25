@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock('./sync', () => ({ hydrateFromApi: mocks.hydrate }));
 vi.mock('./google', () => ({ forgetGoogle: vi.fn(), getGoogleIdToken: vi.fn() }));
+vi.mock('./apple', () => ({ getAppleCredential: vi.fn() }));
 vi.mock('./push', () => ({ unregisterForPush: vi.fn() }));
 vi.mock('./realtime', () => ({ disconnectRealtime: mocks.disconnect }));
 vi.mock('./directory', () => ({ resetDirectory: mocks.resetDirectory }));

@@ -4,6 +4,7 @@ import { resetBillingSession } from '@/lib/billing';
 import { useApp } from '@/store';
 import { auth, ops } from './endpoints';
 import { ApiError, hasApi, loadTokens, onSessionExpired, setTokens } from './client';
+import { getAppleCredential } from './apple';
 import { forgetGoogle, getGoogleIdToken } from './google';
 import { resetDirectory } from './directory';
 import { unregisterForPush } from './push';
@@ -51,6 +52,13 @@ export async function signIn(email: string, password: string): Promise<void> {
 export async function signInWithGoogle(): Promise<void> {
   const idToken = await getGoogleIdToken();
   await auth.google({ id_token: idToken });
+  clearLocalSession();
+  await hydrateFromApi();
+}
+
+/** Sign in with Apple. Same contract as Google; throws AppleCancelled on back-out. */
+export async function signInWithApple(): Promise<void> {
+  await auth.apple(await getAppleCredential());
   clearLocalSession();
   await hydrateFromApi();
 }

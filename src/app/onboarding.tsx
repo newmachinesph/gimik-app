@@ -3,14 +3,15 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView, KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppleButton, GoogleButton } from '@/components/auth-buttons';
 import { ApiError, NetworkError } from '@/lib/api';
-import { hasApi, signUp, signInWithGoogle } from '@/lib/api/session';
+import { hasApi, signUp, signInWithApple, signInWithGoogle } from '@/lib/api/session';
 import { GoogleCancelled, hasGoogleSignIn } from '@/lib/api/google';
+import { AppleCancelled, hasAppleSignIn } from '@/lib/api/apple';
 import { InterestBank } from '@/components/interest-bank';
 import { SomedayTile } from '@/components/someday-tile';
 import { Avatar, Chip, Field, GhostButton, IconButton, InlineNotice, PrimaryButton, SearchField, SecondaryButton, Txt } from '@/components/ui';
@@ -62,18 +63,18 @@ export default function Onboarding() {
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
 
   /**
-   * Google covers signing up as well as signing in - the server decides which
-   * it was - so this skips the rest of the form and lands on the deck. The
-   * profile steps stay reachable later from Edit profile.
+   * Google and Apple cover signing up as well as signing in - the server
+   * decides which it was - so this skips the rest of the form and lands on the
+   * deck. The profile steps stay reachable later from Edit profile.
    */
-  const withGoogle = async () => {
+  const withSocial = async (signInWith: () => Promise<void>) => {
     setBusy(true);
     setError(null);
     try {
-      await signInWithGoogle();
+      await signInWith();
       router.replace('/(tabs)/home' as never);
     } catch (cause) {
-      if (cause instanceof GoogleCancelled) return;
+      if (cause instanceof GoogleCancelled || cause instanceof AppleCancelled) return;
       if (cause instanceof NetworkError) setError(t('s.onboarding.account.failed'));
       else setError(t('s.onboarding.account.failed'));
     } finally {
@@ -299,17 +300,17 @@ export default function Onboarding() {
             />
             <View className="mt-2">{action}</View>
             <View className="flex-row items-center my-5"><View className="flex-1 h-px bg-brand-rule" /><Txt variant="caption" className="mx-3">{t('s.onboarding.account.or')}</Txt><View className="flex-1 h-px bg-brand-rule" /></View>
-            {/* Google is live once a client id is built in. Apple stays
-                disabled and still says so, because faking a button that skips
-                the form while pretending to authenticate is worse than waiting.
-                Android never gets Apple at all: there it is not "coming", it is absent. */}
+            {/* Google is live once a client id is built in. Apple is iOS only;
+                Android never shows it. */}
             <GoogleButton
               label={t('s.onboarding.account.google')}
               disabled={!hasGoogleSignIn || busy}
-              onPress={() => void withGoogle()}
+              onPress={() => void withSocial(signInWithGoogle)}
             />
-            {Platform.OS === 'ios' ? (
-              <View className="mt-2"><AppleButton label={t('s.onboarding.account.apple')} disabled onPress={() => {}} /></View>
+            {hasAppleSignIn ? (
+              <View className="mt-2">
+                <AppleButton label={t('s.onboarding.account.apple')} disabled={!hasApi || busy} onPress={() => void withSocial(signInWithApple)} />
+              </View>
             ) : null}
             {!hasGoogleSignIn ? (
               <Txt variant="caption" className="mt-2 text-center">{t('s.onboarding.account.socialSoon')}</Txt>

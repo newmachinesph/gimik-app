@@ -17,6 +17,7 @@ export type TokenPair = { access_token: string; refresh_token: string; token_typ
 export type RegisterIn = { email: string; password: string; name: string; birthday?: IsoDate | null; gender?: string | null };
 export type LoginIn = { email: string; password: string };
 export type GoogleSignInIn = { id_token: string };
+export type AppleSignInIn = { identity_token: string; authorization_code?: string | null; name?: string | null };
 
 export type PhotoOut = { id: Uuid; position: number; url: string };
 

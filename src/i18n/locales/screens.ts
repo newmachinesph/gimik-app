@@ -88,7 +88,9 @@ export const screensEn = {
       "noServer": "No server is configured for this build, so sign-in is unavailable.",
       "or": "or",
       "google": "Continue with Google",
-      "googleFailed": "Google could not sign you in. Try your email and password."    },
+      "googleFailed": "Google could not sign you in. Try your email and password.",
+      "apple": "Continue with Apple",
+      "appleFailed": "Apple could not sign you in. Try your email and password."    },
     "welcome": {
       "someday": "Someday,",
       "headline": "with a date on it.",
@@ -127,7 +129,7 @@ export const screensEn = {
         "taken": "That email already has an account. Sign in instead.",
         "failed": "The account could not be created. Try again.",
         "failedTitle": "That did not work",
-        "socialSoon": "Google and Apple sign-in are coming.",
+        "socialSoon": "Google sign-in is coming.",
         "or": "or",
         "google": "Continue with Google",
         "apple": "Continue with Apple"
