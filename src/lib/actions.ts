@@ -1,5 +1,5 @@
 import { i18n } from '@/i18n';
-import { hasApi } from '@/lib/api/client';
+import { ApiError, hasApi } from '@/lib/api/client';
 import { photoId as photoIdFor, planId as planIdFor, rememberPhoto, somedayId, threadId as threadIdFor, userId } from '@/lib/api/directory';
 import { auth, catalog, groups as groupsApi, media as mediaApi, plans as plansApi, social, threads as threadsApi } from '@/lib/api/endpoints';
 import { hydrateFromApi, loadJournal } from '@/lib/api/sync';
@@ -247,13 +247,14 @@ export async function createGroup(name: string): Promise<string | null> {
   }
 }
 
-export async function joinGroup(token: string): Promise<{ id: string } | null> {
-  if (!isLive()) return useApp.getState().joinGroup(token) ?? null;
+export async function joinGroup(token: string): Promise<{ id: string } | 'expired' | null> {
+  if (!isLive()) return useApp.getState().joinGroup(token) ?? 'expired';
   try {
     const group = await groupsApi.join(token);
     await hydrateFromApi();
     return { id: group.id };
-  } catch {
+  } catch (cause) {
+    if (cause instanceof ApiError && cause.status === 404) return 'expired';
     toast(i18n.t('s.toasts.syncFailed'));
     return null;
   }

@@ -71,11 +71,13 @@ export default function RootLayout() {
           <ErrorBoundary onReset={() => useApp.getState().reset()}>
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.paper } }}>
             <Stack.Screen name="index" />
-            <Stack.Screen name="welcome" />
-            <Stack.Screen name="sign-in" />
-            <Stack.Screen name="forgot" />
-            <Stack.Screen name="reset" />
-            <Stack.Screen name="onboarding" />
+            <Stack.Protected guard={!onboarded}>
+              <Stack.Screen name="welcome" />
+              <Stack.Screen name="sign-in" />
+              <Stack.Screen name="forgot" />
+              <Stack.Screen name="reset" />
+              <Stack.Screen name="onboarding" />
+            </Stack.Protected>
             <Stack.Protected guard={onboarded}>
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="want/[id]" />

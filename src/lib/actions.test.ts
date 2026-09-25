@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ApiError } from '@/lib/api/client';
 
 // Mocked before the module under test is imported, so `actions` binds to these.
-vi.mock('@/lib/api/client', () => ({ hasApi: true }));
+vi.mock('@/lib/api/client', () => ({
+  hasApi: true,
+  ApiError: class ApiError extends Error {
+    constructor(readonly status: number, readonly detail?: string, message = 'API error') { super(message); }
+  },
+}));
 
 // Monitoring reaches @sentry/react-native, whose sources are not parseable in
 // this node-environment suite - and what these tests care about is that a write
@@ -405,6 +411,13 @@ describe('messages and groups', () => {
     expect(await actions.joinGroup('new-invitation')).toEqual({ id: 'invited-group' });
     expect(endpoints.groups.join).toHaveBeenCalledWith('new-invitation');
     expect(hydrateFromApi).toHaveBeenCalled();
+  });
+
+  it('identifies an expired invitation without showing a generic save error', async () => {
+    signedIn();
+    endpoints.groups.join.mockRejectedValueOnce(new ApiError(404, undefined, 'This link has expired'));
+    expect(await actions.joinGroup('old-invitation')).toBe('expired');
+    expect(toast).not.toHaveBeenCalled();
   });
 });
 
