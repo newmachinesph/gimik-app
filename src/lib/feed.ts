@@ -55,6 +55,14 @@ type Loaded = {
 
 const EMPTY: Loaded = { key: '', items: [], secondLook: new Set(), exhausted: false, failed: false };
 
+let reload: (() => void) | null = null;
+/**
+ * Refetch the deck on screen. Blocking someone calls this once the server has
+ * the block: a card does not carry its author, so the cards already fetched
+ * cannot be filtered here, and theirs must not outlive the block.
+ */
+export const refreshDeck = (): void => reload?.();
+
 export type Deck = {
   cards: Want[];
   /**
@@ -180,6 +188,11 @@ export function useDeck(category: Category, decided: Set<string>, stale: Set<str
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (remaining.length < LOW_WATER) void load(!settled);
   }, [live, load, remaining.length, settled, spent]);
+
+  useEffect(() => {
+    reload = () => void load(true);
+    return () => { reload = null; };
+  }, [load]);
 
   const cards = useMemo(
     () => (live ? [...resurfaced, ...remaining] : sampled),

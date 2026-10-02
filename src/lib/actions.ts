@@ -3,6 +3,7 @@ import { ApiError, hasApi } from '@/lib/api/client';
 import { photoId as photoIdFor, planId as planIdFor, rememberPhoto, somedayId, threadId as threadIdFor, userId } from '@/lib/api/directory';
 import { auth, catalog, groups as groupsApi, media as mediaApi, plans as plansApi, social, threads as threadsApi } from '@/lib/api/endpoints';
 import { hydrateFromApi, loadJournal } from '@/lib/api/sync';
+import { refreshDeck } from '@/lib/feed';
 import { reportError } from '@/lib/monitoring';
 import { WANT_BY_ID, WANT_BY_SLUG } from '@/lib/somedays';
 import { useApp, type Party, type Visibility } from '@/store';
@@ -23,11 +24,19 @@ import { toast } from 'sonner-native';
 
 const isLive = () => hasApi && useApp.getState().source === 'api';
 
+/**
+ * What to say when a write is refused. A 422 carries the server's own sentence
+ * - most usefully the content filter's "that contains language Gimik does not
+ * allow" - and that beats telling someone their message "did not save".
+ */
+const refusal = (cause: unknown, failure: string): string =>
+  (cause instanceof ApiError && cause.status === 422 && cause.detail) || i18n.t(failure);
+
 /** Fire and forget, but never silently: a rejected write refetches and says so. */
 function sync(run: () => Promise<unknown>, failure: string): void {
   if (!isLive()) return;
-  void run().catch(() => {
-    toast(i18n.t(failure));
+  void run().catch((cause: unknown) => {
+    toast(refusal(cause, failure));
     void hydrateFromApi().catch(() => {});
   });
 }
@@ -159,8 +168,8 @@ export async function createSomeday(
     registerWant(want);
     useApp.getState().keep(want.id, applied);
     return want.id;
-  } catch {
-    toast(i18n.t('s.toasts.syncFailed'));
+  } catch (cause) {
+    toast(refusal(cause, 's.toasts.syncFailed'));
     return null;
   }
 }
@@ -187,9 +196,20 @@ export function markInvitesSeen(): void {
   sync(() => social.markInvitesSeen(), 's.toasts.syncFailed');
 }
 
+/**
+ * Block a person ("hide" is the name it had when it only stopped invites).
+ *
+ * The store drops their invites and their thread at once. Their somedays and
+ * messages are filtered by the server, so once it has the block the deck and
+ * the rest of the world are refetched rather than guessed at.
+ */
 export function hidePerson(name: string): void {
   useApp.getState().hidePerson(name);
-  syncPerson(name, (id) => social.hide(id), 's.toasts.syncFailed');
+  syncPerson(
+    name,
+    (id) => social.hide(id).then(() => { refreshDeck(); void hydrateFromApi().catch(() => {}); }),
+    's.toasts.syncFailed',
+  );
 }
 
 export function unhidePerson(name: string): void {
@@ -207,6 +227,15 @@ export function unhidePerson(name: string): void {
  */
 export function reportPerson(name: string, reason: string): void {
   syncPerson(name, (id) => social.report(id, reason), 's.toasts.syncFailed');
+}
+
+/**
+ * Report a someday somebody wrote. It is passed as well, so it leaves the
+ * reporter's deck and list now rather than whenever someone has reviewed it.
+ */
+export function reportSomeday(wantId: string, reason: string): void {
+  syncSomeday(wantId, (id) => social.reportSomeday(id, reason), 's.toasts.syncFailed');
+  pass(wantId);
 }
 
 export function requestFriend(name: string): void {
@@ -242,7 +271,7 @@ export async function createGroup(name: string): Promise<string | null> {
       });
       return null;
     }
-    toast(i18n.t('s.toasts.syncFailed'));
+    toast(refusal(cause, 's.toasts.syncFailed'));
     return null;
   }
 }
@@ -392,8 +421,8 @@ export async function updateProfile(patch: Parameters<ReturnType<typeof useApp.g
   try {
     await auth.updateMe(body);
     return true;
-  } catch {
-    toast(i18n.t('s.toasts.syncFailed'));
+  } catch (cause) {
+    toast(refusal(cause, 's.toasts.syncFailed'));
     await hydrateFromApi().catch(() => {});
     return false;
   }

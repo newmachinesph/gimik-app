@@ -43,6 +43,7 @@ export function wantFromDto(dto: SomedayOut, fallbackPhoto: Want['photo']): Want
     // every deep link opaque. Slugless custom somedays fall back to their id.
     id: dto.slug ?? dto.id,
     slug: dto.slug ?? undefined,
+    ownerId: dto.owner_id ?? undefined,
     title: dto.title,
     category: dto.category as Want['category'],
     party: dto.party as Want['party'],

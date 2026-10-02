@@ -96,7 +96,12 @@ export const screensEn = {
       "headline": "with a date on it.",
       "body": "Keep the things you keep meaning to do. The people who want them too will find you.",
       "start": "Start my list",
-      "haveAccount": "I already have an account"
+      "haveAccount": "I already have an account",
+      "agree": "I agree to the",
+      "terms": "Terms of Use (EULA)",
+      "and": "and",
+      "privacy": "Privacy Policy",
+      "noTolerance": "Gimik has no tolerance for objectionable content or abusive users."
     },
     "story": {
       "keep": {
@@ -259,7 +264,7 @@ export const screensEn = {
       "messages": "Messages",
       "messagesUnread": "Messages, {{count}} unread",
       "notNow": "Not now",
-      "hide": "Hide",
+      "hide": "Block",
       "expiring_one": "{{count}}h left",
       "expiring_other": "{{count}}h left",
       "expiryNote": "Invites fade after a week. Ignoring one is an answer too.",
@@ -296,6 +301,7 @@ export const screensEn = {
     },
     "want": {
       "shareLabel": "Share this someday",
+      "report": "Report this someday",
       "progress": {
         "title": "Progress",
         "subtitle_one": "{{count}} so far",
@@ -420,7 +426,7 @@ export const screensEn = {
         "subtitle": "Tap the heart to keep one",
         "loading": "Loading their list..."
       },
-      "hide": "Hide {{name}}",
+      "hide": "Block {{name}}",
       "report": "Report",
       "planTogether": "Plan something together",
       "keep": "Keep {{title}}",
@@ -445,6 +451,7 @@ export const screensEn = {
       "attach": "Attach a date, someday, or place",
       "send": "Send",
       "view": "View {{name}}",
+      "report": "Report or block {{name}}",
       "attachment": {
         "date": "Date",
         "place": "Place",
@@ -599,10 +606,10 @@ export const screensEn = {
         "body": "Off means the default applies silently."
       },
       "hidden": {
-        "title": "Hidden people",
-        "some": "Tap to bring their invites back",
-        "none": "Nobody hidden",
-        "unhide": "Unhide"
+        "title": "Blocked people",
+        "some": "Tap to unblock",
+        "none": "Nobody blocked",
+        "unhide": "Unblock"
       },
       "account": "Account",
       "editProfile": "Edit profile",
@@ -657,12 +664,14 @@ export const screensEn = {
       "bodyGroup": "{{name}} wants to do this with you and a few others. Accepting opens a thread – the someday stays pinned to it.",
       "accept": "Accept",
       "notNow": "Not now",
-      "hide": "Hide {{name}}"
+      "hide": "Block {{name}}"
     },
     "report": {
       "eyebrow": "Report",
       "title": "What is wrong with {{name}}?",
+      "titleSomeday": "What is wrong with this someday?",
       "reasons": {
+        "objectionable": "Offensive or inappropriate",
         "fake": "Fake profile",
         "rude": "Rude or harassing",
         "notThem": "Not who they said",
@@ -671,8 +680,9 @@ export const screensEn = {
       },
       "send": "Send report",
       "thanksTitle": "Thanks. We will look.",
-      "thanksBody": "{{name}} is not told. You can also hide them so their invites stop.",
-      "hideToo": "Hide {{name}} too"
+      "thanksBody": "{{name}} is not told. We review every report within 24 hours. Block them and their somedays, messages and invites are gone for you now.",
+      "thanksBodySomeday": "We review every report within 24 hours. It is gone from your deck now.",
+      "hideToo": "Block {{name}} too"
     },
     "missing": {
       "title": "Not here",
@@ -689,8 +699,8 @@ export const screensEn = {
       "inviteAccepted": "You are in. Say hi.",
       "asked": "Asked {{name}} – the thread is open",
       "inviteNotNow": "Quietly declined",
-      "hidden": "{{name}} is hidden",
-      "unhidden": "{{name}} can invite you again",
+      "hidden": "{{name}} is blocked",
+      "unhidden": "{{name}} is unblocked",
       "requestSent": "Request sent to {{name}}",
       "requestAccepted": "You and {{name}} are friends",
       "requestDeclined": "Request declined",

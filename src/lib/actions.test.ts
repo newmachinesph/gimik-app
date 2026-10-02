@@ -37,6 +37,7 @@ const endpoints = vi.hoisted(() => ({
     declineFriend: vi.fn().mockResolvedValue(undefined),
     invite: vi.fn().mockResolvedValue({}),
     report: vi.fn().mockResolvedValue(undefined),
+    reportSomeday: vi.fn().mockResolvedValue(undefined),
   },
   groups: {
     create: vi.fn().mockResolvedValue({}),
@@ -172,6 +173,35 @@ describe('people', () => {
     actions.reportPerson('Mara Ilagan', 'spam');
     await flush();
     expect(endpoints.social.report).toHaveBeenCalledWith('user-1', 'spam');
+  });
+
+  it('blocking drops their thread at once and refetches once the server has it', async () => {
+    signedIn();
+    useApp.setState({
+      threads: [{ id: 'th-1', kind: 'solo', refId: 'Mara Ilagan', title: 'Mara Ilagan', messages: [], readAt: null }],
+    });
+    actions.hidePerson('Mara Ilagan');
+    expect(useApp.getState().threads).toEqual([]);
+    await flush();
+    expect(hydrateFromApi).toHaveBeenCalled();
+  });
+
+  it('reports a someday somebody wrote and takes it out of the deck', async () => {
+    signedIn();
+    actions.reportSomeday(SLUG, 'objectionable');
+    expect(useApp.getState().passedIds).toContain(SLUG);
+    await flush();
+    expect(endpoints.social.reportSomeday).toHaveBeenCalledWith(SOMEDAY_UUID, 'objectionable');
+  });
+
+  it("says the content filter's own reason rather than 'that did not save'", async () => {
+    signedIn();
+    const refused = 'That contains language Gimik does not allow.';
+    endpoints.threads.send.mockRejectedValueOnce(new ApiError(422, refused, refused));
+    actions.sendMessage('th-1', 'something foul');
+    await flush();
+    await flush();
+    expect(toast).toHaveBeenCalledWith(refused);
   });
 
   it('sends no report in demo mode, where there is no server to receive it', async () => {

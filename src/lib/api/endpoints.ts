@@ -171,6 +171,8 @@ export const social = {
   findPeople: (q: string) => request<HolderOut[]>(`/people?q=${encodeURIComponent(q)}`),
   person: (handle: string) => request<PersonOut>(`/people/${encodeURIComponent(handle)}`),
   report: (userId: Uuid, reason: string) => request<void>(`/people/${userId}/report`, { method: 'POST', body: { reason } }),
+  /** A someday somebody wrote. Catalog somedays have no author and answer 404. */
+  reportSomeday: (somedayId: Uuid, reason: string) => request<void>(`/somedays/${somedayId}/report`, { method: 'POST', body: { reason } }),
 };
 
 export const push = {

@@ -1,14 +1,16 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { KeyboardAvoidingView, useKeyboardState } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { toast } from 'sonner-native';
 
 import { NotFound } from '@/components/not-found';
 import { AttachSheet } from '@/components/attach-sheet';
+import { ReportSheet } from '@/components/report-sheet';
 import { Avatar, FocusablePressable, GimikIcon, ICON_BUTTON_INSET, ICON_BUTTON_SIZE, IconButton, Txt } from '@/components/ui';
-import { markThreadRead as markRead, sendMessage as send } from '@/lib/actions';
+import { hidePerson, markThreadRead as markRead, reportPerson, sendMessage as send } from '@/lib/actions';
 import { hasApi } from '@/lib/api/client';
 import { loadThread } from '@/lib/api/sync';
 import { dayLabel, timeAgo } from '@/lib/format';
@@ -48,6 +50,12 @@ export default function ThreadScreen() {
   const plan = useApp((s) => (thread?.kind === 'plan' ? s.plans[thread.refId] : undefined));
   const [draft, setDraft] = useState('');
   const [attaching, setAttaching] = useState(false);
+  // Who is being reported: the other person from the header, or whoever wrote
+  // the message that was long-pressed. Kept apart from `reporting` so the name
+  // is still there while the sheet animates shut.
+  const [reportee, setReportee] = useState('');
+  const [reporting, setReporting] = useState(false);
+  const report = (name: string) => { setReportee(name); setReporting(true); };
   const list = useRef<ScrollView>(null);
   const historyHead = thread?.messages[0]?.id;
   useEffect(() => { if (id && hasApi && useApp.getState().source === 'api') void loadThread(id).catch(() => {}); }, [id, historyHead]);
@@ -84,6 +92,7 @@ export default function ThreadScreen() {
             {thread.kind === 'solo' ? t('s.messages.solo') : thread.kind === 'group' ? t('s.messages.group') : t('s.messages.plan')}
           </Txt>
         </View>
+        {withName ? <IconButton icon="warning" label={t('s.messages.report', { name: withName.split(' ')[0] })} onPress={() => report(withName)} /> : null}
       </View>
       {want ? (
         <FocusablePressable accessibilityRole="button" onPress={openPinned} className={`mx-4 mt-3 px-4 py-3 rounded-[4px] flex-row items-center active:opacity-80 ${plan ? 'bg-brand-night' : 'bg-brand-paper-sunk'}`}>
@@ -101,10 +110,12 @@ export default function ThreadScreen() {
           return (
             <View key={message.id} className={`max-w-[80%] ${mine ? 'self-end' : 'self-start'}`}>
               {!mine && thread.kind !== 'solo' ? <Txt variant="caption" className="mb-1 ml-1">{message.from}</Txt> : null}
-              <View className={`px-3 py-2 rounded-[4px] ${mine ? 'bg-brand-night' : 'bg-brand-paper-sunk'}`}>
+              {/* Hold someone else's message to report it: in a group there is
+                  no single person in the header to report instead. */}
+              <Pressable disabled={mine} onLongPress={() => report(message.from)} className={`px-3 py-2 rounded-[4px] ${mine ? 'bg-brand-night' : 'bg-brand-paper-sunk'}`}>
                 <Txt variant="body" className={mine ? 'text-brand-paper' : 'text-brand-ink'}>{message.body}</Txt>
                 {message.attachment ? <AttachmentCard attachment={message.attachment} mine={mine} wantId={pinnedId} withName={withName} /> : null}
-              </View>
+              </Pressable>
               <Txt variant="caption" className={`mt-1 ${mine ? 'text-right' : ''}`}>{timeAgo(message.at)}</Txt>
             </View>
           );
@@ -137,6 +148,20 @@ export default function ThreadScreen() {
         />
         <IconButton icon="send" label={t('s.messages.send')} tone="light" onPress={submit} />
       </View>
+      <ReportSheet
+        name={reportee}
+        visible={reporting}
+        onDismiss={() => setReporting(false)}
+        onSend={(reason) => reportPerson(reportee, reason)}
+        onHide={() => {
+          setReporting(false);
+          // Leave first: blocking removes a solo thread from the store, and
+          // this screen has nothing to show once it is gone.
+          if (thread.kind === 'solo') router.back();
+          hidePerson(reportee);
+          toast(t('s.toasts.hidden', { name: reportee.split(' ')[0] }));
+        }}
+      />
       <AttachSheet visible={attaching} onDismiss={() => setAttaching(false)} pinnedWantId={pinnedId} onSend={(body, attachment) => { send(id, body, attachment); setTimeout(() => list.current?.scrollToEnd({ animated: true }), 80); }} />
     </KeyboardAvoidingView>
   );

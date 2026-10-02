@@ -1,11 +1,13 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { toast } from 'sonner-native';
 
 import { NotFound } from '@/components/not-found';
+import { ReportSheet } from '@/components/report-sheet';
 import { VisibilityChips } from '@/components/visibility-chips';
 import {
   Badge,
@@ -22,7 +24,7 @@ import {
   StickyFooter,
   Txt,
 } from '@/components/ui';
-import { askPerson, keep, setVisibility, unkeep } from '@/lib/actions';
+import { askPerson, keep, reportSomeday, setVisibility, unkeep } from '@/lib/actions';
 import { dayLabel } from '@/lib/format';
 import { categoryLabel, wantLocationScope, wantNote, wantTitle } from '@/lib/mock';
 import { genderMark } from '@/lib/people';
@@ -43,6 +45,9 @@ export default function SomedayDetail() {
   const progress = useProgress(want);
   const plan = useApp((s) => (id ? s.plans[id] : undefined));
   const visibility = useApp((s) => (id ? s.visibility[id] : undefined) ?? s.defaultVisibility);
+  const myId = useApp((s) => s.profile.id);
+  const [reporting, setReporting] = useState(false);
+  const [reported, setReported] = useState(false);
 
   if (!want || !id) return <NotFound />;
   const kept = state === 'kept' || state === 'locked' || state === 'done';
@@ -190,8 +195,22 @@ export default function SomedayDetail() {
               </RowList>
             </Section>
           ) : null}
+
+          {/* Somebody else wrote it, so it can be flagged. Catalog somedays are
+              ours; the server has nobody to file a report against. */}
+          {want.ownerId && want.ownerId !== myId ? (
+            <View className="flex-row justify-center mt-6">
+              <GhostButton label={t('s.want.report')} tone="muted" onPress={() => setReporting(true)} />
+            </View>
+          ) : null}
         </View>
       </ScrollView>
+
+      <ReportSheet
+        visible={reporting}
+        onDismiss={() => { setReporting(false); if (reported) router.back(); }}
+        onSend={(reason) => { setReported(true); reportSomeday(id, reason); }}
+      />
 
       <StickyFooter>
         {state === 'done' ? (

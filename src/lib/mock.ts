@@ -80,6 +80,8 @@ export type Want = {
   kind?: 'want' | 'need' | 'goal';
   /** The catalog entry this came from. Absent on wants a person typed themselves. */
   slug?: string;
+  /** The account that wrote it, when a person did. What makes it reportable. */
+  ownerId?: string;
   /** How big a lift it is: an evening, a project, a once-in-a-lifetime. */
   register: Register;
   /** Who it takes. `any` means the item puts no requirement on the party at all. */

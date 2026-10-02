@@ -63,6 +63,8 @@ export type SomedayOut = {
   party: string;
   needs: string[];
   artwork_url?: string | null;
+  /** Who wrote it, when a person did; null for the catalog. */
+  owner_id?: Uuid | null;
 };
 
 /**
