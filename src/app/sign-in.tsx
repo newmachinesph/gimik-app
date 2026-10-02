@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -18,6 +18,7 @@ import { hasApi, signIn, signInWithApple, signInWithGoogle } from '@/lib/api/ses
 import { GoogleCancelled, hasGoogleSignIn } from '@/lib/api/google';
 import { AppleCancelled, hasAppleSignIn } from '@/lib/api/apple';
 import { AppleButton, GoogleButton } from '@/components/auth-buttons';
+import { termsAgreed } from '@/lib/terms';
 
 /** The way back in for an account that already exists. */
 export default function SignIn() {
@@ -62,6 +63,9 @@ export default function SignIn() {
       setBusy(false);
     }
   };
+
+  // A link straight here skips the welcome screen, and with it the terms.
+  if (!termsAgreed()) return <Redirect href="/welcome" />;
 
   return (
     <Screen inset={false}>

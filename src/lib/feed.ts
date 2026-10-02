@@ -117,9 +117,16 @@ export function useDeck(category: Category, decided: Set<string>, stale: Set<str
    * setState in the body of an effect cascades a second render before the first
    * has painted, and this runs on every refill.
    */
+  /** A full refresh asked for mid-fetch: run it when that fetch lands, or the
+   *  page already on its way would bring a blocked person's cards back. */
+  const refreshQueued = useRef(false);
+
   const load = useCallback(
     async (replace: boolean) => {
-      if (inFlight.current) return;
+      if (inFlight.current) {
+        if (replace) refreshQueued.current = true;
+        return;
+      }
       inFlight.current = true;
       try {
         const page = await catalog.feed({
@@ -164,6 +171,10 @@ export function useDeck(category: Category, decided: Set<string>, stale: Set<str
         );
       } finally {
         inFlight.current = false;
+        if (refreshQueued.current) {
+          refreshQueued.current = false;
+          reload?.();
+        }
       }
     },
     [key],

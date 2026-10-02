@@ -275,6 +275,9 @@ export const useApp = create<AppState>()(
           hiddenPeople: withOnce(state.hiddenPeople, name),
           invites: state.invites.map((item) => (item.from === name ? { ...item, status: 'declined' } : item)),
           threads: state.threads.filter((thread) => !(thread.kind === 'solo' && thread.refId === name)),
+          friends: without(state.friends, name),
+          sentRequests: without(state.sentRequests, name),
+          requests: state.requests.filter((request) => request.from !== name),
         })),
       unhidePerson: (name) => set((state) => ({ hiddenPeople: without(state.hiddenPeople, name) })),
       markInvitesSeen: () =>

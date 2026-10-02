@@ -452,6 +452,7 @@ export const screensEn = {
       "send": "Send",
       "view": "View {{name}}",
       "report": "Report or block {{name}}",
+      "holdToReport": "Press and hold to report this message",
       "attachment": {
         "date": "Date",
         "place": "Place",
@@ -681,7 +682,7 @@ export const screensEn = {
       "send": "Send report",
       "thanksTitle": "Thanks. We will look.",
       "thanksBody": "{{name}} is not told. We review every report within 24 hours. Block them and their somedays, messages and invites are gone for you now.",
-      "thanksBodySomeday": "We review every report within 24 hours. It is gone from your deck now.",
+      "thanksBodySomeday": "We review every report within 24 hours. It is off your deck and your list now.",
       "hideToo": "Block {{name}} too"
     },
     "missing": {

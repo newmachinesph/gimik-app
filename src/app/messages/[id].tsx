@@ -60,6 +60,14 @@ export default function ThreadScreen() {
   const historyHead = thread?.messages[0]?.id;
   useEffect(() => { if (id && hasApi && useApp.getState().source === 'api') void loadThread(id).catch(() => {}); }, [id, historyHead]);
   useEffect(() => { if (id) markRead(id); }, [id, thread?.messages.length]);
+  // A thread that was here and is gone was closed by a block - from this
+  // screen or from the profile opened over it. Leave, rather than sit on a
+  // "not here" page for a conversation that was on screen a moment ago.
+  const [seen, setSeen] = useState(Boolean(thread));
+  if (thread && !seen) setSeen(true);
+  const closed = seen && !thread;
+  useEffect(() => { if (closed && router.canGoBack()) router.back(); }, [closed]);
+  if (closed) return <View className="flex-1 bg-brand-paper" />;
   if (!thread || !id) return <NotFound />;
   const pinnedId = thread.kind === 'plan' ? thread.refId : thread.wantId;
   const want = pinnedId ? wantById(pinnedId) : undefined;
@@ -112,7 +120,7 @@ export default function ThreadScreen() {
               {!mine && thread.kind !== 'solo' ? <Txt variant="caption" className="mb-1 ml-1">{message.from}</Txt> : null}
               {/* Hold someone else's message to report it: in a group there is
                   no single person in the header to report instead. */}
-              <Pressable disabled={mine} onLongPress={() => report(message.from)} className={`px-3 py-2 rounded-[4px] ${mine ? 'bg-brand-night' : 'bg-brand-paper-sunk'}`}>
+              <Pressable disabled={mine} onLongPress={() => report(message.from)} accessibilityHint={mine ? undefined : t('s.messages.holdToReport')} className={`px-3 py-2 rounded-[4px] ${mine ? 'bg-brand-night' : 'bg-brand-paper-sunk'}`}>
                 <Txt variant="body" className={mine ? 'text-brand-paper' : 'text-brand-ink'}>{message.body}</Txt>
                 {message.attachment ? <AttachmentCard attachment={message.attachment} mine={mine} wantId={pinnedId} withName={withName} /> : null}
               </Pressable>
@@ -155,9 +163,8 @@ export default function ThreadScreen() {
         onSend={(reason) => reportPerson(reportee, reason)}
         onHide={() => {
           setReporting(false);
-          // Leave first: blocking removes a solo thread from the store, and
-          // this screen has nothing to show once it is gone.
-          if (thread.kind === 'solo') router.back();
+          // Blocking takes a solo thread out of the store, and the screen
+          // leaves by itself when its thread goes (see `closed` above).
           hidePerson(reportee);
           toast(t('s.toasts.hidden', { name: reportee.split(' ')[0] }));
         }}

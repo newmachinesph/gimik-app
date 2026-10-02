@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
@@ -8,7 +8,7 @@ import { KeyboardAwareScrollView, KeyboardStickyView } from 'react-native-keyboa
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppleButton, GoogleButton } from '@/components/auth-buttons';
-import { ApiError, NetworkError } from '@/lib/api';
+import { ApiError, NetworkError, isSignedIn } from '@/lib/api';
 import { hasApi, signUp, signInWithApple, signInWithGoogle } from '@/lib/api/session';
 import { GoogleCancelled, hasGoogleSignIn } from '@/lib/api/google';
 import { AppleCancelled, hasAppleSignIn } from '@/lib/api/apple';
@@ -22,6 +22,7 @@ import { interestCategories } from '@/lib/interests';
 import { keyboardFooterLayout } from '@/lib/keyboard-layout';
 import { WANTS } from '@/lib/mock';
 import { PHOTO } from '@/lib/photos';
+import { termsAgreed } from '@/lib/terms';
 import { useApp, type Gender } from '@/store';
 
 type Step = 'story' | 'account' | 'profile' | 'photo' | 'city' | 'about' | 'interests' | 'picks';
@@ -228,6 +229,10 @@ export default function Onboarding() {
   const canGoBack = !busy && !(hasApi && step === 'photo');
   const back = () => { if (canGoBack) { setError(null); if (index === 0) router.back(); else setStep(ORDER[index - 1]); } };
   const valid = step === 'account' ? email.includes('@') && email.includes('.') && password.length >= 8 : step === 'profile' ? name.trim().length >= 2 && /^\d{4}-\d{2}-\d{2}$/.test(birthday) && gender !== null : step === 'photo' ? photo !== null : step === 'city' ? Boolean(city) : step === 'picks' ? picks.length >= 3 : true;
+
+  // A link straight here skips the welcome screen, and with it the terms.
+  // Someone already registered is finishing a profile and agreed on the way in.
+  if (!termsAgreed() && !isSignedIn()) return <Redirect href="/welcome" />;
 
   // The story is its own full-bleed room; the form steps share the framed one.
   if (step === 'story') {

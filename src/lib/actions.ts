@@ -214,7 +214,12 @@ export function hidePerson(name: string): void {
 
 export function unhidePerson(name: string): void {
   useApp.getState().unhidePerson(name);
-  syncPerson(name, (id) => social.unhide(id), 's.toasts.syncFailed');
+  // Their thread, invites and cards come back from the server, not from here.
+  syncPerson(
+    name,
+    (id) => social.unhide(id).then(() => { refreshDeck(); void hydrateFromApi().catch(() => {}); }),
+    's.toasts.syncFailed',
+  );
 }
 
 /**

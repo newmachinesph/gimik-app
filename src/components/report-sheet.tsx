@@ -31,7 +31,9 @@ export function ReportSheet({ name, visible, onDismiss, onHide, onSend }: { name
           <View className="w-14 h-14 rounded-full bg-brand-paper-sunk items-center justify-center"><GimikIcon name="success" size={26} color={C.ink} weight="fill" /></View>
           <Txt variant="heading" className="mt-4">{t('s.report.thanksTitle')}</Txt>
           <Txt variant="body" className="mt-2 text-center">{first ? t('s.report.thanksBody', { name: first }) : t('s.report.thanksBodySomeday')}</Txt>
-          {first && onHide ? <View className="mt-5 w-full"><PrimaryButton label={t('s.report.hideToo', { name: first })} onPress={onHide} /></View> : null}
+          {/* Through `close`, so the sheet is back at its first step the next
+              time it opens - for someone else, in a group thread. */}
+          {first && onHide ? <View className="mt-5 w-full"><PrimaryButton label={t('s.report.hideToo', { name: first })} onPress={() => { close(); onHide(); }} /></View> : null}
           <GhostButton label={t('s.common.done')} tone="muted" onPress={close} />
         </View>
       ) : (
