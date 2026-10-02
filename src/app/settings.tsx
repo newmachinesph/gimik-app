@@ -17,7 +17,7 @@ import {
   TopBar,
   Txt,
 } from '@/components/ui';
-import { deleteAccount } from '@/lib/actions';
+import { deleteAccount, unhidePerson as unhide } from '@/lib/actions';
 import { signOut } from '@/lib/api/session';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -32,8 +32,9 @@ const APP_VERSION = Constants.expoConfig?.version ?? '';
 export default function Settings() {
   const { t } = useTranslation();
   const source = useApp((s) => s.source);
+  // `unhide` is the action, not the store's setter: this list used to unblock
+  // on the phone only, so the server kept the block and the name came back.
   const hidden = useApp((s) => s.hiddenPeople);
-  const unhide = useApp((s) => s.unhidePerson);
   const defaultVisibility = useApp((s) => s.defaultVisibility);
   const remember = useApp((s) => s.rememberVisibility);
   const setDefaultVisibility = useApp((s) => s.setDefaultVisibility);
