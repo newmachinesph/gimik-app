@@ -96,7 +96,11 @@ export default function Profile() {
           </View>
         ) : null}
         {next ? (
-          <FocusablePressable accessibilityRole="button" onPress={() => router.push(next.href as never)} className="mt-4 flex-row items-center justify-center rounded-full bg-brand-primary px-5 py-2 active:opacity-85">
+          // Always the edit screen. This used to open whichever step was next,
+          // so the same button led to the city picker, the deck or Activity
+          // depending on what was missing - which read as a broken link. The
+          // strength card on the edit screen lists every step and where it is.
+          <FocusablePressable accessibilityRole="button" onPress={() => router.push('/edit-profile' as never)} className="mt-4 flex-row items-center justify-center rounded-full bg-brand-primary px-5 py-2 active:opacity-85">
             <Txt variant="label" className="text-brand-paper" style={{ fontFamily: 'Geist_600SemiBold' }}>{t('s.profile.completeChip')}</Txt>
             <Txt variant="label" className="text-brand-paper/80 ml-2">{Math.round(completeness * 100)}%</Txt>
           </FocusablePressable>
