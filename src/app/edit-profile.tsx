@@ -160,7 +160,16 @@ export default function EditProfile() {
             key={step.label}
             accessibilityRole="button"
             disabled={step.done}
-            onPress={() => { setSheet(null); router.push(step.href as never); }}
+            onPress={() => {
+              setSheet(null);
+              // Photo, bio and work are on this screen already: pushing the
+              // step's own route stacked a second Edit profile over this one,
+              // and Save then came back to the first with its fields stale. A
+              // tab is somewhere to go to, not a screen to stack on top.
+              if (step.href === '/edit-profile') return;
+              if (step.href.startsWith('/(tabs)')) router.replace(step.href as never);
+              else router.push(step.href as never);
+            }}
             className={`flex-row items-center py-3 active:opacity-70 ${index ? 'border-t border-brand-rule' : ''}`}
           >
             <GimikIcon name={step.done ? 'success' : 'circle'} size={18} color={step.done ? C.success : C.inkMuted} weight={step.done ? 'fill' : 'regular'} />
